@@ -35,14 +35,34 @@ class OpenLayersPage extends Page {
  * as well as to the available OGC webservices.
  */
 class OpenLayersPage_Controller extends Page_Controller {
+	
+	/**
+	 * varaible to store the open layers instance in the controller class.
+	 * @var OpenLayers openLayers
+	 */
+	protected $openLayers = null;
+
+	/**
+	 * Returns the open layers instance (via singleton pattern).
+	 *
+	 * @return OpenLayers model class for the open layers implementation.
+	 */
+	function getOpenLayers() {
+		if ($this->openLayers == null) {
+			$this->openLayers = new OpenLayers();
+		}
+		return $this->openLayers;
+	}
 
 	/**
 	 * Initialisation function that is run before any action on the controller is called.
 	 */
 	public function init() {
 		
+		$openLayers = $this->getOpenLayers();
+
 		parent::init();
-		Requirements::javascript('openlayers/javascript/jsparty/OpenLayers.js');		
+		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
 		Requirements::javascript('openlayers/javascript/OpenLayersPage.js');		
 	}
 	
