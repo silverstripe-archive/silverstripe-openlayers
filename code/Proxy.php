@@ -1,29 +1,5 @@
 <?php
 /**
- * @author Rainer Spittel (rainer at silverstripe dot com)
- * @package openlayers
- * @subpackage code
- */
-
-/**
- * Proxy class which is used to manage WFS requests.
- *
- */
-class Proxy extends Page {
-	
-	public static $db = array(
-	);	
-
-	function getCMSFields() {
-		$fields = parent::getCMSFields();
-
-		// return the modified fieldset.
-		return $fields;
-	}
-
-}
-
-/**
  * Proxy controller class which delegates requests to the allowed domains.
  */
 class Proxy_Controller extends Controller {
