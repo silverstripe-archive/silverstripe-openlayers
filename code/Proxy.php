@@ -26,7 +26,7 @@ class Proxy extends Page {
 /**
  * Proxy controller class which delegates requests to the allowed domains.
  */
-class Proxy_Controller extends Page_Controller {
+class Proxy_Controller extends Controller {
 	
 	public function init() {
 		parent::init();
