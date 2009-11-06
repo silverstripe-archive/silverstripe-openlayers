@@ -8,7 +8,7 @@
 /**
  *
  */
-class OpenLayersPage extends Page {
+class OLMapPage extends Page {
 	
 	static $db = array(
 		'MapName' => 'Varchar(100)',
@@ -29,8 +29,21 @@ class OpenLayersPage extends Page {
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		// return the modified fieldset.
+		$contactTablefield = new ComplexTableField(
+			$this,
+			'OLMapProperty',
+			'OLMapProperty',
+			array(
+				'Name' => 'Property Name',
+				'Value' => 'Property Value'
+			),
+			'getCMSFields_forPopup',
+			'',
+			'Created'
+			);
+			$fields->addFieldToTab( 'Root.Content.Properties', $contactTablefield );
 		return $fields;
+	
 	}
 
 }
@@ -42,7 +55,7 @@ class OpenLayersPage extends Page {
  * class handles the requests and delegates the requests to the page instance
  * as well as to the available OGC webservices.
  */
-class OpenLayersPage_Controller extends Page_Controller {
+class OLMapPage_Controller extends Page_Controller {
 	
 	/**
 	 * varaible to store the open layers instance in the controller class.
