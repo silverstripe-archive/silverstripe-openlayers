@@ -4,15 +4,21 @@
  */
 class Proxy_Controller extends Controller {
 	
+	protected static $allowedHost = array('202.36.29.39');
+	
 	public function init() {
 		parent::init();
 	}
 	
 	public function dorequest($data) {
+		
 
 		$vars = $data->getVars();
 		
+		
 		$url = $vars['u'];
+		$checkUrl = explode("/",$url);
+		if(!in_array($checkUrl[2],self::$allowedHost)) user_error("This proxy does not allow you to access that location ($url).", E_USER_ERROR);
 		$isPost = $data->isPOST();
 				
 		// Open the Curl session
