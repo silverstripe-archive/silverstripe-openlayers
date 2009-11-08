@@ -11,10 +11,7 @@ class Proxy_Controller extends Controller {
 	}
 	
 	public function dorequest($data) {
-		
-
 		$vars = $data->getVars();
-		
 		
 		$url = $vars['u'];
 		$checkUrl = explode("/",$url);

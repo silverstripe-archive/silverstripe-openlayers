@@ -1,3 +1,5 @@
+
+alert('Deprecated code');
 OpenLayers.ProxyHost="Proxy/dorequest?u=";
 
 var map = new OpenLayers.Map('map', {
@@ -41,9 +43,9 @@ wfs_url = "http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/stati
 
 wfs_station1 = new OpenLayers.Layer.WFS("Beam trawl stations (WFS)", wfs_url, {'typename':'Beam_trawl'});
 wfs_station2 = new OpenLayers.Layer.WFS("Dredge stations (WFS)", wfs_url, {'typename':'Dredge'});
-wfs_station3 = new OpenLayers.Layer.WFS("Epibenthic sled stations (WFS)", wfs_url, {'typename':'Epibenthic_sled'});
-wfs_station4 = new OpenLayers.Layer.WFS("Brenke sled stations (WFS)", wfs_url, {'typename':'Brenke_sled'});
-wfs_station5 = new OpenLayers.Layer.WFS("Sediment stations (WFS)", wfs_url, {'typename':'Sediment_sample'});
+wfs_station3 = new OpenLayers.Layer.WFS("Epibenthic sled stations (WFS)", wfs_url, {'typename':'Epibenthic_sled', visibility: false});
+wfs_station4 = new OpenLayers.Layer.WFS("Brenke sled stations (WFS)", wfs_url, {'typename':'Brenke_sled', visibility: 'false'});
+wfs_station5 = new OpenLayers.Layer.WFS("Sediment stations (WFS)", wfs_url, {'typename':'Sediment_sample', visibility: false});
 wfs_station6 = new OpenLayers.Layer.WFS("Bottom grab stations (WFS)", wfs_url, {'typename':'Bottom_grab'});
 wfs_station7 = new OpenLayers.Layer.WFS("Multicorer stations (WFS)", wfs_url, {'typename':'Multicorer'});
 wfs_station8 = new OpenLayers.Layer.WFS("DTIS stations (WFS)", wfs_url, {'typename':'DTIS'});
@@ -100,3 +102,27 @@ var zoom = 6;
 
 
 map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
+
+
+function initmap(  ) {
+	
+	var os_layers = new array();
+	
+	var layer = SS_config['layers'];
+	var os_layer
+
+	if (layer.type == 'wfs') {
+		os_layer = new OpenLayers.Layer.WFS(layer['name'], layer['url'], layer['options']);		
+	
+	} else 
+	if (layer.type == 'wms') {
+		os_layer = new OpenLayers.Layer.WFS(layer['name'], layer['url'], layer['options']);		
+	}
+	
+	if (os_layer) {
+		os_layer.visibility = layer['visible'];
+		
+//		os_layers[] = os_layer;
+	}
+
+}
