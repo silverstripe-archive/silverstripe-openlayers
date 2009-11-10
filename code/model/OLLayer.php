@@ -7,7 +7,7 @@ class OLLayer extends DataObject {
 	static $db = array (
 		"Name" 				=> "Varchar",
 		"Url" 				=> "Varchar(1024)",
-		"Type"			  	=> "Enum(array('wms','wfs'),'wms')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wms')",
 		"DisplayPriority" 	=> "Int",
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
@@ -35,7 +35,7 @@ class OLLayer extends DataObject {
 		
 		$layerType = $this->getField('Type');
 		
-		if ($layerType == 'wms') {
+		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {
 			$options['layers'] = $this->getField("ogc_name");
 			$options['transparent']  = $this->getField("ogc_transparent") ? "true": "false";
 		} else {
