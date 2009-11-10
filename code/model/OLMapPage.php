@@ -29,7 +29,9 @@ class OLMapPage extends Page {
 	 */ 
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
-
+		$fields->addFieldToTab("Root.Content.Main", new TextField("Latitude", "Latitude"),"Content");
+		$fields->addFieldToTab("Root.Content.Main", new TextField("Longitude", "Longitude"),"Content");
+		$fields->addFieldToTab("Root.Content.Main", new TextField("DefaultZoom", "Default Zoom"),"Content");
 		$propertyTablefield = new ComplexTableField(
 			$this,
 			'OLMapProperty',
