@@ -77,7 +77,7 @@ class OLMapPage extends Page {
 		$data['Name'] = $this->getField('MapName');
 		$data['Latitude'] = $this->getField('Latitude');
 		$data['Longitude'] = $this->getField('Longitude');
-		$data['DefaultZoom'] = $this->getField('getDefaultZoom');
+		$data['DefaultZoom'] = $this->getField('DefaultZoom');
 		
 		$result['Map'] = $data;
 		
@@ -127,7 +127,6 @@ class OLMapPage_Controller extends Page_Controller {
 
 		$openLayers = $this->getOpenLayers();
 		$mapPage    = $this->data();
-		
 		
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
 		Requirements::javascript(THIRDPARTY_DIR . "/jquery/jquery.js");
