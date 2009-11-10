@@ -1,55 +1,53 @@
 /**
  * 
  */
+var map = null;
+
 $(document).ready(function() {
 
-	var map = null;
-
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
-
+	map = new OpenLayers.Map('map', {
+	    controls: [
+	        new OpenLayers.Control.Navigation(),
+	        new OpenLayers.Control.PanZoomBar(),
+	        new OpenLayers.Control.LayerSwitcher({'ascending':false}),
+	        new OpenLayers.Control.Permalink(),
+	        new OpenLayers.Control.ScaleLine(),
+	        new OpenLayers.Control.Permalink('permalink'),
+	        new OpenLayers.Control.MousePosition(),
+	        new OpenLayers.Control.OverviewMap(),
+	        new OpenLayers.Control.KeyboardDefaults()
+	    ],
+	    numZoomLevels: 16
+	});
+	
 	initMap('map');
-
-
+	
 	/**
 	 * Initialise the open layers map instance.
-	 */
+	**/
 	function initMap(obj) {
-		map = new OpenLayers.Map(obj, {
-		    controls: [
-		        new OpenLayers.Control.Navigation(),
-		        new OpenLayers.Control.PanZoomBar(),
-		        new OpenLayers.Control.LayerSwitcher({'ascending':false}),
-		        new OpenLayers.Control.Permalink(),
-		        new OpenLayers.Control.ScaleLine(),
-		        new OpenLayers.Control.Permalink('permalink'),
-		        new OpenLayers.Control.MousePosition(),
-		        new OpenLayers.Control.OverviewMap(),
-		        new OpenLayers.Control.KeyboardDefaults()
-		    ],
-		    numZoomLevels: 16
-		});
+
+		
+	    
+		//var infoControls;
 		
 		
-		// Add contextual layer - get content from backend
-		var contextual_layer = new OpenLayers.Layer.WMS( "Linz Topo",
-		    "http://202.36.29.39/cgi-bin/mapserv?",
-		    { map: '/srv/www/htdocs/mapdata/linz250.map',
-		      transparent: 'false', layers: 'NZ250,NZ50_NI'}
-		);
-		contextual_layer.visibility = true;
-
-		map.addLayer(contextual_layer);
-
+		
 		// initiate all overlay layers
-		var layers = ss_config['Layer'];	
+		var layers = ss_config['Layer'];
+		
 		jQuery.each( layers , initLayer );
-
+		
 		// set default location of the map
-		var lon = 176.02294921875;
-		var lat = -38.82568359375;
-		var zoom = 6;
-
+		var map_config = ss_config['Map'];
+		var lon = map_config['Longitude'];
+		var lat = map_config['Latitude'];
+		var zoom = map_config['DefaultZoom'];
+		
 		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
+		
+		
 		
 		return;
 	}
@@ -62,27 +60,66 @@ $(document).ready(function() {
 	 * @param array layerDef layer definition array.
 	 */
 	function initLayer( index, layerDef ) {	
-
+		
 		var layer = null;
 		
-		if (layerDef.Type == 'wms') {
+		if (layerDef.Type == 'wms' || layerDef.Type == 'wmsUntiled') {
 			var name = layerDef.Name;
 			var url = layerDef.Url;
 	 		var options = layerDef.Options;
-	
-	console.log(options);
-
-			layer = new OpenLayers.Layer.WMS( name, url, options );
-			map.addLayer(layer);
+			if(layerDef.Type == 'wmsUntiled'){
+				
+				layer = new OpenLayers.Layer.WMS.Untiled( name, url, options );
+				map.addLayer(layer);
+				
+				
+				map.events.register('click', map, function (e) {
+				    var url =  layer.getFullRequestString({
+				           REQUEST: "GetFeatureInfo",
+				           EXCEPTIONS: "application/vnd.ogc.se_xml",
+				           BBOX: layer.map.getExtent().toBBOX(),
+				           X: e.xy.x,
+				           Y: e.xy.y,
+				           INFO_FORMAT: 'application/vnd.ogc.gml',
+				           QUERY_LAYERS:layer.params.LAYERS,
+				           WIDTH: layer.map.size.w,
+				           HEIGHT: layer.map.size.h});
+				           OpenLayers.loadURL(url, '', this, openPopup);
+				           OpenLayers.Event.stop(e);
+							
+						   
+				});
+				
+			} 
+			else{
+				layer = new OpenLayers.Layer.WMS( name, url, options );
+				map.addLayer(layer);
+			
+			} 
+			
 		} else
 		if (layerDef.Type == 'wfs') {
 			var wfs_url = layerDef.Url;
 			var name    = layerDef.Name;
 	 		var options = layerDef.Options;
-
 			layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
 			map.addLayer(layer);
+			
 		} 
+		
+	}
+	
+	function openPopup(response){
+	
+		popup = new OpenLayers.Popup.FramedCloud(
+			"popupinfo",
+			new OpenLayers.LonLat(170,-35),
+			null,
+			response.responseText,
+			null,
+			true
+		);
+		map.addPopup(popup);
 	}
 	
 });
