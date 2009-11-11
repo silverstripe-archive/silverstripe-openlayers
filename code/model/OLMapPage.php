@@ -53,7 +53,11 @@ class OLMapPage extends Page {
 			array(
 				'Name' => 'Name',
 				'Url' => 'URL',
-				'Type' => 'Layer Type'
+				'Type' => 'Layer Type',
+				'ogc_transparent' => 'Transparent',
+				'Enabled' => 'Enabled',
+				'Visible' => 'Visible',
+				'Queryable' => 'Queryable'	
 			),
 			'getCMSFields_forPopup',
 			'',
@@ -147,6 +151,17 @@ class OLMapPage_Controller extends Page_Controller {
 		
 	}
 	
+	/**
+	 * Returns the HTML response for the map popup-box. After the user clicks
+	 * on the map, the CMS will send of a request to the OGC server to request
+	 * a XML data structure for the features on that selected location, parses
+	 * the XML response and renders the HTML, which will be returned to the
+	 * popup window.
+	 *
+	 * @param Request $data
+	 *
+	 * @return string HTML segment
+	 */
 	public function doGetFeatureInfo( $data ) {
 		
 		$params = $data->getVars();
