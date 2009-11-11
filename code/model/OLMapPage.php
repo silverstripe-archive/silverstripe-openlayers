@@ -80,7 +80,7 @@ class OLMapPage extends Page {
 		$data['Latitude'] = $this->getField('Latitude');
 		$data['Longitude'] = $this->getField('Longitude');
 		$data['DefaultZoom'] = $this->getField('DefaultZoom');
-		
+		$data['PageName'] = $this->getField('URLSegment');
 		$result['Map'] = $data;
 		
 		$data   = array();
@@ -136,7 +136,7 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
 
 		// old js mockup			
-	//	Requirements::javascript('openlayers/javascript/OpenLayersPage.js');
+		// Requirements::javascript('openlayers/javascript/OpenLayersPage.js');
 
 
 		// serialize map cofiguration
@@ -145,7 +145,32 @@ class OLMapPage_Controller extends Page_Controller {
 
 		Requirements::customScript($jsConfig);
 		
-		//	Requirements::javascript('http://dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=6.1');		
 	}
+	
+	public function doGetFeatureInfo( $data ) {
+		// this params are static, so we don't need to send them from js //
+		$staticParams = array('REQUEST' => 'GetFeatureInfo', 'INFO_FORMAT' => 'application/vnd.ogc.gml', 'VERSION' => '1.1.1', 'TRANSPARENT' => 'true', 'STYLE' => '', 'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 'FORMAT' => 'image%2Fpng&SRS=EPSG%3A4326');
+		$vars = $data->getVars();
+		$URLRequest = '';
+		foreach($vars as $k => $v) {
+			if($k != 'url') $URLRequest .= $k.'='.$v.'&';
+		}
+		foreach($staticParams as $k => $v){
+			$URLRequest .= $k.'='.$v.'&';
+		}
+		$URLRequest = trim($URLRequest,"&");
+		$URLRequest = str_replace('RequestURL=','',$URLRequest);
+		
+		// SEND REQUEST //
+		$session = curl_init($URLRequest);
+		curl_setopt($session, CURLOPT_HEADER, false);
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		$xml = curl_exec($session);
+		header("Content-Type: text/xml");
+		curl_close($session);
+		
+		return $xml;
+	}
+	
 	
 }
