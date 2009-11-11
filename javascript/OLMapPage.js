@@ -2,7 +2,7 @@
  * 
  */
 var map = null;
-
+var xValue, yValue;
 $(document).ready(function() {
 
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
@@ -20,7 +20,7 @@ $(document).ready(function() {
 	    ],
 	    numZoomLevels: 16
 	});
-	
+	var controllerName = ss_config['Map']['PageName'];
 	initMap('map');
 	
 	/**
@@ -68,11 +68,36 @@ $(document).ready(function() {
 			var url = layerDef.Url;
 	 		var options = layerDef.Options;
 			if(layerDef.Type == 'wmsUntiled'){
-				
+				var LayerType;
+				LayerType = layerDef.Type;
+				if(LayerType == 'wmsUntiled') LayerType = 'wms';
 				layer = new OpenLayers.Layer.WMS.Untiled( name, url, options );
 				map.addLayer(layer);
 				
+				map.events.register('click', map, function (e) {
+
+					var url = controllerName + '/doGetFeatureInfo'
+					
+					xValue = e.xy.x;
+					yValue = e.xy.y;
+					
+					var param = new Array();
+					param['RequestURL'] = layer.url + '?map=' + layerDef.ogc_map;
+					param['x'] = e.xy.x;
+					param['y'] = e.xy.y;
+					param['BBOX'] = layer.map.getExtent().toBBOX();
+					param['QUERY_LAYERS'] = layer.params.LAYERS;
+					param['LAYERS'] = layer.params.LAYERS;
+					param['WIDTH'] = layer.map.size.w;
+					param['HEIGHT'] = layer.map.size.h;
+					param['SERVICE'] = LayerType;
+					
+					
+				    OpenLayers.loadURL(url, param, this, openPopup);
+				    OpenLayers.Event.stop(e);	   
+				});
 				
+				/*
 				map.events.register('click', map, function (e) {
 				    var url =  layer.getFullRequestString({
 				           REQUEST: "GetFeatureInfo",
@@ -89,7 +114,7 @@ $(document).ready(function() {
 							
 						   
 				});
-				
+				*/
 			} 
 			else{
 				layer = new OpenLayers.Layer.WMS( name, url, options );
@@ -110,10 +135,14 @@ $(document).ready(function() {
 	}
 	
 	function openPopup(response){
-	
+		// transform Pixels to LonLat //
+		px = new OpenLayers.Pixel(window.xValue,window.yValue);
+		var lonlat = map.getLonLatFromViewPortPx(px);
+		
+		// create popup up with response //
 		popup = new OpenLayers.Popup.FramedCloud(
 			"popupinfo",
-			new OpenLayers.LonLat(170,-35),
+			new OpenLayers.LonLat(lonlat.lon,lonlat.lat),
 			null,
 			response.responseText,
 			null,
