@@ -3,7 +3,7 @@
  * Proxy controller class which delegates requests to the allowed domains.
  */
 class Proxy_Controller extends Controller {
-	
+
 	protected static $allowedHost = array('202.36.29.39');
 	
 	public function init() {
@@ -25,7 +25,7 @@ class Proxy_Controller extends Controller {
 		if ($data->isPOST()) {
 			$postvars = '';
 			$vars = $data->postVars();
-			foreach($vars as $k -> $v) {
+			foreach($vars as $k => $v) {
 				$postvars .= $k.'='.$v.'&';
 			}
 			curl_setopt ($session, CURLOPT_POST, true);
@@ -43,7 +43,7 @@ class Proxy_Controller extends Controller {
 		header("Content-Type: text/xml");
 
 		curl_close($session);
-
+		
 		return $xml;
 	}
 }
