@@ -34,7 +34,7 @@ class OpenLayersModel {
 	 * @return string URL
 	 */
 	function getRequiredJavaScript() {
-		return "openlayers/javascript/jsparty/OpenLayers.js";
+		return "openlayers/javascript/jsparty/lib/OpenLayers.js";
 	}
 	
 	function getAllowedHosts() {
