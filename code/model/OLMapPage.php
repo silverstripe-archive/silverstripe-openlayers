@@ -70,8 +70,8 @@ class OLMapPage extends Page {
 	function serialise() {
 		$data   = $this->toMap();
 		
-		// get all layers of this map
-		$layers = $this->Layers();
+		// get all layers of this map in the order of 'DisplayPriority ASC'
+		$layers = $this->getComponents('Layers',null,'DisplayPriority ASC');
 		
 		$result = array();
 		$data   = array();
