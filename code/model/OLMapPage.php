@@ -148,8 +148,27 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	public function doGetFeatureInfo( $data ) {
+		
+		$params = $data->getVars();
+		
+		$layername = Convert::raw2sql($params['LAYERS']);
+
+		$page = $this->data();
+		
+		$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
+		$layer = $layerSet->First();
+
 		// this params are static, so we don't need to send them from js //
-		$staticParams = array('REQUEST' => 'GetFeatureInfo', 'INFO_FORMAT' => 'application/vnd.ogc.gml', 'VERSION' => '1.1.1', 'TRANSPARENT' => 'true', 'STYLE' => '', 'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 'FORMAT' => 'image%2Fpng&SRS=EPSG%3A4326');
+		$staticParams = array(
+			'REQUEST' => 'GetFeatureInfo', 
+			'INFO_FORMAT' => 'application/vnd.ogc.gml', 
+			'VERSION' => '1.1.1', 
+			'TRANSPARENT' => 'true', 
+			'STYLE' => '', 
+			'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 
+			'FORMAT' => 'image%2Fpng',
+			'SRS' => 'EPSG%3A4326'
+		);
 		$vars = $data->getVars();
 		$URLRequest = '';
 		foreach($vars as $k => $v) {

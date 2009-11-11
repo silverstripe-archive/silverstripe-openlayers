@@ -14,11 +14,14 @@
 		<div style="width:760px; height:500px" id="map"></div>
     	<hr />
 
-      <ul>
-        <li>Streams: Feature Count <span id="stream_features">0</span></li>
-        <li>Plat: Feature Count <span id="plat_features">0</span></li>
-        <li>Roads: Feature Count <span id="road_features">0</span></li>
-      </ul>
+		$FormLayerSwitcher
+		<form>
+		<ul>
+			<li><input type="radio" name="query_layer" value="Beam trawl stations" class="query_layer"/><input type="checkbox" name="layers" value="beam" />Beam Trawl Stations</li>
+			<li><input type="radio" name="query_layer" value="Dredge stations" class="query_layer"/><input type="checkbox" name="layers" value="dredge" />Dredge Stations</li>
+		</ul>
+		</form>
+
 		$Content
 		$Form
 		$PageComments

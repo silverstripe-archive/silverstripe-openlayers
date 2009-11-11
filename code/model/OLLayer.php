@@ -11,10 +11,12 @@ class OLLayer extends DataObject {
 		"DisplayPriority" 	=> "Int",
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
+		"Queryable"			=> "Boolean",
 		
-		"ogc_name"			=> "Varchar", // temporarily added (will be removed)
-		"ogc_map"			=> "Varchar(1024)",
-		"ogc_transparent"  => "Boolean"
+		// temporarily added (will be removed)
+		"ogc_name"			=> "Varchar", 		// layer name (ogc layer name/id)
+		"ogc_map"			=> "Varchar(1024)",	// url to the map file on the server side
+		"ogc_transparent"  => "Boolean"			// transparent overlay layer
 	);
 	
 	static $has_one = array(
@@ -34,12 +36,12 @@ class OLLayer extends DataObject {
 		$options['map']  = $this->getField("ogc_map");
 		
 		$layerType = $this->getField('Type');
-		
 		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {
-			$options['layers'] = $this->getField("ogc_name");
+			$options['layers']       = $this->getField("ogc_name");
 			$options['transparent']  = $this->getField("ogc_transparent") ? "true": "false";
-		} else {
-			$options['typename'] = $this->getField("ogc_name");			
+		} else 
+		if ($layerType == 'wfs') {
+			$options['typename']     = $this->getField("ogc_name");			
 		}
 		$result['Options'] = $options;
 		
