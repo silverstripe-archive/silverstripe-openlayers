@@ -85,7 +85,15 @@ $(document).ready(function() {
 	 		var options = layerDef.Options;
 			layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
 			map.addLayer(layer);	
-		} 
+		} else 
+		if (layerDef.Type == 'mapserver' || layerDev.Type == 'mapserverUntiled') {
+			var url     = layerDef.Url;
+			var name    = layerDef.Name;
+	 		var options = layerDef.Options;
+			var params  = layerDef.Params;
+			layer = new OpenLayers.Layer.MapServer(name, url, options, params );
+			map.addLayer(layer);	
+		}  
 	}
 
 	/** 
