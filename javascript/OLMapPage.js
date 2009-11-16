@@ -25,31 +25,24 @@ $(document).ready(function() {
 	    ],
 	    numZoomLevels: 16
 	});
+	// initiate all overlay layers
+	var layers = ss_config['Layer'];
+	
+	jQuery.each( layers , initLayer );
+	
+	// set default location of the map
+	var map_config = ss_config['Map'];
+	var lon = map_config['Longitude'];
+	var lat = map_config['Latitude'];
+	var zoom = map_config['DefaultZoom'];
+	map.setCenter(new OpenLayers.LonLat(lon,lat),parseInt(zoom));
+	
 	var controllerName = ss_config['Map']['PageName'];
-	initMap('map');
+	
 	map.events.register('click', map, layerClick );
 	$(".query_layer").click( clickQueryLayer );
 	$(".change_visibility").click( layerVisibility );
-	/**
-	 * Initialise the open layers map instance.
-	**/
-	function initMap(obj) {
-		
-		// initiate all overlay layers
-		var layers = ss_config['Layer'];
-		
-		jQuery.each( layers , initLayer );
-		
-		// set default location of the map
-		var map_config = ss_config['Map'];
-		var lon = map_config['Longitude'];
-		var lat = map_config['Latitude'];
-		var zoom = map_config['DefaultZoom'];
-		
-		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
-		
-		return;
-	}
+	
 	
 	/**
 	 * Initiate a single layer by its layer-definitiion array. The array
