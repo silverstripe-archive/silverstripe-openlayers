@@ -6,7 +6,7 @@
 		<title>$Title &raquo; Your Site Name</title>
 		$MetaTags(false)
 		<link rel="shortcut icon" href="/favicon.ico" />
-
+		<link href="$ThemeDir/css/blueprint/screen.css" type="text/css" rel="stylesheet">
 		<% require themedCSS(layout) %> 
 		<% require themedCSS(typography) %> 
 		<% require themedCSS(form) %> 
@@ -24,30 +24,26 @@
 		<![endif]-->
 	</head>
 <body>
-<div id="BgContainer">
-	<div id="Container">
-		<div id="Header">
-			$SearchForm
-	   		<h1>Your Site Name</h1>
-	    	<p>your site&#39;s tagline here</p>
-		</div>
-		
-		<div id="Navigation">
+<div class="container">
+	<div id="header" class="span-24 last">
+	  <h1>Ocean Survey 20/20 Projects </h1>
+		<div id="nav">
 			<% include Navigation %>
-	  	</div>
-	  	
-	  	<div class="clear"><!-- --></div>
-		
-		<div id="Layout">
-		  $Layout
+			<!-- <ul>
+				<li><a href="">About OS 20/20</a></li>
+				<li><a href="surveys.html">Surveys</a></li>
+				<li><a href="map.html">Interactive map</a></li>
+				<li><a href="http://74.50.54.220/geonetwork/srv/en/main.home">Search Data</a></li>
+				<li><a href="">Contact</a></li>
+			</ul> -->
 		</div>
-		
-	   <div class="clear"><!-- --></div>
 	</div>
+	<div id="Layout">
+	  $Layout
+	</div>	
 	<div id="Footer">
 		<% include Footer %>
-	</div> 
+	</div>
 </div>
-
 </body>
 </html>
