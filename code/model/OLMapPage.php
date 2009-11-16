@@ -94,6 +94,8 @@ class OLMapPage extends Page {
 		$result['Layer'] = $data;
 		return $result;
 	}
+	
+	
 
 }
 
@@ -146,7 +148,7 @@ class OLMapPage_Controller extends Page_Controller {
 		// serialize map cofiguration
 		$config     = $mapPage->serialise();
 		$jsConfig = "var ss_config = ".json_encode($config);;
-
+		
 		Requirements::customScript($jsConfig);
 		
 	}
@@ -165,45 +167,36 @@ class OLMapPage_Controller extends Page_Controller {
 	public function doGetFeatureInfo( $data ) {
 		
 		$params = $data->getVars();
-		
 		$layername = Convert::raw2sql($params['LAYERS']);
 
 		$page = $this->data();
 		
-		$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
-		$layer = $layerSet->First();
-
-		// this params are static, so we don't need to send them from js //
-		$staticParams = array(
-			'REQUEST' => 'GetFeatureInfo', 
-			'INFO_FORMAT' => 'application/vnd.ogc.gml', 
-			'VERSION' => '1.1.1', 
-			'TRANSPARENT' => 'true', 
-			'STYLE' => '', 
-			'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 
-			'FORMAT' => 'image%2Fpng',
-			'SRS' => 'EPSG%3A4326'
-		);
-		$vars = $data->getVars();
-		$URLRequest = '';
-		foreach($vars as $k => $v) {
-			if($k != 'url') $URLRequest .= $k.'='.$v.'&';
-		}
-		foreach($staticParams as $k => $v){
-			$URLRequest .= $k.'='.$v.'&';
-		}
-		$URLRequest = trim($URLRequest,"&");
-		$URLRequest = str_replace('RequestURL=','',$URLRequest);
+		//$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
+		$layer = DataObject::get_by_id('OLLayer',$params['SSID']);
+		//$layer = $layerSet->First();
+		$output = $layer->sendFeatureRequest($params);
+		//Debug::Show($output);
+		return $output;
 		
-		// SEND REQUEST //
-		$session = curl_init($URLRequest);
-		curl_setopt($session, CURLOPT_HEADER, false);
-		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-		$xml = curl_exec($session);
-		header("Content-Type: text/xml");
-		curl_close($session);
+	}
+	
+	function FormLayerSwitcher(){
+		$output = '';
+		$x = "checked";
+		$layers = $this->getComponents('Layers','','DisplayPriority');
+		if($layers){
+			$output .= "<div id='layersMenu'>";
+			foreach($layers as $layer){
+				if($layer->ogc_transparent == 1){
+					$output .= "<p><input type='radio' name='query_layer' value='".$layer->Name."' class='query_layer' ".$x."/> <input type='checkbox' name='change_visibility' class='change_visibility' value='".$layer->Name."' checked/> ".$layer->Name."</p>";
+					$x = '';
+				}
+			}
+			$output .= "</div>";
+			return $output;	
+		}
+		return '';
 		
-		return $xml;
 	}
 	
 	
