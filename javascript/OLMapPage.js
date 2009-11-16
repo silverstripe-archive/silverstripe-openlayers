@@ -16,7 +16,6 @@ $(document).ready(function() {
 	    controls: [
 	        new OpenLayers.Control.Navigation(),
 	        new OpenLayers.Control.PanZoomBar(),
-	        new OpenLayers.Control.LayerSwitcher({'ascending':false}),
 	        new OpenLayers.Control.Permalink(),
 	        new OpenLayers.Control.ScaleLine(),
 	        new OpenLayers.Control.Permalink('permalink'),
@@ -28,9 +27,9 @@ $(document).ready(function() {
 	});
 	var controllerName = ss_config['Map']['PageName'];
 	initMap('map');
-	
+	map.events.register('click', map, layerClick );
 	$(".query_layer").click( clickQueryLayer );
-	
+	$(".change_visibility").click( layerVisibility );
 	/**
 	 * Initialise the open layers map instance.
 	**/
@@ -63,12 +62,12 @@ $(document).ready(function() {
 		
 		var layer = null;
 		
+		
 		if (layerDef.Type == 'wms' || layerDef.Type == 'wmsUntiled') {
 			var name = layerDef.Name;
 			var url = layerDef.Url;
 	 		var options = layerDef.Options;
 			var layer = null;
-			
 			LayerType = 'wms';
 			if(layerDef.Type == 'wmsUntiled'){
 				layer = new OpenLayers.Layer.WMS.Untiled( name, url, options );
@@ -94,20 +93,17 @@ $(document).ready(function() {
 			layer = new OpenLayers.Layer.MapServer(name, url, options, params );
 			map.addLayer(layer);	
 		}  
+		if(current_layer == null && layerDef.ogc_transparent != 0) current_layer =  layer;
+		
 	}
 
 	/** 
 	 * Handle the click event on a layer to retrieve the attribute information.
 	 */
 	function layerClick( e ) {
-		
-		if (current_layer == null) {
-			alert('Please select a layer first');
-		}
 
 		var url = controllerName + '/doGetFeatureInfo'
-		var layer = current_layer;
-
+		//var layer = current_layer;
 		xValue = e.xy.x;
 		yValue = e.xy.y;
 	
@@ -115,13 +111,14 @@ $(document).ready(function() {
 	//	param['RequestURL'] = layer.url;
 		param['x'] = e.xy.x;
 		param['y'] = e.xy.y;
-		param['BBOX'] = layer.map.getExtent().toBBOX();
-	//	param['QUERY_LAYERS'] = layer.params.LAYERS;
-		param['LAYERS'] = layer.name;
-		param['WIDTH'] = layer.map.size.w;
-		param['HEIGHT'] = layer.map.size.h;
+	
+		param['SSID'] = current_layer.params.SSID;
+		param['LAYERS'] = current_layer.name;
+		param['BBOX'] = current_layer.map.getExtent().toBBOX();
+		param['WIDTH'] = current_layer.map.size.w;
+		param['HEIGHT'] = current_layer.map.size.h;
 	//	param['SERVICE'] = LayerType;
-
+		
 		pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
 		var pos = map.getLonLatFromViewPortPx(pixel);
 
@@ -163,7 +160,7 @@ $(document).ready(function() {
 	 */
 	function openPopup(response){
 		// transform Pixels to LonLat //
-		px = new OpenLayers.Pixel(window.xValue,window.yValue);
+		px = new OpenLayers.Pixel(xValue,yValue);
 		var pos = map.getLonLatFromViewPortPx(px);
 		
 		// create popup up with response //
@@ -189,17 +186,23 @@ $(document).ready(function() {
 		// same layer -> nothing to do.
 		if (layer == current_layer) {
 			return;
-		}
-		
-		// un-register click event for previous selected layer)
-		if (current_layer != null) {
+		}else{
 			map.events.unregister('click', current_layer, layerClick);
-			current_layer = null;
+			map.events.register('click', layer, layerClick );
+			current_layer = map.getLayersByName(this.value)[0];
+			return;
 		}
 		
-		// register click event for new selected layer.
-		current_layer = layer[0];
-		map.events.register('click', map, layerClick );
+		
+	}
+	
+	function layerVisibility( event ){
+		
+		tempLayer = map.getLayersByName(this.value)[0];
+		var status = tempLayer.getVisibility();
+		if(status) tempLayer.setVisibility(false);
+		else tempLayer.setVisibility(true);
+		
 	}
 	
 });
