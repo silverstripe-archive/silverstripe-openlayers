@@ -40,9 +40,11 @@ class OLLayer extends DataObject {
 		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {
 			$options['layers']       = $this->getField("ogc_name");
 			$options['transparent']  = $this->getField("ogc_transparent") ? "true": "false";
+			$options['SSID'] = $this->getField('ID');
 		} else 
 		if ($layerType == 'wfs') {
-			$options['typename']     = $this->getField("ogc_name");			
+			$options['typename']     = $this->getField("ogc_name");	
+			$options['SSID'] = $this->getField('ID');		
 		}
 		if ($layerType == 'mapserver' || $layerType == 'mapserverUntiled' ) {
 			$options['layers']       = $this->getField("ogc_name");
@@ -64,5 +66,34 @@ class OLLayer extends DataObject {
 		$result['Options'] = $options;
 		
 		return $result;
+	}
+	
+	function sendFeatureRequest($vars){
+		
+		$staticParams = array(
+			'REQUEST' => 'GetFeatureInfo', 
+			'INFO_FORMAT' => 'application/vnd.ogc.gml', 
+			'VERSION' => '1.1.1', 
+			'TRANSPARENT' => 'true', 
+			'STYLE' => '', 
+			'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 
+			'FORMAT' => 'image%2Fpng',
+			'SRS' => 'EPSG%3A4326'
+		);
+		//$vars = $data->getVars();
+		$URLRequest = "?map=".$this->ogc_map."&";
+		
+		foreach($staticParams as $k => $v){
+			
+			$URLRequest .= $k.'='.$v.'&';
+		}
+		$URLRequest .= "LAYERS=".$this->ogc_name."&QUERY_LAYERS=".$this->ogc_name."&BBOX=".$vars['BBOX'];
+		$URLRequest .= "&x=".$vars['x']."&y=".$vars['y']."&WIDTH=".$vars['WIDTH']."&HEIGHT=".$vars['HEIGHT'];
+		$URLRequest = trim($URLRequest,"&");
+		$URLRequest = str_replace('RequestURL=','',$URLRequest);
+		
+		$request = new RestfulService($this->Url);
+		$xml = $request->request($URLRequest);
+		return $xml;
 	}
 }
