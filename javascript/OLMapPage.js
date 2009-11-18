@@ -5,12 +5,26 @@ var map = null;
 var map_popup = null;		// global info-bubble for the map
 var current_layer = null;
 var xValue, yValue;
-
+var wfsLayer = null;
+var select;
 
 $(document).ready(function() {
 
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 	
+	// STYLE
+	var myStyles = new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style({
+            pointRadius: 4, // sized according to type attribute
+            fillColor: "#FFD68F",
+            strokeColor: "#ff9933",
+            strokeWidth: 1
+        }),
+        "select": new OpenLayers.Style({
+            fillColor: "#66ccff",
+            strokeColor: "#3399ff"
+        })
+    });
 	
 	map = new OpenLayers.Map('map', {
 	    controls: [
@@ -35,7 +49,15 @@ $(document).ready(function() {
 	var lon = map_config['Longitude'];
 	var lat = map_config['Latitude'];
 	var zoom = map_config['DefaultZoom'];
+	if(wfsLayer){
+		// Create a select feature control and add it to the map.
+	    select = new OpenLayers.Control.SelectFeature(wfsLayer, {hover: true});
+	    map.addControl(select);
+	    select.activate();
+	}
+	
 	map.setCenter(new OpenLayers.LonLat(lon,lat),parseInt(zoom));
+	
 	
 	var controllerName = ss_config['Map']['PageName'];
 	
@@ -76,7 +98,10 @@ $(document).ready(function() {
 			var name    = layerDef.Name;
 	 		var options = layerDef.Options;
 			layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
-			map.addLayer(layer);	
+			layer.styleMap = myStyles;
+			
+			map.addLayer(layer);
+			if(!wfsLayer) wfsLayer = layer;	
 		} else 
 		if (layerDef.Type == 'mapserver' || layerDev.Type == 'mapserverUntiled') {
 			var url     = layerDef.Url;
@@ -94,7 +119,13 @@ $(document).ready(function() {
 	 * Handle the click event on a layer to retrieve the attribute information.
 	 */
 	function layerClick( e ) {
-
+		/*** NOT USING IT ANYMORE 
+		alert('click');
+		console.log(current_layer);
+		pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
+		var pos = map.getLonLatFromViewPortPx(pixel);
+		console.log(pos);
+		
 		var url = controllerName + '/doGetFeatureInfo'
 		//var layer = current_layer;
 		xValue = e.xy.x;
@@ -133,7 +164,8 @@ $(document).ready(function() {
 		map.addPopup(map_popup);
 	
 	    OpenLayers.loadURL(url, param, this, loadPopup);
-	    OpenLayers.Event.stop(e);	   
+	    OpenLayers.Event.stop(e);
+		**/
 	}
 	
 	/**
@@ -169,7 +201,7 @@ $(document).ready(function() {
 	}
 	
 	/**
-	 * Click event handler for the 'query layer' li elements
+	 * Click event handler from Layers Menu
 	 */
 	function clickQueryLayer( event ) {
 		
@@ -180,9 +212,27 @@ $(document).ready(function() {
 		if (layer == current_layer) {
 			return;
 		}else{
+			
 			map.events.unregister('click', current_layer, layerClick);
 			map.events.register('click', layer, layerClick );
 			current_layer = map.getLayersByName(this.value)[0];
+			// Create a select feature control and add it to the map.
+			select.destroy();
+			if(current_layer.params.SERVICE == 'WFS'){
+			    select = new OpenLayers.Control.SelectFeature(current_layer, {
+					hover: true,
+					highlightOnly: true,
+					renderIntent: "temporary",
+					eventListeners: {
+						beforefeaturehighlighted: destroyPopUp,
+						featurehighlighted: createPopUp
+					}
+				
+			});
+			    map.addControl(select);
+			    select.activate();
+			}
+			
 			return;
 		}
 		
@@ -196,6 +246,38 @@ $(document).ready(function() {
 		if(status) tempLayer.setVisibility(false);
 		else tempLayer.setVisibility(true);
 		
+	}
+	
+	/** function to create and show popup when hover an element on selected layer
+	 ** @param e: 'selected' element.
+	**/
+	function createPopUp(e){
+		//console.log(e);
+		// transform Pixels to LonLat //
+		px = new OpenLayers.Pixel(xValue,yValue);
+		var pos = map.getLonLatFromViewPortPx(px);
+		// create popup up with response //
+		map_popup = new OpenLayers.Popup.FramedCloud(
+			"popupinfo",
+			new OpenLayers.LonLat(e.feature.geometry.x,e.feature.geometry.y),
+			null,
+			e.feature.fid,
+			null,
+			true
+		);
+		map.addPopup(map_popup);
+		
+	}
+	
+	/** function to destroy popup (if any)
+	 ** 
+	**/
+	function destroyPopUp(){
+		if(map_popup){
+			map_popup.hide();
+			map_popup.destroy();
+			map_popup = null;
+		}
 	}
 	
 });
