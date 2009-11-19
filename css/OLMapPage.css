@@ -1,0 +1,19 @@
+
+#layersMenu p {
+	margin: 0;
+}
+
+#layersMenu ul 
+{
+        list-style-type: none;
+        padding-left: 0px;
+}
+
+#layersMenu ul li span { 
+        float: left;
+        width: 25px;
+}
+
+#layersMenu h2 { 
+	color: white;
+}
