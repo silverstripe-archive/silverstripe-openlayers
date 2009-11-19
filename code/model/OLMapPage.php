@@ -132,7 +132,7 @@ class OLMapPage_Controller extends Page_Controller {
 	public function init() {
 		
 		parent::init();
-		HTTP::set_cache_age(0);
+		
 		$openLayers = $this->getOpenLayers();
 		$mapPage    = $this->data();
 		
@@ -181,6 +181,7 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	function FormLayerSwitcher(){
+		HTTP::set_cache_age(0);
 		$output = '';
 		$x = "checked";
 		$layers = $this->getComponents('Layers','','DisplayPriority');
