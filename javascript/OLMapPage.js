@@ -184,7 +184,7 @@ $(document).ready(function() {
 	
 	    OpenLayers.loadURL(url, param, this, loadPopup);
 	    OpenLayers.Event.stop(e);
-		**/
+		***/
 	}
 	
 	/**
@@ -239,12 +239,14 @@ $(document).ready(function() {
 			select.destroy();
 			if(current_layer.params.SERVICE == 'WFS'){
 			    select = new OpenLayers.Control.SelectFeature(current_layer, {
-					hover: true,
-					highlightOnly: true,
-					renderIntent: "temporary",
+					clickout: false, 
+					toggle: false,
+					multiple: false, 
+					hover: false,
 					eventListeners: {
 						//beforefeaturehighlighted: destroyPopUp,
-						//featurehighlighted: createPopUp
+						featurehighlighted: createPopUp
+						//click: createPopUp
 					}
 				
 			});
