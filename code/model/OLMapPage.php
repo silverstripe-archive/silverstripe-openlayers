@@ -181,19 +181,18 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	function FormLayerSwitcher(){
-		HTTP::set_cache_age(0);
 		$output = '';
 		$x = "checked";
 		$layers = $this->getComponents('Layers','','DisplayPriority');
 		if($layers){
-			$output .= "<div id='layersMenu'>";
+			$output .= "<div id='layersMenu'><form id='lm'>";
 			foreach($layers as $layer){
 				if($layer->ogc_transparent == 1){
 					$output .= "<p><input type='radio' name='query_layer' value='".$layer->Name."' class='query_layer' ".$x."/> <input type='checkbox' name='change_visibility' class='change_visibility' value='".$layer->Name."' checked/> ".$layer->Name."</p>";
 					$x = '';
 				}
 			}
-			$output .= "</div>";
+			$output .= "</form></div>";
 			return $output;	
 		}
 		return '';
