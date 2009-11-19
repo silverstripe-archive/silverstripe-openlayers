@@ -9,20 +9,23 @@ var wfsLayer = null;
 var select;
 
 $(document).ready(function() {
-
+	$('#lm')[0].reset();
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 	
 	// STYLE
 	var myStyles = new OpenLayers.StyleMap({
         "default": new OpenLayers.Style({
-            pointRadius: 4, // sized according to type attribute
+            pointRadius: 5, // sized according to type attribute
             fillColor: "#FFD68F",
             strokeColor: "#ff9933",
-            strokeWidth: 1
+            strokeWidth: 2,
+			fillOpacity: 0.3
         }),
         "select": new OpenLayers.Style({
+			pointRadius: 5, // sized according to type attribute
             fillColor: "#66ccff",
-            strokeColor: "#3399ff"
+            strokeColor: "#3399ff",
+			strokeWidth: 3
         })
     });
 	
@@ -99,9 +102,9 @@ $(document).ready(function() {
 	 		var options = layerDef.Options;
 			layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
 			layer.styleMap = myStyles;
-			
-			map.addLayer(layer);
 			if(!wfsLayer) wfsLayer = layer;	
+			map.addLayer(layer);
+			
 		} else 
 		if (layerDef.Type == 'mapserver' || layerDev.Type == 'mapserverUntiled') {
 			var url     = layerDef.Url;
@@ -224,13 +227,14 @@ $(document).ready(function() {
 					highlightOnly: true,
 					renderIntent: "temporary",
 					eventListeners: {
-						beforefeaturehighlighted: destroyPopUp,
-						featurehighlighted: createPopUp
+						//beforefeaturehighlighted: destroyPopUp,
+						//featurehighlighted: createPopUp
 					}
 				
 			});
 			    map.addControl(select);
 			    select.activate();
+				current_layer.styleMap = myStyles;
 			}
 			
 			return;
