@@ -4,14 +4,14 @@
 var map = null;
 var map_popup = null;		// global info-bubble for the map
 var current_layer = null;
-var xValue, yValue;
+var xValue, yValue;			// not in use anymore ??
 var wfsLayer = null;
 var select;
 
 $(document).ready(function() {
-	$('#lm')[0].reset();
+	$('#layerlist')[0].reset();
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
-	
+
 	// STYLE
 	var myStyles = new OpenLayers.StyleMap({
         "default": new OpenLayers.Style({
@@ -33,6 +33,7 @@ $(document).ready(function() {
 	    controls: [
 	        new OpenLayers.Control.Navigation(),
 	        new OpenLayers.Control.PanZoomBar(),
+	   //     new OpenLayers.Control.LayerSwitcher({'ascending':false}),
 	        new OpenLayers.Control.Permalink(),
 	        new OpenLayers.Control.ScaleLine(),
 	        new OpenLayers.Control.Permalink('permalink'),
@@ -42,31 +43,49 @@ $(document).ready(function() {
 	    ],
 	    numZoomLevels: 16
 	});
-	// initiate all overlay layers
-	var layers = ss_config['Layer'];
+
+	/*
+	name = 'tilecache';
+	options = {  transparent: 'false', layers: 'basic'};
 	
-	jQuery.each( layers , initLayer );
-	
-	// set default location of the map
-	var map_config = ss_config['Map'];
-	var lon = map_config['Longitude'];
-	var lat = map_config['Latitude'];
-	var zoom = map_config['DefaultZoom'];
-	if(wfsLayer){
-		// Create a select feature control and add it to the map.
-	    select = new OpenLayers.Control.SelectFeature(wfsLayer, {hover: true});
-	    map.addControl(select);
-	    select.activate();
-	}
-	
-	map.setCenter(new OpenLayers.LonLat(lon,lat),parseInt(zoom));
-	
+	url = 'http://192.168.1.199/cgi-bin/tilecache.cgi';
+	layer = new OpenLayers.Layer.WMS( name, url, options );
+	map.addLayer(layer);
+	*/
+	initMap(map);
 	
 	var controllerName = ss_config['Map']['PageName'];
 	
 	map.events.register('click', map, layerClick );
 	$(".query_layer").click( clickQueryLayer );
 	$(".change_visibility").click( layerVisibility );
+
+	/**
+	 * Initialise the open layers map instance.
+	**/
+	function initMap(map) {
+		
+		// initiate all overlay layers
+		var layers = ss_config['Layer'];
+		
+		jQuery.each( layers , initLayer );
+		
+		// set default location of the map
+		var map_config = ss_config['Map'];
+		var lon = map_config['Longitude'];
+		var lat = map_config['Latitude'];
+		var zoom = parseInt(map_config['DefaultZoom']);
+
+		if(wfsLayer){
+			// Create a select feature control and add it to the map.
+		    select = new OpenLayers.Control.SelectFeature(wfsLayer, {hover: true});
+		    map.addControl(select);
+		    select.activate();
+		}
+		
+		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
+		return;
+	}
 	
 	
 	/**
@@ -79,7 +98,6 @@ $(document).ready(function() {
 	function initLayer( index, layerDef ) {	
 		
 		var layer = null;
-		
 		
 		if (layerDef.Type == 'wms' || layerDef.Type == 'wmsUntiled') {
 			var name = layerDef.Name;
@@ -135,7 +153,6 @@ $(document).ready(function() {
 		yValue = e.xy.y;
 	
 		var param = new Array();
-	//	param['RequestURL'] = layer.url;
 		param['x'] = e.xy.x;
 		param['y'] = e.xy.y;
 	
@@ -144,7 +161,6 @@ $(document).ready(function() {
 		param['BBOX'] = current_layer.map.getExtent().toBBOX();
 		param['WIDTH'] = current_layer.map.size.w;
 		param['HEIGHT'] = current_layer.map.size.h;
-	//	param['SERVICE'] = LayerType;
 		
 		pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
 		var pos = map.getLonLatFromViewPortPx(pixel);
@@ -160,7 +176,7 @@ $(document).ready(function() {
 			"popupinfo",
 			new OpenLayers.LonLat(pos.lon,pos.lat),
 			new OpenLayers.Size(200,200),
-			'loading information',
+			'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information',
 			null,
 			true
 		);
@@ -184,7 +200,7 @@ $(document).ready(function() {
 	}
 	
 	/**
-	 * currently not in use anymore :-(
+	 * Currently not in use anymore :-(
 	 */
 	function openPopup(response){
 		// transform Pixels to LonLat //
