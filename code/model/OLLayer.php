@@ -37,15 +37,18 @@ class OLLayer extends DataObject {
 		
 		$layerType = $this->getField('Type');
 		
+		// handle layer type: WMS (tiled and untiled)
 		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {
 			$options['layers']       = $this->getField("ogc_name");
 			$options['transparent']  = $this->getField("ogc_transparent") ? "true": "false";
 			$options['SSID'] = $this->getField('ID');
 		} else 
+		// handle layer type: WFS
 		if ($layerType == 'wfs') {
 			$options['typename']     = $this->getField("ogc_name");	
 			$options['SSID'] = $this->getField('ID');		
 		}
+		// handle layer type: Mapserver (tiled and untiled)
 		if ($layerType == 'mapserver' || $layerType == 'mapserverUntiled' ) {
 			$options['layers']       = $this->getField("ogc_name");
 			

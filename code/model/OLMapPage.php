@@ -45,6 +45,40 @@ class OLMapPage extends Page {
 			'Created'
 			);
 			$fields->addFieldToTab( 'Root.Content.Properties', $propertyTablefield );
+
+
+/*
+		$myTableField = new TableField(
+		  'Layerstest', // fieldName
+		  'OLLayer', // sourceType
+		  array(
+				'Name' => 'Name',
+				'Url' => 'URL',
+				'Type' => 'Layer Type',
+				'ogc_transparent' => 'Transparent',
+				'Enabled' => 'Enabled',
+				'Visible' => 'Visible',
+				'Queryable' => 'Queryable'
+		  ), // fieldList
+		  array(
+		    'Name'=>'TextField',
+		    'Url'=>'TextField',
+		    'Type'=>'DropdownField',
+		    'ogc_transparent'=>'CheckboxField',
+		    'Enabled'=>'CheckboxField',
+		    'Visible'=>'CheckboxField',
+		    'Queryable'=>'CheckboxField'
+		  ), // fieldTypes
+	  		$this->ID,
+		  "MapPageID",
+		  $this->ID
+		);
+		$myTableField->setExtraData(array(
+		  'MapPageID' => $this->ID ? $this->ID : '$RecordID'
+		));
+
+		$fields->addFieldToTab( 'Root.Content.Test', $myTableField );
+		*/
 			
 		$layerTablefield = new ComplexTableField(
 			$this,
@@ -89,7 +123,9 @@ class OLMapPage extends Page {
 		
 		$data   = array();
 		foreach($layers as $layer) {
-			$data[] = $layer->serialise();
+			if ($layer->Enabled == true) {
+				$data[] = $layer->serialise();
+			}
 		}
 		$result['Layer'] = $data;
 		return $result;
@@ -141,6 +177,8 @@ class OLMapPage_Controller extends Page_Controller {
 
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
 
+		Requirements::themedCSS('OLMapPage');
+
 		// old js mockup			
 		// Requirements::javascript('openlayers/javascript/OpenLayersPage.js');
 
@@ -165,7 +203,7 @@ class OLMapPage_Controller extends Page_Controller {
 	 * @return string HTML segment
 	 */
 	public function doGetFeatureInfo( $data ) {
-		
+		return "Ha!";
 		$params = $data->getVars();
 		$layername = Convert::raw2sql($params['LAYERS']);
 
@@ -180,24 +218,18 @@ class OLMapPage_Controller extends Page_Controller {
 		
 	}
 	
-	function FormLayerSwitcher(){
-		$output = '';
-		$x = "checked";
-		$layers = $this->getComponents('Layers','','DisplayPriority');
-		if($layers){
-			$output .= "<div id='layersMenu'><form id='lm'>";
-			foreach($layers as $layer){
-				if($layer->ogc_transparent == 1){
-					$output .= "<p><input type='radio' name='query_layer' value='".$layer->Name."' class='query_layer' ".$x."/> <input type='checkbox' name='change_visibility' class='change_visibility' value='".$layer->Name."' checked/> ".$layer->Name."</p>";
-					$x = '';
-				}
-			}
-			$output .= "</form></div>";
-			return $output;	
-		}
-		return '';
+	/**
+	 * Render the layer selector.
+	 *
+	 * @return string HTML-string which represents the layer-list div object.
+	 */
+	function FormLayerSwitcher() {
+		$layers = $this->getComponents('Layers','','DisplayPriority DESC');
 		
+		$obj = new ViewableData();
+		$obj->customise( array( "layers" => $layers ) );
+
+		return $obj->renderWith('LayerList');
 	}
-	
-	
+
 }
