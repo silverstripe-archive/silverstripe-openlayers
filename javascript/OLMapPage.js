@@ -6,7 +6,6 @@ var map_popup = null;		// global info-bubble for the map
 var current_layer = null;
 var xValue, yValue;			// not in use anymore ??
 var wfsLayer = null;
-var select;
 
 $(document).ready(function() {
 	$('#layerlist')[0].reset();
@@ -78,9 +77,25 @@ $(document).ready(function() {
 
 		if(wfsLayer){
 			// Create a select feature control and add it to the map.
-		    select = new OpenLayers.Control.SelectFeature(wfsLayer, {hover: true});
-		    map.addControl(select);
-		    select.activate();
+		    var highlightCtrl = new OpenLayers.Control.SelectFeature(wfsLayer, {
+				hover: true,
+				highlightOnly: true,
+				renderIntent: "temporary"
+				
+			});
+
+			var selectCtrl = new OpenLayers.Control.SelectFeature(wfsLayer, {
+				clickout: true,
+				eventListeners: {
+					featurehighlighted: createPopUp
+				}
+			});
+
+			map.addControl(highlightCtrl);
+			map.addControl(selectCtrl);
+
+			highlightCtrl.activate();
+			selectCtrl.activate();
 		}
 		
 		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
@@ -236,24 +251,28 @@ $(document).ready(function() {
 			map.events.register('click', layer, layerClick );
 			current_layer = map.getLayersByName(this.value)[0];
 			// Create a select feature control and add it to the map.
-			select.destroy();
-			if(current_layer.params.SERVICE == 'WFS'){
-			    select = new OpenLayers.Control.SelectFeature(current_layer, {
-					clickout: false, 
-					toggle: false,
-					multiple: false, 
-					hover: false,
-					eventListeners: {
-						//beforefeaturehighlighted: destroyPopUp,
-						featurehighlighted: createPopUp
-						//click: createPopUp
-					}
+			//clickEvent.destroy();
+			var highlightCtrl = new OpenLayers.Control.SelectFeature(current_layer, {
+				hover: true,
+				highlightOnly: true,
+				renderIntent: "temporary"
 				
 			});
-			    map.addControl(select);
-			    select.activate();
-				current_layer.styleMap = myStyles;
-			}
+
+			var selectCtrl = new OpenLayers.Control.SelectFeature(current_layer, {
+				clickout: true,
+				eventListeners: {
+					featurehighlighted: createPopUp
+				}
+			});
+
+			map.addControl(highlightCtrl);
+			map.addControl(selectCtrl);
+
+			highlightCtrl.activate();
+			selectCtrl.activate();
+			
+			current_layer.styleMap = myStyles;
 			
 			return;
 		}
@@ -303,5 +322,3 @@ $(document).ready(function() {
 	}
 	
 });
-
-
