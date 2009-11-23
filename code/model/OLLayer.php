@@ -99,4 +99,13 @@ class OLLayer extends DataObject {
 		$xml = $request->request($URLRequest);
 		return $xml;
 	}
+	
+	function sendWFSFeatureRequest($layerID,$layerName,$layerMap,$layerType,$layerUrl){
+		
+		$requestString = "?map=".$layerMap."&request=getfeature&service=".$layerType."&version=1.0.0&typename=".$layerName."&OUTPUTFORMAT=gml3&featureid=".$layerID;
+		$request = new RestfulService($layerUrl);
+		$xml = $request->request($requestString);
+		return $xml;	//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
+		//return $vars;
+	}
 }
