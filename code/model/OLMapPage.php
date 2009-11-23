@@ -215,7 +215,7 @@ class OLMapPage_Controller extends Page_Controller {
 		if(!$layer || !$params[0]){
 			return "sorry we cannot retrieve feature information, please try again";
 		} else{
-			$output = $layerSet->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
+			$output = $layer->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
 			return $output;
 		}
 		
