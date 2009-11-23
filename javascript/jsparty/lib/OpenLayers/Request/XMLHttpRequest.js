@@ -28,6 +28,7 @@
     // Constructor
     function cXMLHttpRequest() {
         this._object    = oXMLHttpRequest ? new oXMLHttpRequest : new window.ActiveXObject('Microsoft.XMLHTTP');
+		this._listeners = [];
     };
 
     // BUGFIX: Firefox with Firebug installed would break pages if not executed
@@ -59,7 +60,9 @@
 
     // Public Methods
     cXMLHttpRequest.prototype.open    = function(sMethod, sUrl, bAsync, sUser, sPassword) {
-
+		
+		if( arguments.length < 3)
+			bAsync = true;
         // Save async parameter for fixing Gecko bug with missing readystatechange in synchronous requests
         this._async        = bAsync;
 
@@ -70,14 +73,27 @@
         // BUGFIX: IE - memory leak on page unload (inter-page leak)
         if (bIE) {
             var fOnUnload    = function() {
-                if (oRequest._object.readyState != cXMLHttpRequest.DONE)
+                if (oRequest._object.readyState != cXMLHttpRequest.DONE){
                     fCleanTransport(oRequest);
+					oRequest.abort();
+				}
             };
             if (bAsync)
                 window.attachEvent("onunload", fOnUnload);
         }
 
-        this._object.onreadystatechange    = function() {
+        //this._object.onreadystatechange    = function() {
+			if(cXMLHttpRequest.onopen)
+				cXMLHttpRequest.onopen.apply(this, arguments);
+			if (arguments.length > 4)
+				this._object.open(sMethod, sUrl, bAsync, sUser, sPassword); 
+			else
+				if (arguments.length > 3)
+					this._object.open(sMethod, sUrl, bAsync, sUser);
+				else
+					this._object.open(sMethod, sUrl, bAsync);
+					
+			this._object.onreadystatechange    = function() { 
             if (bGecko && !bAsync)
                 return;
 
@@ -170,11 +186,7 @@
             nState    = oRequest.readyState;
         };
 
-        // Add method sniffer
-        if (cXMLHttpRequest.onopen)
-            cXMLHttpRequest.onopen.apply(this, arguments);
-
-        this._object.open(sMethod, sUrl, bAsync, sUser, sPassword);
+        
 
         // BUGFIX: Gecko - missing readystatechange calls in synchronous requests
         if (!bAsync && bGecko) {
@@ -222,10 +234,11 @@
             cXMLHttpRequest.onabort.apply(this, arguments);
 
         // BUGFIX: Gecko - unneccesary DONE when aborting
-        if (this.readyState > cXMLHttpRequest.UNSENT)
-            this._aborted    = true;
-
-        this._object.abort();
+        if (this.readyState > cXMLHttpRequest.UNSENT && this.readyState < cXMLHttpRequest.DONE) {
+			this._aborted    = true; 
+			this._object.abort();
+		}
+            
 
         // BUGFIX: IE - memory leak
         fCleanTransport(this);
@@ -244,6 +257,52 @@
 
         return this._object.setRequestHeader(sName, sValue);
     };
+	
+	// EventTarget interface implementation
+		cXMLHttpRequest.prototype.addEventListener	= function(sName, fHandler, bUseCapture) {
+			for (var nIndex = 0, oListener; oListener = this._listeners[nIndex]; nIndex++)
+				if (oListener[0] == sName && oListener[1] == fHandler && oListener[2] == bUseCapture)
+					return;
+			// Add listener
+			this._listeners.push([sName, fHandler, bUseCapture]);
+		};
+	
+		cXMLHttpRequest.prototype.removeEventListener	= function(sName, fHandler, bUseCapture) {
+			for (var nIndex = 0, oListener; oListener = this._listeners[nIndex]; nIndex++)
+				if (oListener[0] == sName && oListener[1] == fHandler && oListener[2] == bUseCapture)
+					break;
+			// Remove listener
+			if (oListener)
+				this._listeners.splice(nIndex, 1);
+		};
+	
+		cXMLHttpRequest.prototype.dispatchEvent	= function(oEvent) {
+			var oEvent	= {
+				'type':			oEvent.type,
+				'target':		this,
+				'currentTarget':this,
+				'eventPhase':	2,
+				'bubbles':		oEvent.bubbles,
+				'cancelable':	oEvent.cancelable,
+				'timeStamp':	oEvent.timeStamp,
+				'stopPropagation':	function() {},	// There is no flow
+				'preventDefault':	function() {},	// There is no default action
+				'initEvent':		function() {}	// Original event object should be inited
+			};
+	
+			// Execute onreadystatechange
+			if (oEvent.type == "readystatechange" && this.onreadystatechange)
+				(this.onreadystatechange.handleEvent || this.onreadystatechange).apply(this, [oEvent]);
+	
+			// Execute listeners
+			for (var nIndex = 0, oListener; oListener = this._listeners[nIndex]; nIndex++)
+				if (oListener[0] == oEvent.type && !oListener[2])
+					(oListener[1].handleEvent || oListener[1]).apply(this, [oEvent]);
+		};
+	
+
+
+
     cXMLHttpRequest.prototype.toString    = function() {
         return '[' + "object" + ' ' + "XMLHttpRequest" + ']';
     };
@@ -253,20 +312,26 @@
 
     // Helper function
     function fReadyStateChange(oRequest) {
-        // Execute onreadystatechange
-        if (oRequest.onreadystatechange)
-            oRequest.onreadystatechange.apply(oRequest);
+       
 
         // Sniffing code
         if (cXMLHttpRequest.onreadystatechange)
             cXMLHttpRequest.onreadystatechange.apply(oRequest);
+			
+			// Fake event
+			oRequest.dispatchEvent({
+				'type':			"readystatechange",
+				'bubbles':		false,
+				'cancelable':	false,
+				'timeStamp':	new Date + 0
+			});
     };
 
     function fGetDocument(oRequest) {
         var oDocument    = oRequest.responseXML;
         // Try parsing responseText
         if (bIE && oDocument && !oDocument.documentElement && oRequest.getResponseHeader("Content-Type").match(/[^\/]+\/[^\+]+\+xml/)) {
-            oDocument    = new ActiveXObject('Microsoft.XMLDOM');
+            oDocument    = new window.ActiveXObject('Microsoft.XMLDOM');
             oDocument.loadXML(oRequest.responseText);
         }
         // Check if there is no error in document
