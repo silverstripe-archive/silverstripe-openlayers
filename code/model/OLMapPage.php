@@ -202,15 +202,21 @@ class OLMapPage_Controller extends Page_Controller {
 	 *
 	 * @return string HTML segment
 	 */
-	public function doGetFeatureInfo( $data ) {
-		return "Ha!";
-		$params = $data->getVars();
-		$layername = Convert::raw2sql($params['LAYERS']);
+	public function doGetFeatureInfo( $request ) {
+		
+		$params = explode(".",Director::urlParam("ID")); 
+
+		$layername = Convert::raw2sql($params[0]);
+		$featureID = $params[1];
 
 		$page = $this->data();
 		
-		//$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
-		$layer = DataObject::get_by_id('OLLayer',$params['SSID']);
+		return "Hallo, will send a request for {$layername} as soon as possible";
+		$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
+		
+		var_dump($layerSet);
+		//$layer = DataObject::get_by_id('OLLayer',$params['SSID']);
+		
 		//$layer = $layerSet->First();
 		$output = $layer->sendFeatureRequest($params);
 		//Debug::Show($output);

@@ -7,7 +7,7 @@ class OLLayer extends DataObject {
 	static $db = array (
 		"Name" 				=> "Varchar",
 		"Url" 				=> "Varchar(1024)",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','mapserver','mapserverUntiled'),'wms')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','mapserver','mapserverUntiled','wfs_bound'),'wms')",
 		"DisplayPriority" 	=> "Int",
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
@@ -44,7 +44,7 @@ class OLLayer extends DataObject {
 			$options['SSID'] = $this->getField('ID');
 		} else 
 		// handle layer type: WFS
-		if ($layerType == 'wfs') {
+		if ($layerType == 'wfs' || $layerType == 'wfs_bound') {
 			$options['typename']     = $this->getField("ogc_name");	
 			$options['SSID'] = $this->getField('ID');		
 		}
