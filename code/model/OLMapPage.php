@@ -203,7 +203,7 @@ class OLMapPage_Controller extends Page_Controller {
 	 * @return string HTML segment
 	 */
 	public function doGetFeatureInfo( $request ) {
-		
+		$layerID = Director::urlParam("ID");
 		$params = explode(".",Director::urlParam("ID")); 
 
 		$layername = Convert::raw2sql($params[0]);
@@ -211,16 +211,14 @@ class OLMapPage_Controller extends Page_Controller {
 
 		$page = $this->data();
 		
-		return "Hallo, will send a request for {$layername} as soon as possible";
-		$layerSet = $page->getComponents('Layers',"Name = '{$layername}'");
+		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layername}' AND MapPageID = '{$this->ID}'");
+		if(!$layer || !$params[0]){
+			return "sorry we cannot retrieve feature information, please try again";
+		} else{
+			$output = $layerSet->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
+			return $output;
+		}
 		
-		var_dump($layerSet);
-		//$layer = DataObject::get_by_id('OLLayer',$params['SSID']);
-		
-		//$layer = $layerSet->First();
-		$output = $layer->sendFeatureRequest($params);
-		//Debug::Show($output);
-		return $output;
 		
 	}
 	
