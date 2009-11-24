@@ -2,10 +2,12 @@
  * 
  */
 var map = null;
-var map_popup = null;		// global info-bubble for the map
+var popup = null;		// global info-bubble for the map
 
 var current_layer = null;
 var wfsLayer = null;
+
+var selectedFeature = null;
 
 $(document).ready(function() {
 	
@@ -65,6 +67,17 @@ $(document).ready(function() {
 		
 		jQuery.each( layers , initLayer );
 		
+		//
+		// enable all vector layers to be selectable via one controller.
+		//
+		// ASSUMPTION: all vector layers are queriable via WFS interface.
+		var vectorLayers = map.getBy('layers','isVector',true);
+
+		activateLayers(vectorLayers);
+
+       // layer.events.on({"featureselected": onFeatureHighlighted});
+		
+		
 		// set default location of the map
 		var map_config = ss_config['Map'];
 		var lon = map_config['Longitude'];
@@ -83,6 +96,37 @@ $(document).ready(function() {
 		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
 		return;
 	}
+	
+	/**
+	 * Activates the map selector control to show the hover and popup features
+	 * for WFS layers.
+	 */
+	function activateLayers( vectorLayers ) {
+
+		// Create a select feature control and add it to the map.
+		var highlightCtrl = new OpenLayers.Control.SelectFeature(vectorLayers, {
+			hover: true,
+			highlightOnly: true,
+ 			renderIntent: "temporary" 			
+		});
+		map.addControl(highlightCtrl);
+		highlightCtrl.activate();
+
+		var selectCtrl = new OpenLayers.Control.SelectFeature(vectorLayers, {
+			onSelect: onFeatureSelect, 
+			onUnselect: onFeatureUnselect}
+		);
+	   /*
+			clickout: true,
+			eventListeners: {
+				featurehighlighted: onFeatureSelect
+			}
+		});
+		*/
+		map.addControl(selectCtrl);
+		selectCtrl.activate();
+	}
+	
 	
 	
 	/**
@@ -159,7 +203,12 @@ $(document).ready(function() {
             strokeOpacity: 0.8
         });
 
-		
+        var style_select = new OpenLayers.Style({
+            fillColor: "#66ccff",
+            strokeColor: "#3399ff"
+        });
+
+				
         var style_clustered = new OpenLayers.Style({
             pointRadius: "${radius}",
             fillColor: "#ffcc66",
@@ -192,7 +241,11 @@ $(document).ready(function() {
             "select": {
                 fillColor: "#8aeeef",
                 strokeColor: "#32a8a9"
-            }
+            },
+			"temporary" : {
+                fillColor: "#000000",
+                strokeColor: "#f0f0f0"
+			}
         });
 
         var strategyCluster = new OpenLayers.Strategy.Cluster();
@@ -208,15 +261,6 @@ $(document).ready(function() {
             protocol: p ,
             styleMap: s
         });
-
-        var select = new OpenLayers.Control.SelectFeature(
-            layer, {hover: true}
-        );
-
-        map.addControl(select);
-        select.activate();
-
-        layer.events.on({"featureselected": onFeatureHighlighted});
 
 		return layer;
 	}
@@ -256,33 +300,39 @@ $(document).ready(function() {
 	 *
 	 * @param the selected feature.
 	 **/
-	function onFeatureHighlighted( feature ){
+	function onFeatureSelect( feature ){
+		
+		selectedFeature = feature;
+        
 		var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
 		
-     	$("#results")[0].innerHTML = info;
 
-/*
 		// get event class
 		pixel = this.handlers.feature.evt.xy;
 		var pos = map.getLonLatFromViewPortPx(pixel);
 		
 		// remove existing popup
-		if (map_popup != null) {
-			map_popup.hide();
-			map.removePopup(map_popup);
+		if (popup != null) {
+			popup.hide();
+			map.removePopup(popup);
 		}
 				
 		// create popup up with response //
-		map_popup = new OpenLayers.Popup.FramedCloud(
+		popup = new OpenLayers.Popup.FramedCloud(
 			"popupinfo",
 			new OpenLayers.LonLat(pos.lon,pos.lat),
 			new OpenLayers.Size(200,200),
-			'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information',
+			info,
 			null,
 			true
 		);
-		map.addPopup(map_popup);
-*/
+		
+		feature.popup = popup;
+		map.addPopup(popup);
+		
+		
+		return;
+		
 		var fid = feature.feature.fid;
 		
 		// prepare request for AJAX 
@@ -292,6 +342,12 @@ $(document).ready(function() {
 		OpenLayers.loadURL(url, null, this, onLoadPopup);
 	}
 	
+    function onFeatureUnselect(feature) {
+        map.removePopup(feature.popup);
+        feature.popup.destroy();
+        feature.popup = null;
+    }	
+	
 	/**
 	 * Shows the response of the AJAX call in the popup-bubble on the map if 
 	 * available.
@@ -299,9 +355,14 @@ $(document).ready(function() {
 	function onLoadPopup(response) {
 		innerHTML = response.responseText;
 		
-		if (map_popup != null) {
-			map_popup.setContentHTML( innerHTML );
+		if (popup != null) {
+			popup.setContentHTML( innerHTML );
 		}
 	}
+	
+    function onPopupClose( evt ) {
+        selectControl.unselect(selectedFeature);
+    }
+	
 	
 });
