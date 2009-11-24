@@ -3,8 +3,8 @@
  */
 var map = null;
 var map_popup = null;		// global info-bubble for the map
+
 var current_layer = null;
-var xValue, yValue;			// not in use anymore ??
 var wfsLayer = null;
 
 $(document).ready(function() {
@@ -34,8 +34,7 @@ $(document).ready(function() {
 	initMap('map');
 	
 	var controllerName = ss_config['Map']['PageName'];
-	
-	$(".query_layer").click( setQueryableLayer );
+
 	$(".change_visibility").click( setLayerVisibility );
 
 	/**
@@ -71,10 +70,6 @@ $(document).ready(function() {
 		var lon = map_config['Longitude'];
 		var lat = map_config['Latitude'];
 		var zoom = parseInt(map_config['DefaultZoom']);
-
-		if(wfsLayer){
-			activateLayer(wfsLayer);
-		}
 		
 		/*
 		name = 'tilecache';
@@ -115,35 +110,14 @@ $(document).ready(function() {
 			} 			
 		} else
 		if (layerDef.Type == 'wfs') {
-			var wfs_url = layerDef.Url;
-			var name    = layerDef.Name;
-	 		var options = layerDef.Options;
-			layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
-			layer.styleMap = myStyles;
 			
-			if(!wfsLayer) wfsLayer = layer;	
-		} else 
-		if (layerDef.Type == 'wfs_bound') {
-
-	 		var options = layerDef.Options;
-			var wfs_url = layerDef.Url+"?map="+options['map'];
-			var featureType = layerDef.ogc_name;
+			// get a WFS layer
+			layer = createClusteredWFSLayer(layerDef);
+		//	layer = createWFSLayer(layerDef);
 			
-			var p = new OpenLayers.Protocol.WFS({ 
-					url: wfs_url,
-					featureType: featureType,
-					featurePrefix: null,
-					geometryName: "the_geom" 
-			});
-			p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
-			
-			layer = new OpenLayers.Layer.Vector("WFS", {
-                   strategies: [new OpenLayers.Strategy.BBOX()],
-                   protocol: p
-			});
-
-			layer.styleMap = myStyles;
-			if(!wfsLayer) wfsLayer = layer;	
+			if(!wfsLayer) {
+				wfsLayer = layer;	
+			}
 		} else 
 		if (layerDef.Type == 'mapserver' || layerDev.Type == 'mapserverUntiled') {
 			var url     = layerDef.Url;
@@ -155,63 +129,111 @@ $(document).ready(function() {
 
 		// add new created layer to the map
 		if (layer) {
+			var visible = layerDef.Visible;
+			
+			layer.setVisibility(false);
+			if (visible == "1") {
+				layer.setVisibility(true);
+			}
 			map.addLayer(layer);
 
 			if(current_layer == null && layerDef.ogc_transparent != 0) {
 				current_layer =  layer;
 			}
 		}
-		
 	}
+
+
+	/**
+	 * Create a WFS layer instance for Open Layers.
+	 */
+	function createClusteredWFSLayer(layerDef) {
+
+		
+        var style_normal = new OpenLayers.Style({
+            pointRadius: "3",
+            fillColor: "#ffcc66",
+            fillOpacity: 0.8,
+            strokeColor: "#cc6633",
+            strokeWidth: 2,
+            strokeOpacity: 0.8
+        });
+
+		
+        var style_clustered = new OpenLayers.Style({
+            pointRadius: "${radius}",
+            fillColor: "#ffcc66",
+            fillOpacity: 0.8,
+            strokeColor: "#cc6633",
+            strokeWidth: 2,
+            strokeOpacity: 0.8
+        }, {
+            context: {
+                radius: function(feature) {
+                    return Math.min(feature.attributes.count, 7) + 3;
+                }
+            }
+        });
+
+		var name    = layerDef.Name;
+ 		var options = layerDef.Options;
+		var wfs_url = layerDef.Url+"?map="+options['map'];
+		var featureType = layerDef.ogc_name;
+		
+		var p = new OpenLayers.Protocol.WFS({ 
+				url: wfs_url,
+				featureType: featureType,
+				featurePrefix: null,
+		});			
+		p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
+		
+		var s = new OpenLayers.StyleMap({
+            "default": style_clustered,
+            "select": {
+                fillColor: "#8aeeef",
+                strokeColor: "#32a8a9"
+            }
+        });
+
+        var strategyCluster = new OpenLayers.Strategy.Cluster();
+		strategyCluster.distance = 25;
+		
+		strategies =  [
+            new OpenLayers.Strategy.Fixed(),
+        	strategyCluster
+        ];
+
+        layer = new OpenLayers.Layer.Vector(name, {
+            strategies: strategies,
+            protocol: p ,
+            styleMap: s
+        });
+
+        var select = new OpenLayers.Control.SelectFeature(
+            layer, {hover: true}
+        );
+
+        map.addControl(select);
+        select.activate();
+
+        layer.events.on({"featureselected": onFeatureHighlighted});
+
+		return layer;
+	}
+
 	
 	/**
-	 * Click event handler from Layers Menu
+	 * Create a WFS layer instance for Open Layers.
 	 */
-	function setQueryableLayer( event ) {
-		
-		// get new selected layer (selected via the radio buttons)
-		layer = map.getLayersByName(this.value);
-		
-		// same layer -> nothing to do.
-		if (layer == current_layer) {
-			return;
-		}else{
-			
-			current_layer = map.getLayersByName(this.value)[0];
-			
-			activateLayer(current_layer);
-			return;
-		}
-	}
+	function createWFSLayer(layerDef) {
+		var wfs_url = layerDef.Url;
+		var name    = layerDef.Name;
+ 		var options = layerDef.Options;
 
-	/**
-	 * Activates the map selector control to show the hover and popup features
-	 * for WFS layers.
-	 */
-	function activateLayer( layer ) {
-
-		// Create a select feature control and add it to the map.
-		var highlightCtrl = new OpenLayers.Control.SelectFeature(layer, {
-			hover: true,
-			highlightOnly: true,
-			renderIntent: "temporary"
-			
-		});
-
-		var selectCtrl = new OpenLayers.Control.SelectFeature(layer, {
-			clickout: true,
-			eventListeners: {
-				featurehighlighted: onFeatureHighlighted
-			}
-		});
-
-		map.addControl(highlightCtrl);
-		map.addControl(selectCtrl);
-
-		highlightCtrl.activate();
-		selectCtrl.activate();
-		
+		layer = new OpenLayers.Layer.WFS(name, wfs_url, options);
 		layer.styleMap = myStyles;
+		
+		return layer;
 	}
 	
 	/**
@@ -235,7 +257,11 @@ $(document).ready(function() {
 	 * @param the selected feature.
 	 **/
 	function onFeatureHighlighted( feature ){
+		var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
+		
+     	$("#results")[0].innerHTML = info;
 
+/*
 		// get event class
 		pixel = this.handlers.feature.evt.xy;
 		var pos = map.getLonLatFromViewPortPx(pixel);
@@ -256,7 +282,7 @@ $(document).ready(function() {
 			true
 		);
 		map.addPopup(map_popup);
-
+*/
 		var fid = feature.feature.fid;
 		
 		// prepare request for AJAX 

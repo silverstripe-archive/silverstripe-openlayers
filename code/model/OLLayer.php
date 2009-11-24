@@ -7,7 +7,7 @@ class OLLayer extends DataObject {
 	static $db = array (
 		"Name" 				=> "Varchar",
 		"Url" 				=> "Varchar(1024)",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','mapserver','mapserverUntiled','wfs_bound'),'wms')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','mapserver','mapserverUntiled'),'wms')",
 		"DisplayPriority" 	=> "Int",
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
