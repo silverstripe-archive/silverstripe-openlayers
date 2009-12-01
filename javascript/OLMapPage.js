@@ -39,31 +39,30 @@ $(document).ready(function() {
 	
 	var controllerName = ss_config['Map']['PageName'];
 
-	$(".change_visibility").click( setLayerVisibility );
+	$(".change_visibility").change( setLayerVisibility );
 	$(".selectAllLayers").click( selectAllLayer );
 	$(".unselectAllLayers").click( unselectAllLayer );
 	
 	function selectAllLayer(){
-		jQuery.each( ss_config['Layer'] , function() {
-			if(this.ogc_transparent == '1'){
-				tempLayer = map.getLayersByName(this.Name)[0];
-				tempLayer.setVisibility(true);
-				$(" INPUT[@name=" + this.Name + "]").attr('checked', true);
-			}
-		});
-		
+		$("input[type='checkbox']").attr('checked', true);
+		$("input[type=checkbox]").each( function(){
+			var name = $(this).attr('name');
+			var tempLayer = map.getLayersByName(name);
+			if(tempLayer.length > 0)
+			tempLayer[0].setVisibility(true);
+		});	
 	}
 	
 	function unselectAllLayer(){
-		jQuery.each( ss_config['Layer'] , function() {
-			if(this.ogc_transparent == '1'){
-				tempLayer = map.getLayersByName(this.Name)[0];
-				tempLayer.setVisibility(false);
-				$(" INPUT[@name=" + this.Name + "]").attr('checked', false);
-			}
+		$("input[type='checkbox']").attr('checked', false);
+		$("input[type=checkbox]").each( function(){
+			var name = $(this).attr('name');
+			var tempLayer = map.getLayersByName(name);
+			if(tempLayer.length > 0)
+			tempLayer[0].setVisibility(false);
 		});
-		
 	}
+	
 	/**
 	 * Initialise the open layers map instance and uses a div object which
 	 * must exist in the DOM. 
