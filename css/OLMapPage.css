@@ -17,3 +17,11 @@
 #layersMenu h2 { 
 	color: white;
 }
+
+.selectAllLayers {
+	cursor:pointer;
+}
+
+.unselectAllLayers {
+	cursor:pointer;
+}
