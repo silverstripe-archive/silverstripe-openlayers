@@ -9,8 +9,10 @@ var wfsLayer = null;
 
 var selectedFeature = null;
 
+
 $(document).ready(function() {
-	
+	//var host = OpenLayers._getScriptLocation() + "lib/";
+	//document.write("<script src='SSPanZoomBar.js'></script>");
 	// reset the layerlist-form
 	$('#layerlist')[0].reset();
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
@@ -38,7 +40,30 @@ $(document).ready(function() {
 	var controllerName = ss_config['Map']['PageName'];
 
 	$(".change_visibility").click( setLayerVisibility );
-
+	$(".selectAllLayers").click( selectAllLayer );
+	$(".unselectAllLayers").click( unselectAllLayer );
+	
+	function selectAllLayer(){
+		jQuery.each( ss_config['Layer'] , function() {
+			if(this.ogc_transparent == '1'){
+				tempLayer = map.getLayersByName(this.Name)[0];
+				tempLayer.setVisibility(true);
+				$(" INPUT[@name=" + this.Name + "]").attr('checked', true);
+			}
+		});
+		
+	}
+	
+	function unselectAllLayer(){
+		jQuery.each( ss_config['Layer'] , function() {
+			if(this.ogc_transparent == '1'){
+				tempLayer = map.getLayersByName(this.Name)[0];
+				tempLayer.setVisibility(false);
+				$(" INPUT[@name=" + this.Name + "]").attr('checked', false);
+			}
+		});
+		
+	}
 	/**
 	 * Initialise the open layers map instance and uses a div object which
 	 * must exist in the DOM. 
@@ -72,9 +97,7 @@ $(document).ready(function() {
 		//
 		// ASSUMPTION: all vector layers are queriable via WFS interface.
 		var vectorLayers = map.getBy('layers','isVector',true);
-
-		activateLayers(vectorLayers);
-
+		
        // layer.events.on({"featureselected": onFeatureHighlighted});
 		
 		
@@ -94,7 +117,7 @@ $(document).ready(function() {
 		*/	
 		
 		map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
-		return;
+		return  activateLayers(vectorLayers);
 	}
 	
 	/**
@@ -102,15 +125,13 @@ $(document).ready(function() {
 	 * for WFS layers.
 	 */
 	function activateLayers( vectorLayers ) {
-
 		// Create a select feature control and add it to the map.
 		var highlightCtrl = new OpenLayers.Control.SelectFeature(vectorLayers, {
 			hover: true,
 			highlightOnly: true,
  			renderIntent: "temporary" 			
 		});
-		map.addControl(highlightCtrl);
-		highlightCtrl.activate();
+		
 
 		var selectCtrl = new OpenLayers.Control.SelectFeature(vectorLayers, {
 			onSelect: onFeatureSelect, 
@@ -123,8 +144,11 @@ $(document).ready(function() {
 			}
 		});
 		*/
+		map.addControl(highlightCtrl);
+		highlightCtrl.activate();
 		map.addControl(selectCtrl);
 		selectCtrl.activate();
+		
 	}
 	
 	
@@ -284,7 +308,6 @@ $(document).ready(function() {
 	 * Set the visibility of a layer (callback from the Layer-List div object).
 	 */
 	function setLayerVisibility( event ){
-		
 		tempLayer = map.getLayersByName(this.value)[0];
 		var status = tempLayer.getVisibility();
 		
@@ -303,11 +326,20 @@ $(document).ready(function() {
 	function onFeatureSelect( feature ){
 		
 		selectedFeature = feature;
-        
-		var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
-		
-
+        //console.log(feature);
+		//var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
+		var info = "You clicked on " + feature.layer.name;
+		info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
 		// get event class
+		var clusterStations = new Array();
+		var clusterStationsIDs = new Array();
+		clusterStations = feature.cluster;
+		//console.log(clusterStations);
+		for ( var i=0, len=clusterStations.length; i<len; ++i ){
+			//console.log(clusterStations[i]);
+			clusterStationsIDs.push(clusterStations[i].fid);
+			info = info + "<br/>" + clusterStations[i].fid;
+		}
 		pixel = this.handlers.feature.evt.xy;
 		var pos = map.getLonLatFromViewPortPx(pixel);
 		
@@ -331,21 +363,22 @@ $(document).ready(function() {
 		map.addPopup(popup);
 		
 		
+		//return;
+		
+		//console.log(clusterStationsIDs);
 		return;
-		
-		var fid = feature.feature.fid;
-		
+		//var fid = feature.feature.fid;
 		// prepare request for AJAX 
-		var url = controllerName + '/doGetFeatureInfo/'+ fid;
+		var url = controllerName + '/doGetFeatureInfo/'+ clusterStationsIDs;
 		
 		// get attributes for selected feature (fid)
 		OpenLayers.loadURL(url, null, this, onLoadPopup);
 	}
 	
     function onFeatureUnselect(feature) {
-        map.removePopup(feature.popup);
-        feature.popup.destroy();
-        feature.popup = null;
+        map.removePopup(popup);
+        popup.destroy();
+        popup = null;
     }	
 	
 	/**
