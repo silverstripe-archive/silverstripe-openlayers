@@ -91,7 +91,8 @@ class OLMapPage extends Page {
 				'ogc_transparent' => 'Transparent',
 				'Enabled' => 'Enabled',
 				'Visible' => 'Visible',
-				'Queryable' => 'Queryable'	
+				'Queryable' => 'Queryable',
+				'DisplayPriority' => 'Priority'	
 			),
 			'getCMSFields_forPopup',
 			'',
@@ -109,7 +110,7 @@ class OLMapPage extends Page {
 		$data   = $this->toMap();
 		
 		// get all layers of this map in the order of 'DisplayPriority ASC'
-		$layers = $this->getComponents('Layers',null,'DisplayPriority ASC');
+		$layers = $this->getComponents('Layers',null,'DisplayPriority');
 		
 		$result = array();
 		$data   = array();
@@ -171,7 +172,6 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		$openLayers = $this->getOpenLayers();
 		$mapPage    = $this->data();
-		
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
 		Requirements::javascript(THIRDPARTY_DIR . "/jquery/jquery.js");
 
@@ -215,6 +215,7 @@ class OLMapPage_Controller extends Page_Controller {
 		if(!$layer || !$params[0]){
 			return "sorry we cannot retrieve feature information, please try again";
 		} else{
+			return $layerID;
 			$output = $layer->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
 			return $output;
 		}
