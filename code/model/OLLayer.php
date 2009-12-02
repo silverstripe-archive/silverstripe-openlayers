@@ -123,11 +123,11 @@ class OLLayer extends DataObject {
 		
 		$layerType = $this->getField('Type');
 		
-		$config['Type']        = $this->getField('Type');;
-		$config['Title']       = $this->getField('Title');;
-		$config['Url']         = $this->getField('Url');;
+		$config['Type']        = $this->getField('Type');
+		$config['Title']       = $this->getField('Title');
+		$config['Url']         = $this->getField('Url');
 		$config['Visible']     = $this->getField('Visible');
-		$config['ogc_name']    = $this->getField('ogc_name');;
+		$config['ogc_name']    = $this->getField('ogc_name');
 
 		// create options element
 		$options = array();
@@ -146,13 +146,43 @@ class OLLayer extends DataObject {
 		}
 
 		$config['Options'] = $options;
-		
-		
+
 		return $config;
 	}	
 		
-	/*
-	function sendFeatureRequest($vars){
+
+	/**
+	 * Wrapper class to handle OGC get-feature requests for all kind of 
+	 * layer types.
+	 *
+	 * @throws OLLayer_Exception
+	 *
+	 * @param string type
+	 * @param array param
+	 *
+	 * @return response
+	 */
+	function getFeatureInfo($featureID) {
+		$Type = $this->getField('Type');
+		
+		$response = null;
+		if ($Type == 'wms' || $Type == 'wmsUntiled') {
+			$response = $this->sendWMSFeatureRequest($featureID);
+		} else 
+		if ($Type == 'wfs') {
+			$response = $this->sendWFSFeatureRequest($featureID);
+		} else {
+			throw new OLLayer_Exception('Request type unknown');
+		}
+		return $response;
+	}
+
+	/**
+	 *
+	 */
+	protected function sendWMSFeatureRequest($param){
+		
+		throw new OLLayer_Exception("Method not fully implemented");
 		
 		$staticParams = array(
 			'REQUEST' => 'GetFeatureInfo', 
@@ -171,8 +201,8 @@ class OLLayer extends DataObject {
 			
 			$URLRequest .= $k.'='.$v.'&';
 		}
-		$URLRequest .= "LAYERS=".$this->ogc_name."&QUERY_LAYERS=".$this->ogc_name."&BBOX=".$vars['BBOX'];
-		$URLRequest .= "&x=".$vars['x']."&y=".$vars['y']."&WIDTH=".$vars['WIDTH']."&HEIGHT=".$vars['HEIGHT'];
+		$URLRequest .= "LAYERS=".$this->ogc_name."&QUERY_LAYERS=".$this->ogc_name."&BBOX=".$param['BBOX'];
+		$URLRequest .= "&x=".$param['x']."&y=".$param['y']."&WIDTH=".$param['WIDTH']."&HEIGHT=".$param['HEIGHT'];
 		$URLRequest = trim($URLRequest,"&");
 		$URLRequest = str_replace('RequestURL=','',$URLRequest);
 		
@@ -181,13 +211,33 @@ class OLLayer extends DataObject {
 		return $xml;
 	}
 	
-	function sendWFSFeatureRequest($layerID,$layerName,$layerMap,$layerType,$layerUrl){
+	/**
+	 *
+	 */
+	function sendWFSFeatureRequest($featureID){
 		
-		$requestString = "?map=".$layerMap."&request=getfeature&service=".$layerType."&version=1.0.0&typename=".$layerName."&OUTPUTFORMAT=gml3&featureid=".$layerID;
-		$request = new RestfulService($layerUrl);
+		$featureID = Convert::raw2xml($featureID);
+		
+		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
+		$url          = $this->getField('Url');
+		$map          = $this->getField('ogc_map');
+		$typename     = $this->getField('ogc_name');
+		
+		$requestString = "?map=".$map."&request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
+
+		// set OGC WFS request to WFS server
+		$request = new RestfulService($url);
+		
+		// get XML response
 		$xml = $request->request($requestString);
-		return $xml;	//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
-		//return $vars;
+		return $xml;	
+		
+		//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
 	}
-	*/
+}
+
+/**
+ * Customised exception class
+ */
+class OLLayer_Exception extends Exception {
 }

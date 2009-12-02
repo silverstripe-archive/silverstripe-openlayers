@@ -110,6 +110,8 @@ class OLMapObject extends DataObject {
 	
 	/**
 	 * Serialise the data structure into an array.
+	 *
+	 * @return array
 	 */
 	function getConfigurationArray() {
 		$config = array();
@@ -121,6 +123,7 @@ class OLMapObject extends DataObject {
 		$data['Latitude']    = $this->getField('InitLatitude');
 		$data['Longitude']   = $this->getField('InitLongitude');
 		$data['Zoom']        = $this->getField('InitZoom');
+		$data['ID']          = $this->getField('ID');
 
 		$data['MinScale']      = $this->getField('MinScale');
 		$data['MaxScale']      = $this->getField('MaxScale');
@@ -150,5 +153,7 @@ class OLMapObject extends DataObject {
 		$config['Layers'] = $data;
 		return $config;
 	}
+
+
 
 }

@@ -342,6 +342,7 @@ $(document).ready(function() {
 	function onFeatureSelect( feature ){
 		
 		selectedFeature = feature;
+		
         //console.log(feature);
 		//var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
 		var info = "You clicked on " + feature.layer.name;
@@ -377,15 +378,12 @@ $(document).ready(function() {
 		
 		feature.popup = popup;
 		map.addPopup(popup);
-		
-		
-		//return;
-		
-		//console.log(clusterStationsIDs);
-		return;
+
+		var mapid = ss_config['Map']['ID'];
+
 		//var fid = feature.feature.fid;
 		// prepare request for AJAX 
-		var url = getControllerName() + '/doGetFeatureInfo/'+ clusterStationsIDs;
+		var url = getControllerName() + '/dogetfeatureinfo/'+mapid+"/"+clusterStationsIDs;
 		
 		// get attributes for selected feature (fid)
 		OpenLayers.loadURL(url, null, this, onLoadPopup);

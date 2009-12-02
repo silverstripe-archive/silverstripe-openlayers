@@ -164,23 +164,27 @@ class OLMapPage_Controller extends Page_Controller {
 	 *
 	 * @return string HTML segment
 	 */
-	public function doGetFeatureInfo( $request ) {
-		$layerID = Director::urlParam("ID");
-		$params = explode(".",Director::urlParam("ID")); 
+	public function dogetfeatureinfo( $request ) {
 
-		$layername = Convert::raw2sql($params[0]);
-		$featureID = $params[1];
+		$output = "Sorry we cannot retrieve feature information, please try again";
 
-		$page = $this->data();
+		// process request parameters
+		$mapid   = (int)Director::urlParam("ID"); 
+		$feature = explode(".",Director::urlParam("OtherID")); 
 		
-		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layername}' AND MapPageID = '{$this->ID}'");
-		if(!$layer || !$params[0]){
-			return "sorry we cannot retrieve feature information, please try again";
-		} else{
-			return $layerID;
-			$output = $layer->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
-			return $output;
+		// test if user requests feature-info for one element (otherwise create 
+		// overview template.
+		
+		$layerName = Convert::raw2sql($feature[0]);
+		$featureID = Convert::raw2sql($feature[1]);
+		
+		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' and MapID = $mapid");
+
+		if($layer){
+			$output = $layer->getFeatureInfo($featureID);
 		}
+		Debug::show($output);
+		return $output;
 	}
 
 }
