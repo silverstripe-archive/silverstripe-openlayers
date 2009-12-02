@@ -16,9 +16,7 @@ class OLLayer extends DataObject {
 	static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
-
 		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wms')",
-
 		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
@@ -32,6 +30,14 @@ class OLLayer extends DataObject {
 	
 	static $has_one = array(
 		'Map' => 'OLMapObject'
+	);	
+	
+	static $field_labels = array(
+		"Type"             => "OGC API",
+		"ogc_name"         => "OGC Layer Name",
+		"ogc_map"          => "Map-filename",
+		"ogc_transparent"  => "Transparency",
+		"Map.Title"        => "Map Name"
 	);	
 	
 	static $summary_fields = array(

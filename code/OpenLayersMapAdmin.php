@@ -48,8 +48,14 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 	 */
 	function getResultsTable($searchCriteria) {
 		$tf = parent::getResultsTable($searchCriteria);
-	//	$tf->setFieldCasting(array('Enabled' => 'Boolean->Nice'));
-	//			
+		$tf->setFieldCasting(
+			array(
+				'Enabled' => 'Boolean->Nice',
+				'Visible' => 'Boolean->Nice',
+				'Queryable' => 'Boolean->Nice',
+				'ogc_transparent' => 'Boolean->Nice'
+			));
+				
 		return $tf;
 	}
 
