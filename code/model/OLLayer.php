@@ -1,27 +1,110 @@
 <?php
+/**
+ * @author Rainer Spittel (rainer at silverstripe dot com)
+ * @package openlayers
+ * @subpackage code
+ */
+
+
 /** 
- * http://202.36.29.39/cgi-bin/mapserv?map=%2Fsrv%2Fwww%2Fhtdocs%2Fmapdata%2Fspittelr%2Ftrack.map&layers=track&transparent=true&mode=map&map_imagetype=png&mapext=175.03692626953+-38.009948730469+175.82244873047+-37.224426269531&imgext=175.03692626953+-38.009948730469+175.82244873047+-37.224426269531&map_size=286+286&imgx=143&imgy=143&imgxy=286+286
+ * Layer class. Each instance of this layer class represents a JavaScript
+ * OpenLayer Layer class. It is used to manage and control the map 
+ * behaviour.
  */
 class OLLayer extends DataObject {
 	
 	static $db = array (
-		"Name" 				=> "Varchar",
+		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','mapserver','mapserverUntiled'),'wms')",
-		"DisplayPriority" 	=> "Int",
+
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wms')",
+
+		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
 		"Queryable"			=> "Boolean",
 		
 		// temporarily added (will be removed)
-		"ogc_name"			=> "Varchar", 		// layer name (ogc layer name/id)
-		"ogc_map"			=> "Varchar(1024)",	// url to the map file on the server side
-		"ogc_transparent"  => "Boolean"			// transparent overlay layer
+		"ogc_name"			=> "Varchar(50)",		// layer name (ogc layer name/id)
+		"ogc_map"			=> "Varchar(1024)",		// url to the map file on the server side
+		"ogc_transparent"	=> "Boolean"			// transparent overlay layer
 	);
 	
 	static $has_one = array(
-		'MapPage' => 'OLMapPage'
+		'Map' => 'OLMapObject'
 	);	
+	
+	static $summary_fields = array(
+		'Title',
+		'ogc_name',
+		'Type',
+		'Enabled',
+		'Visible',
+		'Queryable',
+		'ogc_transparent',
+		'Map.Title'
+	 );
+
+	static $defaults = array(
+	    'DisplayPriority' => 50,
+	    'Enabled' => true,
+	    'Visible' => false,
+	    'Queryable' => true,
+	    'ogc_transparent' => true
+	 );
+
+	static $casting = array(
+		'Enabled' => 'Boolean',
+	);
+	
+	static $default_sort = "Title ASC";
+
+	/**
+	 * Overwrites SiteTree.getCMSFields.
+	 *
+	 * @return fieldset
+	 */ 
+	function getCMSFields() {
+		$fields = parent::getCMSFields();
+
+		$fields->removeFieldsFromTab("Root.Main", array(
+			"Url","DisplayPriority","Enabled", "Visible", "Queryable","ogc_name","ogc_map", "ogc_transparent"
+		));
+
+		$LayerType = $fields->fieldByName("Root.Main.Type");
+		$fields->removeFieldFromTab("Root.Main","Type");
+
+		$fields->addFieldsToTab("Root.Main", 
+			array(
+				new LiteralField("DisLabel","<h2>Layer Settings</h2>"),
+				// Display parameters
+				new CompositeField( 
+					new CompositeField( 
+						new LiteralField("URLLabel","<h3>URL Server Settings</h3>"),
+						new TextField("Url", "URL"),
+						new TextField("ogc_map", "Map filename"),
+						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>")
+					),
+					new CompositeField( 
+						new LiteralField("OGCLabel","<h3>Display Settings</h3>"),
+						new NumericField("DisplayPriority", "Draw Priority"),
+						new CheckboxField("Enabled", "Enabled"),
+						new CheckboxField("Visible","Visible"),
+						new CheckboxField("Queryable", "Queryable")
+					),
+					new CompositeField( 
+						new LiteralField("OGCLabel","<h3>OGC Settings</h3>"),
+						new TextField("ogc_name", "Layer Name"),
+						new LiteralField("MapLabel","<i>(as defined in GetCapabilities)</i>"),
+						$LayerType,
+						new CheckboxField("ogc_transparent", "Transparency")
+
+					)
+				)
+			)
+		);
+		return $fields;
+	}
 	
 	/**
 	 * Creates and returns a layer definition array which will be used to configure
@@ -29,48 +112,40 @@ class OLLayer extends DataObject {
 	 *
 	 * @return array
 	 */
-	function serialise() {
-		$result = $this->toMap();
-
-		$options = array();
-		$options['map']  = $this->getField("ogc_map");
+	function getConfigurationArray() {
+		$config = array();
 		
 		$layerType = $this->getField('Type');
 		
+		$config['Type']        = $this->getField('Type');;
+		$config['Title']       = $this->getField('Title');;
+		$config['Url']         = $this->getField('Url');;
+		$config['Visible']     = $this->getField('Visible');
+		$config['ogc_name']    = $this->getField('ogc_name');;
+
+		// create options element
+		$options = array();
+		$options['map']  = $this->getField("ogc_map");
+				
 		// handle layer type: WMS (tiled and untiled)
 		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {
-			$options['layers']       = $this->getField("ogc_name");
-			$options['transparent']  = $this->getField("ogc_transparent") ? "true": "false";
-			$options['SSID'] = $this->getField('ID');
+			$options['SSID']        = $this->getField('ID');
+			$options['layers']      = $this->getField("ogc_name");
+			$options['transparent'] = $this->getField("ogc_transparent") ? "true": "false";
 		} else 
 		// handle layer type: WFS
 		if ($layerType == 'wfs' || $layerType == 'wfs_bound') {
-			$options['typename']     = $this->getField("ogc_name");	
-			$options['SSID'] = $this->getField('ID');		
+			$options['SSID']     = $this->getField('ID');		
+			$options['typename'] = $this->getField("ogc_name");	
 		}
-		// handle layer type: Mapserver (tiled and untiled)
-		if ($layerType == 'mapserver' || $layerType == 'mapserverUntiled' ) {
-			$options['layers']       = $this->getField("ogc_name");
-			
-			// we need to get this parameter from the backend. can be GIF, JPEG etc.
-			$options['map_imagetype']= "png24";  
-			$options['transparent']  ='true';
-			
-			// populate mapserver specific parameters into the js layer class
-			// we need to get this parameter from the backend.
-			$params = array();
-			$params['isBaseLayer'] = false;
-			$params['gutter']      = 15;
-			$params['singleTile']  = ($layerType) ? true : false;
 
-			$result['Params'] = $params;
-
-		}
-		$result['Options'] = $options;
+		$config['Options'] = $options;
 		
-		return $result;
-	}
-	
+		
+		return $config;
+	}	
+		
+	/*
 	function sendFeatureRequest($vars){
 		
 		$staticParams = array(
@@ -79,8 +154,8 @@ class OLLayer extends DataObject {
 			'VERSION' => '1.1.1', 
 			'TRANSPARENT' => 'true', 
 			'STYLE' => '', 
-			'EXCEPTIONS' => 'application%2Fvnd.ogc.se_xml', 
-			'FORMAT' => 'image%2Fpng',
+			'EXCEPTIONS' => 'application/vnd.ogc.se_xml', 
+			'FORMAT' => 'image/png',
 			'SRS' => 'EPSG%3A4326'
 		);
 		//$vars = $data->getVars();
@@ -108,4 +183,5 @@ class OLLayer extends DataObject {
 		return $xml;	//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
 		//return $vars;
 	}
+	*/
 }

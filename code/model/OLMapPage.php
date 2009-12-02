@@ -11,129 +11,77 @@
 class OLMapPage extends Page {
 	
 	static $db = array(
-		'MapName' => 'Varchar(100)',
-		'Latitude' => 'Decimal(12,8)',
-		'Longitude' => 'Decimal(12,8)',
-		'DefaultZoom' => 'Int'
 	);	
 	
-	static $has_many = array(
-		'Property' => 'OLMapProperty',
-		'Layers' => 'OLLayer'
+	static $has_one = array(
+		'Map' => 'OLMapObject'
 	);
 
 	/**
-	 * Overwrites SiteTree.getCMSFields to change the CMS form behaviour, 
-	 *  i.e. by adding form fields for the additional attributes defined in 
-	 * {@link OpenLayersPage::$db}.
-	 */ 
+	 * Overwrites SiteTree.getCMSFields.
+	 *
+	 * @return fieldset
+	 */
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
-		$fields->addFieldToTab("Root.Content.Main", new TextField("Latitude", "Latitude"),"Content");
-		$fields->addFieldToTab("Root.Content.Main", new TextField("Longitude", "Longitude"),"Content");
-		$fields->addFieldToTab("Root.Content.Main", new TextField("DefaultZoom", "Default Zoom"),"Content");
-		$propertyTablefield = new ComplexTableField(
-			$this,
-			'OLMapProperty',
-			'OLMapProperty',
+		
+		$maps  = DataObject::get("OLMapObject");
+		$items = array();
+
+		// get all assigned agent-members
+		if ($maps) {
+			// get first member (agents)
+			$items = $maps->map('ID','Title');
+		}
+
+		$fields->addFieldsToTab("Root.OpenLayers", 
 			array(
-				'Name' => 'Property Name',
-				'Value' => 'Property Value'
-			),
-			'getCMSFields_forPopup',
-			'',
-			'Created'
-			);
-			$fields->addFieldToTab( 'Root.Content.Properties', $propertyTablefield );
-
-
-/*
-		$myTableField = new TableField(
-		  'Layerstest', // fieldName
-		  'OLLayer', // sourceType
-		  array(
-				'Name' => 'Name',
-				'Url' => 'URL',
-				'Type' => 'Layer Type',
-				'ogc_transparent' => 'Transparent',
-				'Enabled' => 'Enabled',
-				'Visible' => 'Visible',
-				'Queryable' => 'Queryable'
-		  ), // fieldList
-		  array(
-		    'Name'=>'TextField',
-		    'Url'=>'TextField',
-		    'Type'=>'DropdownField',
-		    'ogc_transparent'=>'CheckboxField',
-		    'Enabled'=>'CheckboxField',
-		    'Visible'=>'CheckboxField',
-		    'Queryable'=>'CheckboxField'
-		  ), // fieldTypes
-	  		$this->ID,
-		  "MapPageID",
-		  $this->ID
+				new LiteralField("MapLabel","<h2>Map Selection</h2>"),
+				// Display parameters
+				new CompositeField( 
+					new CompositeField( 
+						new LiteralField("DefLabel","<h3>Default OpenLayers Map</h3>"),
+						new DropdownField("MapID", "Map", $items, $this->MapID, null, true)
+					)
+				)
+			)
 		);
-		$myTableField->setExtraData(array(
-		  'MapPageID' => $this->ID ? $this->ID : '$RecordID'
-		));
-
-		$fields->addFieldToTab( 'Root.Content.Test', $myTableField );
-		*/
-			
-		$layerTablefield = new ComplexTableField(
-			$this,
-			'Layers',
-			'OLLayer',
-			array(
-				'Name' => 'Name',
-				'Url' => 'URL',
-				'Type' => 'Layer Type',
-				'ogc_transparent' => 'Transparent',
-				'Enabled' => 'Enabled',
-				'Visible' => 'Visible',
-				'Queryable' => 'Queryable',
-				'DisplayPriority' => 'Priority'	
-			),
-			'getCMSFields_forPopup',
-			'',
-			'Created'
-			);
-			$fields->addFieldToTab( 'Root.Content.Layers', $layerTablefield );
-							
 		return $fields;
 	}
-
+	
 	/**
-	 * Serialise the data structure into an array.
+	 * This method returns the default configuration array structure of the 
+	 * default map. It is used to initialize the OpenLayer JavaScript classes
+	 * after the page has been loaded.
+	 *
+	 * @return array Configuration array which is processed by JS:initMap
 	 */
-	function serialise() {
-		$data   = $this->toMap();
+	public function getDefaultMapConfiguration() {
+		$result    = array();
+		$mapObject = $this->GetComponent('Map');
 		
-		// get all layers of this map in the order of 'DisplayPriority ASC'
-		$layers = $this->getComponents('Layers',null,'DisplayPriority');
-		
-		$result = array();
-		$data   = array();
-		
-		$data['Name'] = $this->getField('MapName');
-		$data['Latitude'] = $this->getField('Latitude');
-		$data['Longitude'] = $this->getField('Longitude');
-		$data['DefaultZoom'] = $this->getField('DefaultZoom');
-		$data['PageName'] = $this->getField('URLSegment');
-		$result['Map'] = $data;
-		
-		$data   = array();
-		foreach($layers as $layer) {
-			if ($layer->Enabled == true) {
-				$data[] = $layer->serialise();
-			}
+		if($mapObject) {
+			$result = $mapObject->getConfigurationArray();
 		}
-		$result['Layer'] = $data;
 		return $result;
 	}
 	
-	
-
+	/**
+	 * Returns a viewable data object to render the layer control of the default
+	 * map.
+	 * @return ViewableData
+	 */
+	public function getLayerControlObject() {
+		$mapObject = $this->GetComponent('Map');
+		$obj = new ViewableData();
+		
+		$result = array();
+		if($mapObject) {
+			$layers = $mapObject->getComponents('Layers','','DisplayPriority DESC');
+			$obj->customise( array( "layers" => $layers ) );
+		}
+		return $obj;
+	}
 }
 
 /**
@@ -170,27 +118,41 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		parent::init();
 		
+		$page = $this->data();
+		
 		$openLayers = $this->getOpenLayers();
-		$mapPage    = $this->data();
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
-		Requirements::javascript(THIRDPARTY_DIR . "/jquery/jquery.js");
 
+		Requirements::javascript(THIRDPARTY_DIR."/jquery/jquery.js");
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
 
 		Requirements::themedCSS('OLMapPage');
 
-		// old js mockup			
-		// Requirements::javascript('openlayers/javascript/OpenLayersPage.js');
-
-
-		// serialize map cofiguration
-		$config     = $mapPage->serialise();
+		// serialize map cofiguration 
+		$config = $page->getDefaultMapConfiguration();		
+		
+		// add url segment for this page (required for js ajax calls).
+		$config['PageName'] = $this->getField('URLSegment');
+		
+		// create json string
 		$jsConfig = "var ss_config = ".json_encode($config);;
 		
+		// add configuration json object to custom scripts
 		Requirements::customScript($jsConfig);
-		
 	}
-	
+
+	/**
+	 * Render the layer selector.
+	 *
+	 * @return string HTML-string which represents the layer-list div object.
+	 */
+	function FormLayerSwitcher() {		
+		$page = $this->data();
+		
+		$obj = $page->getLayerControlObject();
+		return $obj->renderWith('LayerControl');
+	}
+
 	/**
 	 * Returns the HTML response for the map popup-box. After the user clicks
 	 * on the map, the CMS will send of a request to the OGC server to request
@@ -219,22 +181,6 @@ class OLMapPage_Controller extends Page_Controller {
 			$output = $layer->sendWFSFeatureRequest($layerID,$params[0],$layer->ogc_map,$layer->Type,$layer->Url);
 			return $output;
 		}
-		
-		
-	}
-	
-	/**
-	 * Render the layer selector.
-	 *
-	 * @return string HTML-string which represents the layer-list div object.
-	 */
-	function FormLayerSwitcher() {
-		$layers = $this->getComponents('Layers','','DisplayPriority DESC');
-		
-		$obj = new ViewableData();
-		$obj->customise( array( "layers" => $layers ) );
-
-		return $obj->renderWith('LayerList');
 	}
 
 }
