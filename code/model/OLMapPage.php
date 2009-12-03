@@ -124,6 +124,7 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
 
 		Requirements::javascript(THIRDPARTY_DIR."/jquery/jquery.js");
+		Requirements::javascript('openlayers/javascript/OLMapWrapper.js');
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
 
 		Requirements::themedCSS('OLMapPage');
