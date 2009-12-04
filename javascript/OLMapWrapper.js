@@ -53,6 +53,7 @@ function initMap(divMap, mapConfig) {
 
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
+	layers.reverse();
 	jQuery.each( layers , initLayer );
 
 	/*

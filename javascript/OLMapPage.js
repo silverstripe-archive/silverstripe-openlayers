@@ -16,7 +16,7 @@ $(document).ready(function() {
 		
 	$(".selectAllLayers").click( selectAllLayer );
 	$(".unselectAllLayers").click( unselectAllLayer );
-	
+	$("a.multipleStations").click( multipleStationSelect );
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 
 	// initialise map
@@ -27,7 +27,16 @@ $(document).ready(function() {
 	//
 	// ASSUMPTION: all vector layers are queriable via WFS interface.
 	var vectorLayers = map.getBy('layers','isVector',true);
-	activateLayers(vectorLayers);	
+	activateLayers(vectorLayers);
+	
+	// enable sort layers on layers panel
+	$(function() {
+		$("#innerLayers").sortable({ 
+			cursor: 'move',
+			update: function(event, ui) { sortMapLayers(event , ui); }
+		});
+	});
+	
 });
 
 
@@ -69,7 +78,18 @@ function getControllerName() {
 	return ss_config['PageName'];
 }
 
+function multipleStationSelect(station){
 	
+	var mapid = ss_config['Map']['ID'];
+
+	//var fid = feature.feature.fid;
+	// prepare request for AJAX 
+	var url = getControllerName() + '/dogetfeatureinfo/'+mapid+"/"+station;
+	
+	// get attributes for selected feature (fid)
+	OpenLayers.loadURL(url, null, this, onLoadPopup);
+	
+}	
 /**
  * Callback method, called when user clicks on a vector feature.
  *
@@ -78,11 +98,11 @@ function getControllerName() {
 function onFeatureSelect( feature ){
 	
 	selectedFeature = feature;
-	
+	console.log(feature);
     //console.log(feature);
-	//var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information';
-	var info = "You clicked on " + feature.layer.name;
-	info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
+	var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information, please wait...';
+	//var info = "You clicked on " + feature.layer.name;
+	//info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
 	// get event class
 	var clusterStations = new Array();
 	var clusterStationsIDs = new Array();
@@ -91,7 +111,7 @@ function onFeatureSelect( feature ){
 	for ( var i=0, len=clusterStations.length; i<len; ++i ){
 		//console.log(clusterStations[i]);
 		clusterStationsIDs.push(clusterStations[i].fid);
-		info = info + "<br/>" + clusterStations[i].fid;
+		//info = info + "<br/>" + clusterStations[i].fid;
 	}
 	pixel = this.handlers.feature.evt.xy;
 	var pos = map.getLonLatFromViewPortPx(pixel);
@@ -103,13 +123,13 @@ function onFeatureSelect( feature ){
 	}
 			
 	// create popup up with response //
-	popup = new OpenLayers.Popup.FramedCloud(
+	popup = new OpenLayers.Popup(
 		"popupinfo",
 		new OpenLayers.LonLat(pos.lon,pos.lat),
 		new OpenLayers.Size(200,200),
 		info,
-		null,
-		true
+		true,
+		null
 	);
 	
 	feature.popup = popup;
@@ -186,6 +206,30 @@ function unselectAllLayer(){
 		var tempLayer = map.getLayersByName(name);
 		if(tempLayer.length > 0) {
 			tempLayer[0].setVisibility(false);
+		}
+	});
+}
+
+/**
+ * callback for sort layers event (change map.layer.ZIndex)
+**/
+function sortMapLayers(event , ui){
+	var maxZindex = 0;
+	
+	$("input[type=checkbox]").each( function() {
+		var name = $(this).attr('name');
+		var tempLayer = map.getLayersByName(name);
+		if(tempLayer.length > 0) {
+			if(maxZindex < map.getLayerIndex(tempLayer[0])) maxZindex = map.getLayerIndex(tempLayer[0]);
+		}
+	});
+	
+	$("input[type=checkbox]").each( function() {
+		var name = $(this).attr('name');
+		var tempLayer = map.getLayersByName(name);
+		if(tempLayer.length > 0) {
+			map.setLayerIndex(tempLayer[0],maxZindex);
+			maxZindex = maxZindex - 1;
 		}
 	});
 }

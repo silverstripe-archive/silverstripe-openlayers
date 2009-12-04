@@ -25,3 +25,30 @@
 .unselectAllLayers {
 	cursor:pointer;
 }
+
+.olPopup {
+	background:#000 !important;
+}
+
+.olPopupCloseBox {
+	background: transparent url(../images/close_bt_mini.png)  no-repeat !important;
+}
+
+.popupLink {
+	cursor:pointer;
+	color:#FFF;
+}
+
+h4.popup {
+	color:#FFF;
+	font:1.2em;
+}
+
+h5.popup {
+	color:#FFF;
+	font:1.1em;
+}
+
+#innerLayers {
+	cursor: move;
+}

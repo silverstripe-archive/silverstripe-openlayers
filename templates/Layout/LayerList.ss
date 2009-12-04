@@ -4,21 +4,18 @@
 	<ul>
 		<li>
 			<a class="selectAllLayers">Select all layers</a> | <a class="unselectAllLayers">Unselect all layers</a>
+			
 		</li>
-	<div id ="innerLayers">
 	<% control layers %>
-		
 		<% if ogc_transparent %>
-			<li id="$Title">
+			<li>
 				<span class='layervisible'>
-					<input type='checkbox' name='$Title' class='change_visibility' value='$Title' <% if Visible %>checked<% end_if %> />
+				<input type='checkbox' name='$Name' class='change_visibility' value='$Name' <% if Visible %>checked<% end_if %> />
 				</span>
-				$Title
+				$Name
 			</li>
 		<% end_if %>
-		
 	<% end_control %>
-	</div>
 	</ul>
 </form>
 </div>

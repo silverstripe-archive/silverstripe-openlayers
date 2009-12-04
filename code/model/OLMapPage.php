@@ -122,11 +122,14 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		$openLayers = $this->getOpenLayers();
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
-
-		Requirements::javascript(THIRDPARTY_DIR."/jquery/jquery.js");
+		
+		Requirements::javascript('openlayers/javascript/jquery/jquery-1.3.2.min.js');
+		Requirements::javascript('openlayers/javascript/jquery/jquery-ui-1.7.2.custom.min.js');
+		//Requirements::javascript(THIRDPARTY_DIR."/jquery/jquery.js");
+		
 		Requirements::javascript('openlayers/javascript/OLMapWrapper.js');
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
-
+		
 		Requirements::themedCSS('OLMapPage');
 
 		// serialize map cofiguration 
@@ -136,7 +139,7 @@ class OLMapPage_Controller extends Page_Controller {
 		$config['PageName'] = $this->getField('URLSegment');
 		
 		// create json string
-		$jsConfig = "var ss_config = ".json_encode($config);;
+		$jsConfig = "var ss_config = ".json_encode($config);
 		
 		// add configuration json object to custom scripts
 		Requirements::customScript($jsConfig);
@@ -166,25 +169,45 @@ class OLMapPage_Controller extends Page_Controller {
 	 * @return string HTML segment
 	 */
 	public function dogetfeatureinfo( $request ) {
-
+		
 		$output = "Sorry we cannot retrieve feature information, please try again";
+		// check if the request is for more than one station (clustered)
+		$stationID = Director::urlParam("OtherID");
+		if(strpos($stationID,",") === FALSE){
+			// process request parameters
+			$mapid   = (int)Director::urlParam("ID"); 
+			$feature = explode(".",Director::urlParam("OtherID")); 
+			
+			// test if user requests feature-info for one element (otherwise create 
+			// overview template.
+		
+			$layerName = Convert::raw2sql($feature[0]);
+			$featureID = Convert::raw2sql($feature[1]);
+		
+			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 
-		// process request parameters
-		$mapid   = (int)Director::urlParam("ID"); 
-		$feature = explode(".",Director::urlParam("OtherID")); 
+			if($layer){
+				$output = $layer->getFeatureInfo($featureID);
+			}
 		
-		// test if user requests feature-info for one element (otherwise create 
-		// overview template.
-		
-		$layerName = Convert::raw2sql($feature[0]);
-		$featureID = Convert::raw2sql($feature[1]);
-		
-		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' and MapID = $mapid");
+			
+		} else{
+			$output = '<ul>';
+			$stationIDs = explode(",",$stationID);
+			$obj = new DataObjectSet();
+			$out = new ViewableData();
+			foreach($stationIDs as $stationID){
+				$output .= "<li><a onClick=\"multipleStationSelect('$stationID');return false\">{$stationID}</a></li>";
+				$obj->push(new ArrayData(array(
+					'Station' => $stationID
+				)));
+			}
+			$out->customise( array( "stations" => $obj ) );
+			return $out->renderWith('MultipleStationsPopup');
+			$output .= "</ul>";
 
-		if($layer){
-			$output = $layer->getFeatureInfo($featureID);
 		}
-		Debug::show($output);
+
 		return $output;
 	}
 
