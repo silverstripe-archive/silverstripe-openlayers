@@ -25,6 +25,7 @@ class OLLayer extends DataObject {
 		// temporarily added (will be removed)
 		"ogc_name"			=> "Varchar(50)",		// layer name (ogc layer name/id)
 		"ogc_map"			=> "Varchar(1024)",		// url to the map file on the server side
+		"ogc_format"		=> "Enum(array('png','jpeg','png24','gif'),'png')",
 		"ogc_transparent"	=> "Boolean"			// transparent overlay layer
 	);
 	
@@ -128,6 +129,7 @@ class OLLayer extends DataObject {
 		$config['Url']         = $this->getField('Url');
 		$config['Visible']     = $this->getField('Visible');
 		$config['ogc_name']    = $this->getField('ogc_name');
+		
 
 		// create options element
 		$options = array();
@@ -138,6 +140,7 @@ class OLLayer extends DataObject {
 			$options['SSID']        = $this->getField('ID');
 			$options['layers']      = $this->getField("ogc_name");
 			$options['transparent'] = $this->getField("ogc_transparent") ? "true": "false";
+			$options['format']      = $this->getField('ogc_format');
 		} else 
 		// handle layer type: WFS
 		if ($layerType == 'wfs' || $layerType == 'wfs_bound') {
