@@ -33,6 +33,7 @@ $(document).ready(function() {
 	$(function() {
 		$("#innerLayers").sortable({ 
 			cursor: 'move',
+			opacity: 0.6,
 			update: function(event, ui) { sortMapLayers(event , ui); }
 		});
 	});
@@ -98,8 +99,6 @@ function multipleStationSelect(station){
 function onFeatureSelect( feature ){
 	
 	selectedFeature = feature;
-	console.log(feature);
-    //console.log(feature);
 	var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information, please wait...';
 	//var info = "You clicked on " + feature.layer.name;
 	//info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
@@ -107,9 +106,7 @@ function onFeatureSelect( feature ){
 	var clusterStations = new Array();
 	var clusterStationsIDs = new Array();
 	clusterStations = feature.cluster;
-	//console.log(clusterStations);
 	for ( var i=0, len=clusterStations.length; i<len; ++i ){
-		//console.log(clusterStations[i]);
 		clusterStationsIDs.push(clusterStations[i].fid);
 		//info = info + "<br/>" + clusterStations[i].fid;
 	}
