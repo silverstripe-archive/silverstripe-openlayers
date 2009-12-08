@@ -233,7 +233,12 @@ class OLLayer extends DataObject {
 		
 		// get XML response
 		$xml = $request->request($requestString);
-		return $xml;	
+		
+		// get just XML part of the response
+		$myxml = $xml->getBody();
+		
+		return $myxml;
+			
 		
 		//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
 	}
