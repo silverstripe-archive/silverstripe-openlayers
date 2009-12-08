@@ -187,6 +187,7 @@ class OLMapPage_Controller extends Page_Controller {
 			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 
 			if($layer){
+				$atts = array();
 				$pattern = '/.attribute./';
 				$output = $layer->getFeatureInfo($featureID);
 				
@@ -195,7 +196,7 @@ class OLMapPage_Controller extends Page_Controller {
 				$reader = new XMLReader();
 				$reader->XML($output);
 				
-				// loop xml 
+				// loop xml for attributes 
 				while ($reader->read()) {
 					if(preg_match($pattern,$reader->name)){
 						if($reader->readInnerXML() != ""){
