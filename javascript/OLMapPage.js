@@ -126,7 +126,7 @@ function onFeatureSelect( feature ){
 		new OpenLayers.Size(200,200),
 		info,
 		true,
-		null
+		onFeatureUnselect
 	);
 	
 	feature.popup = popup;
@@ -143,9 +143,11 @@ function onFeatureSelect( feature ){
 }
 
 function onFeatureUnselect(feature) {
-    map.removePopup(popup);
-    popup.destroy();
-    popup = null;
+	if(popup !== null){
+		map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+	}
 }	
 
 /**
@@ -230,3 +232,4 @@ function sortMapLayers(event , ui){
 		}
 	});
 }
+
