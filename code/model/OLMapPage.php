@@ -187,28 +187,48 @@ class OLMapPage_Controller extends Page_Controller {
 			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 
 			if($layer){
+				$pattern = '/.attribute./';
 				$output = $layer->getFeatureInfo($featureID);
+				
+				$obj = new DataObjectSet();
+				$out = new ViewableData();
+				$reader = new XMLReader();
+				$reader->XML($output);
+				
+				// loop xml 
+				while ($reader->read()) {
+					if(preg_match($pattern,$reader->name)){
+						if($reader->readInnerXML() != ""){
+							$atts[$reader->name] = $reader->readInnerXML();
+						}
+					} 
+				}
+				$reader->close();
+				foreach($atts as $key => $value){
+					$obj->push(new ArrayData(array(
+						'attributeName' => $key,
+						'attributeValue' => $value
+					)));
+				}
+				$out->customise( array( "attributes" => $obj, "stationName" => $stationID ) );
+				return $out->renderWith('SingleStationPopup');
 			}
 		
 			
 		} else{
-			$output = '<ul>';
 			$stationIDs = explode(",",$stationID);
 			$obj = new DataObjectSet();
 			$out = new ViewableData();
 			foreach($stationIDs as $stationID){
-				$output .= "<li><a onClick=\"multipleStationSelect('$stationID');return false\">{$stationID}</a></li>";
 				$obj->push(new ArrayData(array(
 					'Station' => $stationID
 				)));
 			}
 			$out->customise( array( "stations" => $obj ) );
 			return $out->renderWith('MultipleStationsPopup');
-			$output .= "</ul>";
-
 		}
 
 		return $output;
 	}
-
+	
 }
