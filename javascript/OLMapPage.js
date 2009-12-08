@@ -106,10 +106,15 @@ function onFeatureSelect( feature ){
 	var clusterStations = new Array();
 	var clusterStationsIDs = new Array();
 	clusterStations = feature.cluster;
-	for ( var i=0, len=clusterStations.length; i<len; ++i ){
-		clusterStationsIDs.push(clusterStations[i].fid);
-		//info = info + "<br/>" + clusterStations[i].fid;
+	if(clusterStations){
+		for ( var i=0, len=clusterStations.length; i<len; ++i ){
+			clusterStationsIDs.push(clusterStations[i].fid);
+			//info = info + "<br/>" + clusterStations[i].fid;
+		}
+	} else{
+		clusterStationsIDs.push(selectedFeature.fid);
 	}
+	
 	pixel = this.handlers.feature.evt.xy;
 	var pos = map.getLonLatFromViewPortPx(pixel);
 	
