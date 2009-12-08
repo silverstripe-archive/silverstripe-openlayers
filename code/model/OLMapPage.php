@@ -77,7 +77,7 @@ class OLMapPage extends Page {
 		
 		$result = array();
 		if($mapObject) {
-			$layers = $mapObject->getComponents('Layers','','DisplayPriority DESC');
+			$layers = $mapObject->getComponents('Layers','Enabled = 1','DisplayPriority DESC');
 			$obj->customise( array( "layers" => $layers ) );
 		}
 		return $obj;
