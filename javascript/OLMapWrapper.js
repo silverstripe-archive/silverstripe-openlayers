@@ -33,7 +33,7 @@ function initMap(divMap, mapConfig) {
 
 	map = new OpenLayers.Map(divMap, {
 	    controls: [
-	        new OpenLayers.Control.Navigation(),
+	        new OpenLayers.Control.Navigation({zoomWheelEnabled:true}),
 	        new OpenLayers.Control.PanZoomBar(),
 	        new OpenLayers.Control.Permalink(),
 	        new OpenLayers.Control.ScaleLine(),
@@ -48,7 +48,7 @@ function initMap(divMap, mapConfig) {
         maxResolution: maxResolution,
         maxScale: maxScale,
 
-		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top),
+		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
 
 	// initiate all overlay layers
@@ -159,7 +159,7 @@ function createClusteredWFSLayer(layerDef) {
 	var p = new OpenLayers.Protocol.WFS({ 
 			url: wfs_url,
 			featureType: featureType,
-			featurePrefix: null,
+			featurePrefix: null
 	});			
 	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
 
