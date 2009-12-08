@@ -44,26 +44,16 @@ function initMap(divMap, mapConfig) {
 	    ],
 
 		// apply extent/resolution settings to the map
-        minScale: minScale,
-        maxResolution: maxResolution,
-        maxScale: maxScale,
-
-		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
+		minScale:      minScale,
+		maxResolution: maxResolution,
+		maxScale:      maxScale,
+		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top),
 	});
 
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
 	layers.reverse();
 	jQuery.each( layers , initLayer );
-
-	/*
-	name = 'tilecache';
-	options = {  transparent: 'false', layers: 'basic'};
-
-	url = 'http://192.168.1.199/cgi-bin/tilecache.cgi';
-	layer = new OpenLayers.Layer.WMS( name, url, options );
-	map.addLayer(layer);
-	*/	
 
 	map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
 }
@@ -93,10 +83,13 @@ function initLayer( index, layerDef ) {
 		} 			
 	} else
 	if (layerDef.Type == 'wfs') {
-	
-		// get a WFS layer
-		layer = createClusteredWFSLayer(layerDef);
-	//	layer = createWFSLayer(layerDef);
+
+		// create WFS layer	
+		if (layerDef.Cluster == '1') {
+			layer = createClusteredWFSLayer(layerDef);
+		} else {
+			layer = createWFSLayer(layerDef);
+		}
 	}  
 
 	// add new created layer to the map

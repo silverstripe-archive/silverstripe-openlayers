@@ -22,6 +22,9 @@ class OLLayer extends DataObject {
 		"Visible"         	=> "Boolean",
 		"Queryable"			=> "Boolean",
 		
+		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
+		"Cluster"			=> "Boolean",
+		
 		// temporarily added (will be removed)
 		"ogc_name"			=> "Varchar(50)",		// layer name (ogc layer name/id)
 		"ogc_map"			=> "Varchar(1024)",		// url to the map file on the server side
@@ -45,6 +48,8 @@ class OLLayer extends DataObject {
 		'Title',
 		'ogc_name',
 		'Type',
+		'GeometryType',
+		'Cluster',
 		'Enabled',
 		'Visible',
 		'Queryable',
@@ -57,7 +62,8 @@ class OLLayer extends DataObject {
 	    'Enabled' => true,
 	    'Visible' => false,
 	    'Queryable' => true,
-	    'ogc_transparent' => true
+	    'ogc_transparent' => true,
+		'GeometryType' => 'Point'
 	 );
 
 	static $casting = array(
@@ -75,8 +81,12 @@ class OLLayer extends DataObject {
 		$fields = parent::getCMSFields();
 
 		$fields->removeFieldsFromTab("Root.Main", array(
-			"Url","DisplayPriority","Enabled", "Visible", "Queryable","ogc_name","ogc_map", "ogc_transparent"
+			"Url","DisplayPriority","Cluster", "Enabled", "Visible", "Queryable","ogc_name","ogc_map", "ogc_transparent"
 		));
+
+		$geometryType = $fields->fieldByName("Root.Main.GeometryType");
+		$fields->removeFieldFromTab("Root.Main","GeometryType");
+
 
 		$LayerType = $fields->fieldByName("Root.Main.Type");
 		$fields->removeFieldFromTab("Root.Main","Type");
@@ -95,6 +105,9 @@ class OLLayer extends DataObject {
 					new CompositeField( 
 						new LiteralField("OGCLabel","<h3>Display Settings</h3>"),
 						new NumericField("DisplayPriority", "Draw Priority"),
+						$geometryType,
+						new CheckboxField("Cluster", "Cluster"),						
+						new LiteralField("MapLabel","<i>Optional: \"Cluster\" can be applied to all geometry types, but will transform non-point layers to points.</i>"),
 						new CheckboxField("Enabled", "Enabled"),
 						new CheckboxField("Visible","Visible"),
 						new CheckboxField("Queryable", "Queryable")
@@ -130,7 +143,9 @@ class OLLayer extends DataObject {
 		$config['Visible']     = $this->getField('Visible');
 		$config['ogc_name']    = $this->getField('ogc_name');
 		
-
+		$config['GeometryType']= $this->getField('GeometryType');
+		$config['Cluster']    = $this->getField('Cluster');
+		
 		// create options element
 		$options = array();
 		$options['map']  = $this->getField("ogc_map");
@@ -209,7 +224,7 @@ class OLLayer extends DataObject {
 		$URLRequest = trim($URLRequest,"&");
 		$URLRequest = str_replace('RequestURL=','',$URLRequest);
 		
-		$request = new RestfulService($this->Url);
+		$request = new RestfulService($this->Url,0);
 		$xml = $request->request($URLRequest);
 		return $xml;
 	}
