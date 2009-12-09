@@ -211,8 +211,8 @@ class OLMapPage_Controller extends Page_Controller {
 						'attributeValue' => $value
 					)));
 				}
-				$out->customise( array( "attributes" => $obj, "stationName" => $stationID ) );
-				return $out->renderWith('SingleStationPopup');
+				$out->customise( array( "attributes" => $obj, "ID" => $stationID ) );
+				return $out->renderWith('MapPopup_Detail');
 			}
 		
 			
@@ -226,7 +226,7 @@ class OLMapPage_Controller extends Page_Controller {
 				)));
 			}
 			$out->customise( array( "stations" => $obj ) );
-			return $out->renderWith('MultipleStationsPopup');
+			return $out->renderWith('MapPopup_List');
 		}
 
 		return $output;
