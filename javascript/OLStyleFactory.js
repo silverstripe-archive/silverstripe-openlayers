@@ -1,19 +1,21 @@
+function OLStyleFactory() {
+}
 
 /**
  * Create a WFS layer instance for Open Layers.
  */
-function getStyleMap(layerName) {
-
-	var styleMap = null;
+OLStyleFactory.createStyleMap = function (layerName) {
 	
+	var styleMap = null;
+
 	if (layerName == 'DTIS') {
-		styleMap = createStyleMap_DTIS();
+		styleMap = this.createStyleMap_DTIS();
 	} else
 	if (layerName == 'CTD') {
-		styleMap = createStyleMap_CTD();
+		styleMap = this.createStyleMap_CTD();
 	} else {
 		// default style
-		styleMap = createStyleMap_Default();
+		styleMap = this.createStyleMap_Default();
 	}
 	return styleMap;
 }
@@ -21,7 +23,7 @@ function getStyleMap(layerName) {
 /**
  * Return a specific style map for CTD vector data
  */
-function createStyleMap_Default() {
+OLStyleFactory.createStyleMap_Default = function() {
 	
 	default_style = new OpenLayers.Style({
         pointRadius: "${radius}",
@@ -57,7 +59,7 @@ function createStyleMap_Default() {
 /**
  * Return a specific style map for DTIS vector data
  */
-function createStyleMap_DTIS() {
+OLStyleFactory.createStyleMap_DTIS = function() {
 	
 	default_style = new OpenLayers.Style({
 		pointRadius: "${radius}",
@@ -99,7 +101,7 @@ function createStyleMap_DTIS() {
 /**
  * Return a specific style map for CTD vector data
  */
-function createStyleMap_CTD() {
+OLStyleFactory.createStyleMap_CTD = function() {
 	
 	default_style = new OpenLayers.Style({
 			externalGraphic: "openlayers/javascript/jsparty/img/marker-green.png", 
