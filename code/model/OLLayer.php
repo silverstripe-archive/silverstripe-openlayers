@@ -158,7 +158,7 @@ class OLLayer extends DataObject {
 			$options['format']      = $this->getField('ogc_format');
 		} else 
 		// handle layer type: WFS
-		if ($layerType == 'wfs' || $layerType == 'wfs_bound') {
+		if ($layerType == 'wfs') {
 			$options['SSID']     = $this->getField('ID');		
 			$options['typename'] = $this->getField("ogc_name");	
 		}
@@ -196,7 +196,13 @@ class OLLayer extends DataObject {
 	}
 
 	/**
-	 *
+	 * Parameter structure:
+	 * 		$param['BBOX']
+	 *		$param['WIDTH']
+	 * 		$param['HEIGHT']
+	 * 		$param['x']
+	 * 		$param['z']
+	 * @param array $param array object, storing the WMS relevant parameter information.
 	 */
 	protected function sendWMSFeatureRequest($param){
 		
