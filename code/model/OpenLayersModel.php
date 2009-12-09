@@ -34,7 +34,12 @@ class OpenLayersModel {
 	 * @return string URL
 	 */
 	function getRequiredJavaScript() {
-		return "openlayers/javascript/jsparty/lib/OpenLayers.js";
+		$openlayerJS = "openlayers/javascript/jsparty/OpenLayers.js";
+		
+		if (Director::isDev() == true) {
+			$openlayerJS = "openlayers/javascript/jsparty/lib/OpenLayers.js";
+		}
+		return $openlayerJS;
 	}
 	
 	function getAllowedHosts() {
