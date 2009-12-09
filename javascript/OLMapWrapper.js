@@ -90,6 +90,10 @@ function initLayer( index, layerDef ) {
 		} else {
 			layer = createWFSLayer(layerDef);
 		}
+		var featureType = layerDef.ogc_name;
+		
+		var styleMap = OLStyleFactory.createStyleMap(featureType);
+		layer.styleMap = styleMap;
 	}  
 
 	// add new created layer to the map
@@ -126,8 +130,6 @@ function createClusteredWFSLayer(layerDef) {
 	});			
 	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
 
-	var styleMap = getStyleMap(featureType);
-
     var strategyCluster = new OpenLayers.Strategy.Cluster();
 	strategyCluster.distance = 25;
 
@@ -138,8 +140,7 @@ function createClusteredWFSLayer(layerDef) {
 
     layer = new OpenLayers.Layer.Vector(title, {
         strategies: strategies,
-        protocol: p ,
-        styleMap: styleMap
+        protocol: p 
     });
 	return layer;
 }
@@ -156,8 +157,5 @@ function createWFSLayer(layerDef) {
 	var featureType = layerDef.ogc_name;
 
 	var layer    = new OpenLayers.Layer.WFS(title, wfs_url, options);
-	var styleMap = getStyleMap(featureType);
-
-	layer.styleMap = styleMap;
 	return layer;
 }	
