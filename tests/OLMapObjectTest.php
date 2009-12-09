@@ -130,6 +130,17 @@ class OLMapObjectTest extends SapphireTest {
 
 		$array_layers = $result['Layers'];
 		$this->assertEquals(sizeof($array_layers),1);
+	}
+	
 
+	/**
+	 * Basic test to see if getCMSFields returns a fieldset.
+	 */
+	function testGetCMSFields() {
+		
+		$layer = new OLMapObject();
+		$fieldset = $layer->getCMSFields();		
+
+		$this->assertTrue(is_a($fieldset, "FieldSet"));
 	}
 }
