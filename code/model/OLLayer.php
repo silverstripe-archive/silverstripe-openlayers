@@ -175,27 +175,70 @@ class OLLayer extends DataObject {
 	 *
 	 * @throws OLLayer_Exception
 	 *
-	 * @param string type
-	 * @param array param
+	 * @param integer featureID
+	 * @throws OLLayer_Exception
 	 *
-	 * @return response
+	 * @return string XML response
 	 */
 	function getFeatureInfo($featureID) {
 		$Type = $this->getField('Type');
+		$url  = $this->getField('Url');
 		
 		$response = null;
 		if ($Type == 'wms' || $Type == 'wmsUntiled') {
-			$response = $this->sendWMSFeatureRequest($featureID);
+			$requestString = $this->getWMSFeatureRequest($param);
 		} else 
 		if ($Type == 'wfs') {
-			$response = $this->sendWFSFeatureRequest($featureID);
+			
+			$param = array();
+			$param['featureID'] = $featureID;
+			$requestString = $this->getWFSFeatureRequest($param);
 		} else {
+			// layer type unknown -> error
 			throw new OLLayer_Exception('Request type unknown');
 		}
-		return $response;
+		
+		// send request to OGC web service
+		$request  = new RestfulService($url,0);
+		$response = $request->request($requestString);
+
+		$xml = $response->getBody();
+		return $xml;
+	}
+
+
+	/**
+	 * Returns the GET request string for a OGC WFS get-feature request.
+	 *
+	 * @param array array of request parameters (featureID)
+	 *
+	 * @return string request string 
+	 */
+	public function getWFSFeatureRequest($param) {
+		// http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
+		
+		$featureID = $param['featureID'];
+		$featureID = Convert::raw2xml($featureID);
+		
+		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
+		$map          = $this->getField('ogc_map');
+		$typename     = $this->getField('ogc_name');
+		
+		if ($typename == '') {
+			throw new OLLayer_Exception('Invalid featuretype name. This layer has not been initialized correctly.');
+		}
+		
+		$requestString = "?";
+		if ($map) {
+			$requestString = "?map=".$map."&";
+		}
+		
+		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
+		return $requestString;
 	}
 
 	/**
+	 *
 	 * Parameter structure:
 	 * 		$param['BBOX']
 	 *		$param['WIDTH']
@@ -204,9 +247,32 @@ class OLLayer extends DataObject {
 	 * 		$param['z']
 	 * @param array $param array object, storing the WMS relevant parameter information.
 	 */
-	protected function sendWMSFeatureRequest($param){
+	public function getWMSFeatureRequest($param) {
 		
-		throw new OLLayer_Exception("Method not fully implemented");
+		if (!isset($param['BBOX']) ) {
+			throw new OLLayer_Exception('Parameter missing: BBOX');
+		}
+
+		if (!isset($param['x']) ) {
+			throw new OLLayer_Exception('Parameter missing: x');
+		}
+
+		if (!isset($param['y']) ) {
+			throw new OLLayer_Exception('Parameter missing: y');
+		}
+
+		if (!isset($param['WIDTH']) ) {
+			throw new OLLayer_Exception('Parameter missing: WIDTH');
+		}
+
+		if (!isset($param['HEIGHT']) ) {
+			throw new OLLayer_Exception('Parameter missing: HEIGHT');
+		}
+		
+		if ($this->ogc_name == '') {
+			throw new OLLayer_Exception('Feature type of the layer is not defined.');
+		}
+		
 		
 		$staticParams = array(
 			'REQUEST' => 'GetFeatureInfo', 
@@ -219,49 +285,32 @@ class OLLayer extends DataObject {
 			'SRS' => 'EPSG%3A4326'
 		);
 		//$vars = $data->getVars();
-		$URLRequest = "?map=".$this->ogc_map."&";
+		$URLRequest = "?";
+		if ($this->ogc_map != '') {
+			$URLRequest = "?map=".$this->ogc_map."&";
+		}
 		
 		foreach($staticParams as $k => $v){
-			
 			$URLRequest .= $k.'='.$v.'&';
 		}
 		$URLRequest .= "LAYERS=".$this->ogc_name."&QUERY_LAYERS=".$this->ogc_name."&BBOX=".$param['BBOX'];
 		$URLRequest .= "&x=".$param['x']."&y=".$param['y']."&WIDTH=".$param['WIDTH']."&HEIGHT=".$param['HEIGHT'];
 		$URLRequest = trim($URLRequest,"&");
-		$URLRequest = str_replace('RequestURL=','',$URLRequest);
-		
-		$request = new RestfulService($this->Url,0);
-		$xml = $request->request($URLRequest);
-		return $xml;
+		return $URLRequest;
+	}
+
+	/**
+	 * Depreciated: handling WMS request 
+	 */
+	protected function sendWMSFeatureRequest($param){
+		throw new OLLayer_Exception("Depreciated. Please use getFeatureInfo");
 	}
 	
 	/**
-	 *
+	 * Depreciated: handling WFS request 
 	 */
 	function sendWFSFeatureRequest($featureID){
-		
-		$featureID = Convert::raw2xml($featureID);
-		
-		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
-		$url          = $this->getField('Url');
-		$map          = $this->getField('ogc_map');
-		$typename     = $this->getField('ogc_name');
-		
-		$requestString = "?map=".$map."&request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
-
-		// set OGC WFS request to WFS server
-		$request = new RestfulService($url);
-		
-		// get XML response
-		$xml = $request->request($requestString);
-		
-		// get just XML part of the response
-		$myxml = $xml->getBody();
-		
-		return $myxml;
-			
-		
-		//http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
+		throw new OLLayer_Exception("Depreciated. Please use getFeatureInfo");
 	}
 }
 

@@ -23,6 +23,237 @@ class OLLayerTest extends SapphireTest {
 		parent::tearDown();
 	}
 
+	/**
+	 * Basic test to see if getCMSFields returns a fieldset.
+	 */
+	function testGetCMSFields() {
+		
+		$layer = new OLLayer();
+		$fieldset = $layer->getCMSFields();		
+
+		$this->assertTrue(is_a($fieldset, "FieldSet"));
+	}
+	
+	/**
+	 * Test WFS get-feature support (test with invalid layer)
+	 */
+	function testGetWFSFeatureRequest_invalidLayer() {
+		$layer = new OLLayer();
+		$param = array();
+		$param['featureID'] = 1;
+		
+		try {
+			$request = $layer->getWFSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	/**
+	 * Test WFS get-feature support (test with valid layer, no map-path)
+	 */
+	function testGetWFSFeatureRequest() {
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();
+		$param['featureID'] = 2;
+		
+		$request = $layer->getWFSFeatureRequest( $param );		
+		$this->assertEquals($request, "?request=getfeature&service=WFS&version=1.0.0&typename=featureType&OUTPUTFORMAT=gml3&featureid=featureType.2");
+	}
+
+	/**
+	 * Test WFS get-feature support (test with valid layer, with map-path)
+	 */
+	function testGetWFSFeatureRequest_WithMapName() {
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
+
+		$param = array();
+		$param['featureID'] = 2;
+		
+		$request = $layer->getWFSFeatureRequest( $param );		
+		$this->assertEquals($request, "?map=TestMap&request=getfeature&service=WFS&version=1.0.0&typename=featureType&OUTPUTFORMAT=gml3&featureid=featureType.2");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+	
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+	
+	function testGetWMSFeatureRequest_invalidLayer_test1() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Parameter missing: BBOX");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer_test2() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";
+		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Parameter missing: x");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer_test3() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";
+		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Parameter missing: y");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer_test4() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['HEIGHT'] = "350";
+		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Parameter missing: WIDTH");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer_test5() {		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Parameter missing: HEIGHT");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+	function testGetWMSFeatureRequest_invalidLayer_test6() {		
+		$layer = new OLLayer();
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";
+		
+		try {
+			$request = $layer->getWMSFeatureRequest( $param );		
+		}
+		catch(OLLayer_Exception $e) {
+			$this->assertEquals($e->getMessage(),"Feature type of the layer is not defined.");
+			return;
+		}
+		$this->assertTrue(false,"Exception expected but hasn't been thrown.");
+	}
+
+
+	/**
+	 * Test WMS request without mapname
+	 */
+	function testGetWMSFeatureRequest_no_map() {
+		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";
+		
+		$request = $layer->getWMSFeatureRequest( $param );		
+		$this->assertEquals($request,"?REQUEST=GetFeatureInfo&INFO_FORMAT=application/vnd.ogc.gml&VERSION=1.1.1&TRANSPARENT=true&STYLE=&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&SRS=EPSG%3A4326&LAYERS=featureType&QUERY_LAYERS=featureType&BBOX=10,12,20,22&x=123&y=233&WIDTH=500&HEIGHT=350");
+	}
+
+	/**
+	 * Test WMS request without mapname
+	 */
+	function testGetWMSFeatureRequest_map() {
+		
+		$layer = new OLLayer();
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
+
+		$param = array();		
+		$param['BBOX'] = "10,12,20,22";
+		$param['x'] = "123";
+		$param['y'] = "233";
+		$param['WIDTH'] = "500";
+		$param['HEIGHT'] = "350";
+		
+		$request = $layer->getWMSFeatureRequest( $param );		
+		$this->assertEquals($request,"?map=TestMap&REQUEST=GetFeatureInfo&INFO_FORMAT=application/vnd.ogc.gml&VERSION=1.1.1&TRANSPARENT=true&STYLE=&EXCEPTIONS=application/vnd.ogc.se_xml&FORMAT=image/png&SRS=EPSG%3A4326&LAYERS=featureType&QUERY_LAYERS=featureType&BBOX=10,12,20,22&x=123&y=233&WIDTH=500&HEIGHT=350");
+	}
+
 
 	/**
 	 * Test response which an wfs layer object
@@ -133,7 +364,19 @@ class OLLayerTest extends SapphireTest {
 		$this->assertEquals($options['map'], NULL);
 	}
 
+	function testGetFeatureInfo() {
+	}
+
+/*
+** Parameter structure:
+* 		$param['BBOX']
+*		$param['WIDTH']
+* 		$param['HEIGHT']
+* 		$param['x']
+* 		$param['z']/
 	function testSendWMSFeatureRequest() {
+		
+		
 	}
 	
 	function testSendWFSFeatureRequest() {
@@ -142,5 +385,5 @@ class OLLayerTest extends SapphireTest {
 	function testGetFeatureInfo() {
 	}
 	
-	
+	*/
 }
