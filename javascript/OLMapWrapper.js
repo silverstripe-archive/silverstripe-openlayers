@@ -114,36 +114,6 @@ function initLayer( index, layerDef ) {
  */
 function createClusteredWFSLayer(layerDef) {
 
-    var style_normal = new OpenLayers.Style({
-        pointRadius: "3",
-        fillColor: "#ffcc66",
-        fillOpacity: 0.8,
-        strokeColor: "#cc6633",
-        strokeWidth: 2,
-        strokeOpacity: 0.8
-    });
-
-    var style_select = new OpenLayers.Style({
-        fillColor: "#66ccff",
-        strokeColor: "#3399ff"
-    });
-
-		
-    var style_clustered = new OpenLayers.Style({
-        pointRadius: "${radius}",
-        fillColor: "#ffcc66",
-        fillOpacity: 0.8,
-        strokeColor: "#cc6633",
-        strokeWidth: 2,
-        strokeOpacity: 0.8
-    }, {
-        context: {
-            radius: function(feature) {
-                return Math.min(feature.attributes.count, 7) + 3;
-            }
-        }
-    });
-
 	var title   = layerDef.Title;
 	var options = layerDef.Options;
 	var wfs_url = layerDef.Url+"?map="+options['map'];
@@ -156,17 +126,7 @@ function createClusteredWFSLayer(layerDef) {
 	});			
 	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
 
-	var s = new OpenLayers.StyleMap({
-        "default": style_clustered,
-        "select": {
-            fillColor: "#8aeeef",
-            strokeColor: "#32a8a9"
-        },
-		"temporary" : {
-            fillColor: "#000000",
-            strokeColor: "#f0f0f0"
-		}
-    });
+	var styleMap = getStyleMap(featureType);
 
     var strategyCluster = new OpenLayers.Strategy.Cluster();
 	strategyCluster.distance = 25;
@@ -179,9 +139,8 @@ function createClusteredWFSLayer(layerDef) {
     layer = new OpenLayers.Layer.Vector(title, {
         strategies: strategies,
         protocol: p ,
-        styleMap: s
+        styleMap: styleMap
     });
-
 	return layer;
 }
 
@@ -194,26 +153,11 @@ function createWFSLayer(layerDef) {
 	var wfs_url = layerDef.Url;
 	var title   = layerDef.Title;
 	var options = layerDef.Options;
+	var featureType = layerDef.ogc_name;
 
-	var layer   = new OpenLayers.Layer.WFS(title, wfs_url, options);
+	var layer    = new OpenLayers.Layer.WFS(title, wfs_url, options);
+	var styleMap = getStyleMap(featureType);
 
-	// STYLE
-	var myStyles = new OpenLayers.StyleMap({
-        "default": new OpenLayers.Style({
-            pointRadius: 5, // sized according to type attribute
-            fillColor: "#FFD68F",
-            strokeColor: "#ff9933",
-            strokeWidth: 2,
-			fillOpacity: 0.3
-        }),
-        "select": new OpenLayers.Style({
-			pointRadius: 5, // sized according to type attribute
-            fillColor: "#66ccff",
-            strokeColor: "#3399ff",
-			strokeWidth: 3
-        })
-    });
-
-	layer.styleMap = myStyles;
+	layer.styleMap = styleMap;
 	return layer;
 }	
