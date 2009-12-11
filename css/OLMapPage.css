@@ -25,7 +25,7 @@
 .unselectAllLayers {
 	cursor:pointer;
 }
-
+/*
 .olPopup {
 	background:#000 !important;
 }
@@ -38,7 +38,7 @@
 	cursor:pointer;
 	color:#FFF;
 }
-
+*/
 li.popupattr {
 	color:#FFF;
 	font-size:1.1em;
