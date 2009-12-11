@@ -1,24 +1,26 @@
-<div id='layersMenu'>
-<h2>Available layers</h2>
-<form id='layerlist'>
-	<ul>
-		<li>
-			<a class="selectAllLayers">Select all layers</a> | <a class="unselectAllLayers">Unselect all layers</a>
-		</li>
-	<div id ="innerLayers">
-	<% control layers %>
+<div id='mapPanelWrapper'>
+	<div id="mapPanel">
+		<div class='panelTop'>
+			<span class="arrow"></span>
+			<h3 class='layers'>Layers</h3>
+		</div>
+		<form id='layerlist'>
+			<div id="allLayers">
+				<a class="selectAllLayers" title="click to show all layers">Select all layers</a> | <a class="unselectAllLayers" title="click to hide all layers">Unselect all layers</a>
+			</div>
+			<div id ="innerLayers">
+				<% control layers %>
 		
-		<% if ogc_transparent %>
-			<li id="$Title">
-				<span class='layervisible'>
-					<input type='checkbox' name='$Title' class='change_visibility' value='$Title' <% if Visible %>checked<% end_if %> />
-				</span>
-				$Title
-			</li>
-		<% end_if %>
+					<% if ogc_transparent %>
+						<div class="panelItem grip" title="drag">
+							<input type='checkbox' name='$Title' class='change_visibility' value='$Title' <% if Visible %>checked<% end_if %> />
+							<h5><a href="method_sample.html">$Title</a></h5>
+						</div>
+					<% end_if %>
 		
-	<% end_control %>
+				<% end_control %>
+			</div>
+		</form>
+		<div class="panelBottom"></div>
 	</div>
-	</ul>
-</form>
 </div>
