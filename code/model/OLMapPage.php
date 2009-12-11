@@ -130,6 +130,8 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('openlayers/javascript/OLMapWrapper.js');
 		Requirements::javascript('openlayers/javascript/OLStyleFactory.js');
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
+		Requirements::javascript('themes/niwa/javascript/jquery.checkbox.js');
+		Requirements::javascript('themes/niwa/javascript/SSPopup.js');
 		
 		Requirements::themedCSS('OLMapPage');
 
@@ -145,7 +147,25 @@ class OLMapPage_Controller extends Page_Controller {
 		// add configuration json object to custom scripts
 		Requirements::customScript($jsConfig);
 	}
-
+	
+	/**
+	* find for layer WhiteList words in the XML response 
+	* @param string $haystack XML source 
+	* @param string $needles WhiteList words (comma separated)
+	**/
+	
+	static function WhiteList($XMlTag , $keywords){
+		$patterns = explode(",",$keywords);
+	    foreach($patterns as $pattern){
+			$pattern = trim($pattern);
+	        if (strpos($XMlTag,$pattern)) {
+				
+				return true;
+	       }
+	    }
+	    return false;
+	}
+	
 	/**
 	 * Render the layer selector.
 	 *
@@ -189,7 +209,7 @@ class OLMapPage_Controller extends Page_Controller {
 
 			if($layer){
 				$atts = array();
-				$pattern = '/.attribute./';
+				
 				$output = $layer->getFeatureInfo($featureID);
 				
 				$obj = new DataObjectSet();
@@ -199,11 +219,18 @@ class OLMapPage_Controller extends Page_Controller {
 				
 				// loop xml for attributes 
 				while ($reader->read()) {
-					if(preg_match($pattern,$reader->name)){
+					if($reader->nodeType != XMLReader::END_ELEMENT){
+						if(self::WhiteList($reader->name,$layer->XMLWhitelist)){
+							$atts[$reader->name] = $reader->readInnerXML();
+						}
+					}
+					/*
+					if(preg_match($pattern,$reader->name) == 0){
 						if($reader->readInnerXML() != ""){
 							$atts[$reader->name] = $reader->readInnerXML();
 						}
 					} 
+					*/
 				}
 				$reader->close();
 				foreach($atts as $key => $value){
@@ -212,7 +239,7 @@ class OLMapPage_Controller extends Page_Controller {
 						'attributeValue' => $value
 					)));
 				}
-				$out->customise( array( "attributes" => $obj, "ID" => $stationID ) );
+				$out->customise( array( "attributes" => $obj, "StationID" => $stationID ) );
 				return $out->renderWith('MapPopup_Detail');
 			}
 		
