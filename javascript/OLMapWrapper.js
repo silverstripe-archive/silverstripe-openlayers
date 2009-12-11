@@ -11,7 +11,7 @@ var map   = null;		// global map instance
  * @param string divMap name of the target div object
  **/
 function initMap(divMap, mapConfig) {
-
+	
 	// set default location of the map
 	var map_config = mapConfig['Map'];
 
@@ -47,9 +47,9 @@ function initMap(divMap, mapConfig) {
 		minScale:      minScale,
 		maxResolution: maxResolution,
 		maxScale:      maxScale,
-		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top),
+		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
-
+	//map.paddingForPopups = new OpenLayers.Bounds(80, 80, 15, 15);
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
 	layers.reverse();
