@@ -24,6 +24,7 @@ class OLLayer extends DataObject {
 		
 		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
 		"Cluster"			=> "Boolean",
+		"XMLWhitelist"		=> "Varchar(255)",
 		
 		// temporarily added (will be removed)
 		"ogc_name"			=> "Varchar(50)",		// layer name (ogc layer name/id)
@@ -41,7 +42,8 @@ class OLLayer extends DataObject {
 		"ogc_name"         => "OGC Layer Name",
 		"ogc_map"          => "Map-filename",
 		"ogc_transparent"  => "Transparency",
-		"Map.Title"        => "Map Name"
+		"Map.Title"        => "Map Name",
+		"XMLWhitelist"     => "Get Feature XML Whitelist (comma separated)"
 	);	
 	
 	static $summary_fields = array(
@@ -63,7 +65,8 @@ class OLLayer extends DataObject {
 	    'Visible' => false,
 	    'Queryable' => true,
 	    'ogc_transparent' => true,
-		'GeometryType' => 'Point'
+		'GeometryType' => 'Point',
+		'XMLWhitelist' => 'attribute'
 	 );
 
 	static $casting = array(
@@ -310,7 +313,9 @@ class OLLayer extends DataObject {
 	 * Depreciated: handling WFS request 
 	 */
 	function sendWFSFeatureRequest($featureID){
+
 		throw new OLLayer_Exception("Depreciated. Please use getFeatureInfo");
+
 	}
 }
 
