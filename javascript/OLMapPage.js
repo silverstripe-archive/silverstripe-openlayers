@@ -11,12 +11,13 @@ $(document).ready(function() {
 	
 	// reset the layerlist-form
 	$('#layerlist')[0].reset();	
-		
-	$(".change_visibility").change( setLayerVisibility );
+	$('input:checkbox:change_visibility').checkbox();
+	$(".change_visibility").click( setLayerVisibility );
 		
 	$(".selectAllLayers").click( selectAllLayer );
 	$(".unselectAllLayers").click( unselectAllLayer );
 	$("a.multipleStations").click( multipleStationSelect );
+	$(".closeButton").click( closeModalBox );
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 
 	// initialise map
@@ -99,7 +100,8 @@ function multipleStationSelect(station){
 function onFeatureSelect( feature ){
 	
 	selectedFeature = feature;
-	var info = 	'<img src=\'openlayers/images/ajax-loader.gif\' />&nbsp;loading information, please wait...';
+	var info = "";
+	info = 	'<img src=\'themes/niwa/images/smallLoader.gif\' />&nbsp;loading information, please wait...';
 	//var info = "You clicked on " + feature.layer.name;
 	//info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
 	// get event class
@@ -116,6 +118,8 @@ function onFeatureSelect( feature ){
 	}
 	
 	pixel = this.handlers.feature.evt.xy;
+	pixel.y = pixel.y-68; //hack to always open popup above station  
+	pixel.x = pixel.x-20;
 	var pos = map.getLonLatFromViewPortPx(pixel);
 	
 	// remove existing popup
@@ -125,15 +129,16 @@ function onFeatureSelect( feature ){
 	}
 			
 	// create popup up with response //
-	popup = new OpenLayers.Popup(
+	
+	popup = new OpenLayers.SSPopup(
 		"popupinfo",
 		new OpenLayers.LonLat(pos.lon,pos.lat),
-		new OpenLayers.Size(200,200),
+		new OpenLayers.Size(200,220),
 		info,
 		true,
 		onFeatureUnselect
 	);
-	
+	popup.panMapIfOutOfView = true;
 	feature.popup = popup;
 	map.addPopup(popup);
 
@@ -164,9 +169,36 @@ function onLoadPopup(response) {
 	
 	if (popup != null) {
 		popup.setContentHTML( innerHTML );
+		movePopup();
 	}
 }
 
+/**
+ * move popup when its content div dimensions change
+**/
+function movePopup(){
+	// current popup content div height 
+	var divHeight = $("#popupinfo_contentDiv").height();
+	
+	// get popup coordinates 
+	var popPosition = map.getLayerPxFromLonLat(popup.lonlat);
+	
+	// we take 20px off because the spinning weel wont be there anymore
+	divHeight = divHeight - 20;
+	
+	// move the popup divheight (new content) pixels up
+	popPosition.y = popPosition.y - divHeight;
+	
+	// call function in popup
+	popup.moveTo(popPosition);
+	
+	// pan map if necessary 
+	popup.panIntoView();
+}
+
+/**
+ * Close popup and unselect feature
+**/
 function onPopupClose( evt ) {
     selectControl.unselect(selectedFeature);
 }
@@ -237,4 +269,46 @@ function sortMapLayers(event , ui){
 		}
 	});
 }
+
+//----------------------------------------------------------------
+//Modal Box
+//----------------------------------------------------------------
+
+
+function openModalBox( stationID ){
+	collapse();
+	$("#locklayer").show();
+	$("#modalbox").show();
+	$("#modalbox .mbcontent").load("atlasLoader/loadStation/" + stationID);
+		
+}
+
+function closeModalBox(){
+	expand();
+	$("#locklayer").hide();
+	$("#modalbox").hide();
+	
+}
+
+
+var isCollapsed = false;
+$('.panelTop .arrow').click(function(){
+	if(isCollapsed){
+		expand();
+	}else{
+		collapse();
+	}
+});
+function collapse(){
+	isCollapsed = true;
+	var w = -$('#mapPanel').width()-30;
+	$('#mapPanel').animate({ right: w }, 500);
+	$('.panelTop .arrow').addClass('layers');
+}
+function expand(){
+	isCollapsed = false;
+	$('#mapPanel').animate({ right: 0 }, 500);
+	$('.panelTop .arrow').removeClass('layers');
+}
+
 
