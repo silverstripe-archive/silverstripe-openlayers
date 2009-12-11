@@ -14,6 +14,7 @@
 					<% if ogc_transparent %>
 						<div class="panelItem grip" title="drag">
 							<input type='checkbox' name='$Title' class='change_visibility' value='$Title' <% if Visible %>checked<% end_if %> />
+							<% if GeometryType = Point %><img src="themes/niwa/images/marker.png"> <% end_if %>
 							<h5><a href="method_sample.html">$Title</a></h5>
 						</div>
 					<% end_if %>
