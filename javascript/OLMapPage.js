@@ -101,7 +101,7 @@ function onFeatureSelect( feature ){
 	
 	selectedFeature = feature;
 	var info = "";
-	info = 	'<img src=\'themes/niwa/images/smallLoader.gif\' />&nbsp;loading information, please wait...';
+	info = 	'<img src=\'openlayers/images/ajax-loader.gif\' /><strong>&nbsp;loading information, please wait...</strong>';
 	//var info = "You clicked on " + feature.layer.name;
 	//info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
 	// get event class
