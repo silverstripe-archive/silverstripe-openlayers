@@ -1,0 +1,4 @@
+OLMapPage:
+    olmappage:
+       URLSegment: openlayers-map
+       Title: OpenLayers Map
