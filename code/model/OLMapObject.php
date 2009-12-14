@@ -87,7 +87,7 @@ class OLMapObject extends DataObject {
 		);
 		
 		// create a dedicated tab for open layers
-		$fields->addFieldsToTab("Root.OpenLayersMapConfiguration", 
+		$fields->addFieldsToTab("Root.Configuration", 
 			array(
 				new LiteralField("MapLabel","<h2>Map settings</h2>"),
 				new CompositeField( 
