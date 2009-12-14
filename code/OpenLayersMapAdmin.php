@@ -17,10 +17,6 @@ class OpenLayersMapAdmin extends ModelAdmin {
 
 	static $collection_controller_class = "OpenLayersMapAdmin_CollectionController";
 	
-	function init(){
-		parent::init();
-	}
-	
 	static $managed_models = array(
 		"OLMapObject",
 		"OLLayer",
