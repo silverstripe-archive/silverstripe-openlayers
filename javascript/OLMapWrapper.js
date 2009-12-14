@@ -34,12 +34,8 @@ function initMap(divMap, mapConfig) {
 	map = new OpenLayers.Map(divMap, {
 	    controls: [
 	        new OpenLayers.Control.Navigation({zoomWheelEnabled:true}),
-	        new OpenLayers.Control.PanZoomBar(),
-	        new OpenLayers.Control.Permalink(),
+	        new OpenLayers.Control.SSPanZoomBar(),
 	        new OpenLayers.Control.ScaleLine(),
-	        new OpenLayers.Control.Permalink('permalink'),
-	        new OpenLayers.Control.MousePosition(),
-	        new OpenLayers.Control.OverviewMap(),
 	        new OpenLayers.Control.KeyboardDefaults()
 	    ],
 
