@@ -219,7 +219,7 @@ class OLLayer extends DataObject {
 	 */
 	public function getWFSFeatureRequest($param) {
 		// http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
-		
+		// http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=stationdetails&OUTPUTFORMAT=gml3&featureid=stationdetails.106
 		$featureID = $param['featureID'];
 		$featureID = Convert::raw2xml($featureID);
 		
