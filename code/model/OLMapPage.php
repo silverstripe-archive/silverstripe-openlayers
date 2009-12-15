@@ -14,7 +14,7 @@ class OLMapPage extends Page {
 	);	
 	
 	static $has_one = array(
-		'Map' => 'OLMapObject'
+		'Map' => 'OLMapObject'		// default map shown when the page opens
 	);
 
 	/**
@@ -34,7 +34,7 @@ class OLMapPage extends Page {
 			$items = $maps->map('ID','Title');
 		}
 
-		$fields->addFieldsToTab("Root.OpenLayers", 
+		$fields->addFieldsToTab("Root.Content.OpenLayers", 
 			array(
 				new LiteralField("MapLabel","<h2>Map Selection</h2>"),
 				// Display parameters

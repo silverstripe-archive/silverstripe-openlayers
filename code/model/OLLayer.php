@@ -41,6 +41,7 @@ class OLLayer extends DataObject {
 		"Type"             => "OGC API",
 		"ogc_name"         => "OGC Layer Name",
 		"ogc_map"          => "Map-filename",
+		"ogc_format"       => "Image Format",
 		"ogc_transparent"  => "Transparency",
 		"Map.Title"        => "Map Name",
 		"XMLWhitelist"     => "Get Feature XML Whitelist (comma separated)"
@@ -90,6 +91,9 @@ class OLLayer extends DataObject {
 		$geometryType = $fields->fieldByName("Root.Main.GeometryType");
 		$fields->removeFieldFromTab("Root.Main","GeometryType");
 
+		$ogc_format = $fields->fieldByName("Root.Main.ogc_format");
+		$fields->removeFieldFromTab("Root.Main","ogc_format");
+
 
 		$LayerType = $fields->fieldByName("Root.Main.Type");
 		$fields->removeFieldFromTab("Root.Main","Type");
@@ -100,28 +104,30 @@ class OLLayer extends DataObject {
 				// Display parameters
 				new CompositeField( 
 					new CompositeField( 
-						new LiteralField("URLLabel","<h3>URL Server Settings</h3>"),
-						new TextField("Url", "URL"),
-						new TextField("ogc_map", "Map filename"),
-						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>")
-					),
-					new CompositeField( 
 						new LiteralField("OGCLabel","<h3>Display Settings</h3>"),
+						new CheckboxField("Enabled", "Enabled <i>(To disable this layer from the frontend side, please set the checkbox status.)</i>"),
 						new NumericField("DisplayPriority", "Draw Priority"),
 						$geometryType,
-						new CheckboxField("Cluster", "Cluster"),						
-						new LiteralField("MapLabel","<i>Optional: \"Cluster\" can be applied to all geometry types, but will transform non-point layers to points.</i>"),
-						new CheckboxField("Enabled", "Enabled"),
-						new CheckboxField("Visible","Visible"),
-						new CheckboxField("Queryable", "Queryable")
+						new FieldGroup(
+							new CheckboxField("Visible","Visible"),
+							new CheckboxField("Queryable", "Queryable"),
+							new CheckboxField("Cluster", "Cluster")						
+						),
+						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>")
 					),
 					new CompositeField( 
-						new LiteralField("OGCLabel","<h3>OGC Settings</h3>"),
+						new LiteralField("URLLabel","<h3>OGC Server Settings</h3>"),
+						new TextField("Url", "URL"),
+						new TextField("ogc_map", "Map filename"),
+						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>"),
+						$LayerType,
 						new TextField("ogc_name", "Layer Name"),
 						new LiteralField("MapLabel","<i>(as defined in GetCapabilities)</i>"),
-						$LayerType,
-						new CheckboxField("ogc_transparent", "Transparency")
-
+						new CompositeField(
+							new LiteralField("WMSLabel","<h4>OGC WMS parameters</h4>"),
+							$ogc_format,
+							new CheckboxField("ogc_transparent", "Transparency <i>(for WMS server only)</i>")
+						)
 					)
 				)
 			)
