@@ -122,13 +122,15 @@ class OLLayer extends DataObject {
 						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>"),
 						$LayerType,
 						new TextField("ogc_name", "Layer Name"),
-						new LiteralField("MapLabel","<i>(as defined in GetCapabilities)</i>"),
-						new CompositeField(
-							new LiteralField("WMSLabel","<h4>OGC WMS parameters</h4>"),
-							$ogc_format,
-							new CheckboxField("ogc_transparent", "Transparency <i>(for WMS server only)</i>")
-						)
+						new LiteralField("MapLabel","<i>(as defined in GetCapabilities)</i>")
+					),
+					new CompositeField(
+						new LiteralField("WMSLabel","<br /><h3>OGC WMS parameters</h3>"),
+						new LiteralField("WMSDescription","The following parameters are required for OGC-WMS layers only."),
+						$ogc_format,
+						new CheckboxField("ogc_transparent", "Transparency")
 					)
+					
 				)
 			)
 		);
