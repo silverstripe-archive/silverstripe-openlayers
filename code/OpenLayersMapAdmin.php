@@ -49,6 +49,7 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 				'Enabled' => 'Boolean->Nice',
 				'Visible' => 'Boolean->Nice',
 				'Queryable' => 'Boolean->Nice',
+				'Cluster' => 'Boolean->Nice',
 				'ogc_transparent' => 'Boolean->Nice'
 			));
 				
