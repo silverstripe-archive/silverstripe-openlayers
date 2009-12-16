@@ -133,7 +133,9 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('themes/niwa/javascript/jquery.checkbox.js');
 		Requirements::javascript('themes/niwa/javascript/SSPopup.js');
 		Requirements::javascript('themes/niwa/javascript/SSPanZoomBar.js');
-		//Requirements::javascript('themes/niwa/javascript/SSPanZoom.js');
+		Requirements::javascript('themes/niwa/javascript/jquery.jcarousel.pack.js');
+		
+		
 		Requirements::themedCSS('OLMapPage');
 
 		// serialize map cofiguration 
