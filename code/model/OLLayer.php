@@ -13,6 +13,10 @@
  */
 class OLLayer extends DataObject {
 	
+	public static $singular_name = 'Layer';
+	
+	public static $plural_name = 'Layers';	
+	
 	static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",

@@ -11,6 +11,10 @@
  */
 class OLMapObject extends DataObject {
 	
+	public static $singular_name = 'Map';
+	
+	public static $plural_name = 'Maps';	
+
 	static $db = array(
 		'Title'       => 'Varchar(25)',
 		'Description' => 'Varchar(256)',
