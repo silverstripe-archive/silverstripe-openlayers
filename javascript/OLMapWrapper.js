@@ -33,7 +33,7 @@ function initMap(divMap, mapConfig) {
 
 	map = new OpenLayers.Map(divMap, {
 	    controls: [
-	        new OpenLayers.Control.Navigation({zoomWheelEnabled:true}),
+	        new OpenLayers.Control.Navigation(),
 	        new OpenLayers.Control.SSPanZoomBar(),
 	        new OpenLayers.Control.ScaleLine(),
 	        new OpenLayers.Control.KeyboardDefaults()
@@ -45,13 +45,17 @@ function initMap(divMap, mapConfig) {
 		maxScale:      maxScale,
 		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
-	//map.paddingForPopups = new OpenLayers.Bounds(80, 80, 15, 15);
+	map.paddingForPopups = new OpenLayers.Bounds(20, 20, 400, 20);
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
 	layers.reverse();
 	jQuery.each( layers , initLayer );
-
+	map.events.register("zoomend", map, onFeatureUnselect);
+	
 	map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
+	controls = map.getControlsByClass('OpenLayers.Control.Navigation');
+	controls[0].handlers.wheel.activate();
+	     
 }
 
 /**
