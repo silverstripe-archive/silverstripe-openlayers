@@ -18,6 +18,9 @@ $(document).ready(function() {
 	$(".unselectAllLayers").click( unselectAllLayer );
 	$("a.multipleStations").click( multipleStationSelect );
 	$(".closeButton").click( closeModalBox );
+	
+	$(".methodLink").click( openMethodPage );
+	
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 
 	// initialise map
@@ -32,11 +35,12 @@ $(document).ready(function() {
 	
 	// enable sort layers on layers panel
 	$(function() {
-		$("#innerLayers").sortable({ 
+		var handle = $("#innerLayers").sortable({ 
 			cursor: 'move',
 			opacity: 0.6,
 			update: function(event, ui) { sortMapLayers(event , ui); }
 		});
+		$('#innerLayers').sortable('option', 'handle', '.sortableArea');
 	});
 	
 });
@@ -275,10 +279,11 @@ function sortMapLayers(event , ui){
 //----------------------------------------------------------------
 
 
-function openModalBox( stationID ){
+function openStationPage( stationID ){
 	collapse();
 	$("#locklayer").show();
 	$("#modalbox").show();
+	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
 	$("#modalbox .mbcontent").load("atlasLoader/loadStation/" + stationID);
 		
 }
@@ -309,6 +314,14 @@ function expand(){
 	isCollapsed = false;
 	$('#mapPanel').animate({ right: 0 }, 500);
 	$('.panelTop .arrow').removeClass('layers');
+}
+
+function openMethodPage(){
+	var methodID = $(this).attr('id');
+	$("#locklayer").show();
+	$("#modalbox").show();
+	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
+	$("#modalbox .mbcontent").load("method/loadMethod/" + methodID);
 }
 
 
