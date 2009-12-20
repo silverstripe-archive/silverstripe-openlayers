@@ -42,8 +42,8 @@ function initMap(divMap, mapConfig) {
 		// apply extent/resolution settings to the map
 		minScale:      minScale,
 		maxResolution: maxResolution,
-		maxScale:      maxScale,
-		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
+		maxScale:      maxScale
+//		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
 	map.paddingForPopups = new OpenLayers.Bounds(20, 20, 400, 20);
 	// initiate all overlay layers
