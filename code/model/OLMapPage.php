@@ -65,20 +65,27 @@ class OLMapPage extends Page {
 		}
 		return $result;
 	}
-	
+
 	/**
-	 * Returns a viewable data object to render the layer control of the default
-	 * map.
+	 * Returnslayers in a customised viewable data object 
+	 * to render the layer control of the default map. 
+	 *
 	 * @return ViewableData
 	 */
-	public function getLayerControlObject() {
+	public function getLayerlistForTemplate( ) {
 		$mapObject = $this->GetComponent('Map');
 		$obj = new ViewableData();
 		
 		$result = array();
 		if($mapObject) {
-			$layers = $mapObject->getComponents('Layers','Enabled = 1','DisplayPriority DESC');
-			$obj->customise( array( "layers" => $layers ) );
+			$overlayLayers    = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'overlay'",'DisplayPriority DESC');
+			$backgroundLayers = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'background'",'DisplayPriority DESC');
+			$obj->customise( 
+				array( 
+					"overlayLayers"    => $overlayLayers,
+					"backgroundLayers" => $backgroundLayers, 
+				) 
+			);
 		}
 		return $obj;
 	}
@@ -177,7 +184,7 @@ class OLMapPage_Controller extends Page_Controller {
 	function FormLayerSwitcher() {		
 		$page = $this->data();
 		
-		$obj = $page->getLayerControlObject();
+		$obj = $page->getLayerlistForTemplate();
 		return $obj->renderWith('LayerControl');
 	}
 

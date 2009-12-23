@@ -20,6 +20,7 @@ class OLLayer extends DataObject {
 	static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
+		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
 		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wms')",
 		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
@@ -71,6 +72,7 @@ class OLLayer extends DataObject {
 	    'Queryable' => true,
 	    'ogc_transparent' => true,
 		'GeometryType' => 'Point',
+		'LayerType' => 'overlay', 
 		'XMLWhitelist' => 'attribute'
 	 );
 
@@ -93,7 +95,9 @@ class OLLayer extends DataObject {
 		));
 
 		$geometryType = $fields->fieldByName("Root.Main.GeometryType");
+		$LayerCategory = $fields->fieldByName("Root.Main.LayerType");
 		$fields->removeFieldFromTab("Root.Main","GeometryType");
+		$fields->removeFieldFromTab("Root.Main","LayerType");
 
 		$ogc_format = $fields->fieldByName("Root.Main.ogc_format");
 		$fields->removeFieldFromTab("Root.Main","ogc_format");
@@ -112,6 +116,8 @@ class OLLayer extends DataObject {
 						new CheckboxField("Enabled", "Enabled <i>(To disable this layer from the frontend side, please set the checkbox status.)</i>"),
 						new NumericField("DisplayPriority", "Draw Priority"),
 						$geometryType,
+						$LayerCategory,
+						new LiteralField("OGCLabel","<i>Use the layer type field to define the layer behaviour (overlay: selectable, background: static data, contextual: base map).</i>"),
 						new FieldGroup(
 							new CheckboxField("Visible","Visible"),
 							new CheckboxField("Queryable", "Queryable"),
