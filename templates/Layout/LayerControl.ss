@@ -6,7 +6,7 @@
 		</div>
 		<form id='layerlist'>
 			<div id="allLayers">
-				<a class="selectAllLayers" title="click to show all layers">Select all layers</a> | <a class="unselectAllLayers" title="click to hide all layers">Unselect all layers</a>
+				<a class="selectAllLayers" title="click to show all layers">Show all layers</a> | <a class="unselectAllLayers" title="click to hide all layers">Hide all layers</a>
 			</div>
 			<div id ="innerLayers">
 				<% control layers %>
