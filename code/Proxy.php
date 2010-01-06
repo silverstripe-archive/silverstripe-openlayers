@@ -4,21 +4,55 @@
  */
 class Proxy_Controller extends Controller {
 
-	protected static $allowedHost = array('202.36.29.39');
-	
-	public function init() {
-		parent::init();
+	protected static $allowed_host = array('202.36.29.39');
+
+	/**
+	 * Sets the array of allowed hosts.
+	 *
+	 * @param array $value string array of allowed hosts, i.e. IP addresses.
+	 */
+	static function set_allowed_host($value) {
+		self::$allowed_host = $value;
+	}
+
+	/**
+	 * Return the array of allowed hosts.
+	 *
+	 * @return array list of all allowed hosts
+	 */
+	static function get_allowed_host() {
+		return self::$allowed_host;
 	}
 	
-	public function dorequest($data) {
-		$vars = $data->getVars();
-		$headers = array();
+	/**
+	 * This method passes through a HTTP request get request to another 
+	 * webserver. This proxy is used to avoid any cross domain issues.
+	 *
+	 * @param SS_HTTPRequest $data array of parameters
+	 *
+	 * $data['u']:         URL (complete request string)
+	 * $data['no_header']: set to '1' to avoid sending header information 
+	 *                     directly. 
+	 * @return the CURL response
+	 */
+	public function dorequest($data) {		
+
+		$headers   = array();
+		$vars      = $data->getVars();
+		$no_header = false;
 		
-		$url = $vars['u'];
+		if (!isset($vars['u'])) {
+			return "Invalid request.";
+		}
+		$url     = $vars['u'];
+
+		if (isset($vars['no_header']) && $vars['no_header'] == '1') {
+			$no_header = true;
+		}
 		
 		$checkUrl = explode("/",$url);
-		if(!in_array($checkUrl[2],self::$allowedHost)) {
-			user_error("This proxy does not allow you to access that location ($url).", E_USER_ERROR);
+		if(!in_array($checkUrl[2],self::get_allowed_host())) {
+			return "Access denied to ($url).";
 		}
 		
 		// Open the Curl session
@@ -27,6 +61,8 @@ class Proxy_Controller extends Controller {
 		// If it's a POST, put the POST data in the body
 		$isPost = $data->isPOST();
 		if ($isPost) {
+			throw new Proxy_Controller_Exception('Post-requests not supported/fully tested.');
+			/*
 			$postvars = '';
 			$vars = $data->getBody();
 			
@@ -47,7 +83,7 @@ class Proxy_Controller extends Controller {
 			
 			curl_setopt ($session, CURLOPT_POST, true);
 			curl_setopt ($session, CURLOPT_POSTFIELDS, $postvars);
-
+			*/
 		}
 
 		// Don't return HTTP headers. Do return the contents of the call
@@ -58,10 +94,12 @@ class Proxy_Controller extends Controller {
 		$xml = curl_exec($session);
 
 		// The web service returns XML. Set the Content-Type appropriately
-		header("Content-Type: text/xml");
-
+		if ($no_header == false) {
+			header("Content-Type: text/xml");
+		}
 		curl_close($session);
-		
 		return $xml;
 	}
 }
+
+class Proxy_Controller_Exception extends Exception {}
