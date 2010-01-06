@@ -49,7 +49,6 @@ class ProxyTest extends FunctionalTest {
 		$this->assertEquals($response->getBody(), "Access denied to (http://localhost/niwa_os2020/ProxyTest_Controller?param=proxyTest).");
 	}
 
-
 	function testDoRequest_ValidRequest() {		
 		// set proxy configuration
 		Proxy_Controller::set_allowed_host( array('localhost'));
@@ -87,7 +86,4 @@ class ProxyTest extends FunctionalTest {
 		$this->assertEquals($obj['param'], "proxyTest");
 		$this->assertEquals($obj['isget'], true);
 	}
-
 }
-
-

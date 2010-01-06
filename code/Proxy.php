@@ -61,8 +61,6 @@ class Proxy_Controller extends Controller {
 		// If it's a POST, put the POST data in the body
 		$isPost = $data->isPOST();
 		if ($isPost) {
-			throw new Proxy_Controller_Exception('Post-requests not supported/fully tested.');
-			/*
 			$postvars = '';
 			$vars = $data->getBody();
 			
@@ -83,7 +81,6 @@ class Proxy_Controller extends Controller {
 			
 			curl_setopt ($session, CURLOPT_POST, true);
 			curl_setopt ($session, CURLOPT_POSTFIELDS, $postvars);
-			*/
 		}
 
 		// Don't return HTTP headers. Do return the contents of the call
