@@ -6,7 +6,7 @@
 		</div>
 		<form id='layerlist'>
 			<div id="allLayers">
-				<a class="selectAllLayers" title="click to show all layers">Show all layers</a> | <a class="unselectAllLayers" title="click to hide all layers">Hide all layers</a>
+				<a class="selectAllLayers" title="click to show all layers">Show all</a> | <a class="unselectAllLayers" title="click to hide all layers">Hide all</a>
 			</div>
 			<div id ="innerLayers">
 				<!-- Overlay layers -->
@@ -19,7 +19,7 @@
 					</div>
 				<% end_control %>
 			</div>
-			<div id ="innerLayers">
+			
 				<!-- BackgroundLayers layers -->
 				<% if backgroundLayers %>
 					<div class="panelBg">
@@ -27,6 +27,7 @@
 							Backgrounds
 						</h3>
 					</div>
+				<div id ="backgrounds">
 					<% control backgroundLayers %>
 						<div class="panelItem">
 							<div class="sortableArea"><img src="themes/niwa/images/map_grip.png"></div>
@@ -35,8 +36,9 @@
 							<h5><a class="methodLink" id="$MethodID" title="click for more details">$Title</a></h5>
 						</div>
 					<% end_control %>
+				</div>
 				<% end_if %>
-			</div>
+			
 		</form>
 		<div class="panelBottom"></div>
 	</div>
