@@ -3,8 +3,8 @@
  * Proxy controller class which delegates requests to the allowed domains.
  */
 class Proxy_Controller extends Controller {
-
-	protected static $allowed_host = array('202.36.29.39');
+	
+	protected static $allowed_host = array('localhost');
 
 	/**
 	 * Sets the array of allowed hosts.
@@ -38,19 +38,20 @@ class Proxy_Controller extends Controller {
 	public function dorequest($data) {		
 
 		$headers   = array();
-		$vars      = $data->getVars();
+		$vars      = $data->requestVars();
 		$no_header = false;
 		
 		if (!isset($vars['u'])) {
-			return "Invalid request.";
+			return "Invalid request: unknown proxy destination.";
 		}
-		$url     = $vars['u'];
-
+		$url = $vars['u'];
+		
 		if (isset($vars['no_header']) && $vars['no_header'] == '1') {
 			$no_header = true;
 		}
 		
 		$checkUrl = explode("/",$url);
+		
 		if(!in_array($checkUrl[2],self::get_allowed_host())) {
 			return "Access denied to ($url).";
 		}
@@ -62,18 +63,19 @@ class Proxy_Controller extends Controller {
 		$isPost = $data->isPOST();
 		if ($isPost) {
 			$postvars = '';
-			$vars = $data->getBody();
-			
 			if ($vars) {
 				$postvars = "body=".$vars;
 			} else {
+				/* R.Spittel - this case can never occure because parameter 'u'
+				            is mandatory and will be passed in as a post parameter
+				
 				$vars = $data->postVars();
-
 				if ($vars) {
 					foreach($vars as $k => $v) {
 						$postvars .= $k.'='.$v.'&';
 					}
 				}
+				*/
 			}
 			
 			$headers[] = 'Content-type: text/xml';
@@ -98,5 +100,3 @@ class Proxy_Controller extends Controller {
 		return $xml;
 	}
 }
-
-class Proxy_Controller_Exception extends Exception {}

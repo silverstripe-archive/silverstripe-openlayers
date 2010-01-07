@@ -8,6 +8,9 @@
  */
 class ReflectionProxy_Controller extends Controller {
 
+	static $allowedIP = array('::1','127.0.0.1');
+		
+
 	/**
 	 * Standard method, not in use.
 	 */
@@ -22,16 +25,18 @@ class ReflectionProxy_Controller extends Controller {
 	 *
 	 * @return string json encoded string for validation
 	 */
-	function getrecords($data) {
+	function doprocess($data) {
 		BasicAuth::protect_entire_site(false);
 		
-		if ($data->getIP() != '::1') {
+		if(!in_array($data->getIP(),self::$allowedIP)) {
 			return 'failed';
 		}
+		
 		$params = $data->requestVars();
 		$params['isget'] = $data->isGET();
 		
 		$response = json_encode($params);
+		
 		return $response;
 
 	}
