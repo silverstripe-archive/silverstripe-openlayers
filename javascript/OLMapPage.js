@@ -226,11 +226,12 @@ function setLayerVisibility( event ){
  * Callback for click event 'Select all layers'
  */
 function selectAllLayer(){
-	$("input[type='checkbox']").attr('checked', true);
-	$("input[type=checkbox]").each( function() {
+	$("input[class='change_visibility over']").attr('checked', true);
+	$("input[class='change_visibility over']").each( function() {
 		var name = $(this).attr('name');
 		var tempLayer = map.getLayersByName(name);
 		if(tempLayer.length > 0) {
+			
 			tempLayer[0].setVisibility(true);
 		}
 	});	
@@ -240,11 +241,13 @@ function selectAllLayer(){
  * Callback for click event 'Unselect all layers'
  */
 function unselectAllLayer(){
-	$("input[type='checkbox']").attr('checked', false);
-	$("input[type=checkbox]").each( function() {
+	$("input[class='change_visibility over']").attr('checked', false);
+	$("input[class='change_visibility over']").each( function() {
+		
 		var name = $(this).attr('name');
 		var tempLayer = map.getLayersByName(name);
 		if(tempLayer.length > 0) {
+			
 			tempLayer[0].setVisibility(false);
 		}
 	});
@@ -324,13 +327,12 @@ function openMethodPage(){
 	$("#modalbox .mbcontent").load("method/loadMethod/" + methodID);
 }
 $(window).resize(function(){resizeLayersPanel()});
-var initH = $("#innerLayers").height()
+var initH = $("#innerLayers").height();
 function resizeLayersPanel(){
-	
+       
 	var h = $(window).height()-($("#backgrounds").height()+320);
 	if (h>initH){h = initH}
-	$("#innerLayers").height(h)
+	$("#innerLayers").height(h);
 }
-resizeLayersPanel()
-
+resizeLayersPanel();
 
