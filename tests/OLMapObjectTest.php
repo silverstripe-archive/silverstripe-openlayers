@@ -58,7 +58,6 @@ class OLMapObjectTest extends SapphireTest {
 		$this->assertEquals($array_map['Latitude'], 10.99);
 		$this->assertEquals($array_map['Longitude'], 12.23);
 		$this->assertEquals($array_map['Zoom'], 12);
-		$this->assertEquals($array_map['ID'], 1);
 		$this->assertEquals($array_map['MinScale'], 5);
 		$this->assertEquals($array_map['MaxScale'], 20);
 		$this->assertEquals($array_map['MaxResolution'], 30000);
