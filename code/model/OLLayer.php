@@ -320,21 +320,6 @@ class OLLayer extends DataObject {
 		return $URLRequest;
 	}
 
-	/**
-	 * Depreciated: handling WMS request 
-	 */
-	protected function sendWMSFeatureRequest($param){
-		throw new OLLayer_Exception("Depreciated. Please use getFeatureInfo");
-	}
-	
-	/**
-	 * Depreciated: handling WFS request 
-	 */
-	function sendWFSFeatureRequest($featureID){
-
-		throw new OLLayer_Exception("Depreciated. Please use getFeatureInfo");
-
-	}
 }
 
 /**
