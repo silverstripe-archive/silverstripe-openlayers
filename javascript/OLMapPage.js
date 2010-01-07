@@ -323,5 +323,14 @@ function openMethodPage(){
 	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
 	$("#modalbox .mbcontent").load("method/loadMethod/" + methodID);
 }
+$(window).resize(function(){resizeLayersPanel()});
+var initH = $("#innerLayers").height()
+function resizeLayersPanel(){
+	
+	var h = $(window).height()-($("#backgrounds").height()+320);
+	if (h>initH){h = initH}
+	$("#innerLayers").height(h)
+}
+resizeLayersPanel()
 
 
