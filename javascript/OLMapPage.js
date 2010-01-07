@@ -306,7 +306,7 @@ $('.panelTop .arrow').click(function(){
 });
 function collapse(){
 	isCollapsed = true;
-	var w = -$('#mapPanel').width()-30;
+	var w = -$('#mapPanel').width()-16;
 	$('#mapPanel').animate({ right: w }, 500);
 	$('.panelTop .arrow').addClass('layers');
 }
