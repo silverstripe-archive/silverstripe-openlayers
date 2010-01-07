@@ -63,19 +63,17 @@ class Proxy_Controller extends Controller {
 		$isPost = $data->isPOST();
 		if ($isPost) {
 			$postvars = '';
+			$vars = $data->getBody();
 			if ($vars) {
 				$postvars = "body=".$vars;
 			} else {
-				/* R.Spittel - this case can never occure because parameter 'u'
-				            is mandatory and will be passed in as a post parameter
-				
 				$vars = $data->postVars();
 				if ($vars) {
 					foreach($vars as $k => $v) {
 						$postvars .= $k.'='.$v.'&';
 					}
 				}
-				*/
+				
 			}
 			
 			$headers[] = 'Content-type: text/xml';
