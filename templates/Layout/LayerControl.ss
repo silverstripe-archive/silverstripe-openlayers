@@ -1,4 +1,4 @@
-<div id='mapPanelWrapper'>
+
 	<div id="mapPanel">
 		<div class='panelTop'>
 			<span class="arrow"></span>
@@ -30,7 +30,6 @@
 				<div id ="backgrounds">
 					<% control backgroundLayers %>
 						<div class="panelItem">
-							<div class="sortableArea"><img src="themes/niwa/images/map_grip.png"></div>
 							<input type='checkbox' name='$Title' class='change_visibility back' value='$Title' <% if Visible %>checked<% end_if %> />
 							
 							<h5 class="bg">$Title</h5>
@@ -42,4 +41,4 @@
 		</form>
 		<div class="panelBottom"></div>
 	</div>
-</div>
+
