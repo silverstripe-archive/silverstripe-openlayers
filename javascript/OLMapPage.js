@@ -26,6 +26,7 @@ $(document).ready(function() {
 	// initialise map
 	initMap('map', ss_config);	
 	
+	
 	//
 	// enable all vector layers to be selectable via one controller.
 	//
@@ -280,10 +281,13 @@ function sortMapLayers(event , ui){
 //----------------------------------------------------------------
 //Modal Box
 //----------------------------------------------------------------
-
+var isCollapsed = 1;  //this variable is used to remember layer menu status 
 
 function openStationPage( stationID ){
-	collapse();
+	if(isCollapsed == 1){
+		collapse();
+		isCollapsed = 0;
+	}
 	$("#locklayer").show();
 	$("#modalbox").show();
 	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
@@ -291,41 +295,54 @@ function openStationPage( stationID ){
 		
 }
 
-function closeModalBox(){
-	expand();
-	$("#locklayer").hide();
-	$("#modalbox").hide();
-	
-}
-
-
-var isCollapsed = false;
-$('.panelTop .arrow').click(function(){
-	if(isCollapsed){
-		expand();
-	}else{
-		collapse();
-	}
-});
-function collapse(){
-	isCollapsed = true;
-	var w = -$('#mapPanel').width()-16;
-	$('#mapPanel').animate({ right: w }, 500);
-	$('.panelTop .arrow').addClass('layers');
-}
-function expand(){
-	isCollapsed = false;
-	$('#mapPanel').animate({ right: 0 }, 500);
-	$('.panelTop .arrow').removeClass('layers');
-}
-
 function openMethodPage(){
+	collapse();
+	isCollapsed = 0;
 	var methodID = $(this).attr('id');
 	$("#locklayer").show();
 	$("#modalbox").show();
 	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
 	$("#modalbox .mbcontent").load("method/loadMethod/" + methodID);
 }
+
+function closeModalBox(){
+	$("#locklayer").hide();
+	$("#modalbox").hide();
+	if(isCollapsed == 0){
+		isCollapsed = 1;
+		expand();
+	} 
+}
+
+//--------------------------------------------------------------------------------
+// MANAGE LAYERS MENU (OPEN/CLOSE IT AND REMEMBER STATUS WHEN OPENING MODAL BOX)
+//--------------------------------------------------------------------------------
+
+$('.panelTop .arrow').click(function(){
+	if(isCollapsed == 0 || isCollapsed == 2){
+		expand();
+		isCollapsed = 1;
+	}else{
+		collapse();
+		isCollapsed = 2;
+	}
+});
+
+function collapse(){
+	var w = -$('#mapPanel').width()-16;
+	$('#mapPanel').animate({ right: w }, 500);
+	$('.panelTop .arrow').addClass('layers');
+}
+
+function expand(){
+	$('#mapPanel').animate({ right: 0 }, 500);
+	$('.panelTop .arrow').removeClass('layers');
+}
+
+//----------------------------------------------------------------
+// RESIZE LAYERS MENU HEIGHT
+//----------------------------------------------------------------
+
 $(window).resize(function(){resizeLayersPanel()});
 var initH = $("#innerLayers").height();
 function resizeLayersPanel(){
