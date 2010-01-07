@@ -59,8 +59,7 @@ class OLMapPage extends Page {
 	public function getDefaultMapConfiguration() {
 		$result    = array();
 		$mapObject = $this->GetComponent('Map');
-		
-		if($mapObject) {
+		if($mapObject && $mapObject->ID != 0) {
 			$result = $mapObject->getConfigurationArray();
 		}
 		return $result;
@@ -80,12 +79,9 @@ class OLMapPage extends Page {
 		if($mapObject) {
 			$overlayLayers    = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'overlay'",'DisplayPriority DESC');
 			$backgroundLayers = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'background'",'DisplayPriority DESC');
-			$obj->customise( 
-				array( 
-					"overlayLayers"    => $overlayLayers,
-					"backgroundLayers" => $backgroundLayers, 
-				) 
-			);
+
+			$obj->setField("overlayLayers", $overlayLayers);
+			$obj->setField("backgroundLayers", $backgroundLayers);
 		}
 		return $obj;
 	}
