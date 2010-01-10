@@ -8,14 +8,18 @@
  */
 class ReflectionProxy_Controller extends Controller {
 
-	static $allowedIP = array('::1','127.0.0.1');
+	static $allowedIP = array('::1','127.0.0.1','192.168.1.16');
 		
+	function init() {
+		$this->disableBasicAuth();
+		BasicAuth::protect_entire_site(false);
+		return parent::init();
+	}
 
 	/**
 	 * Standard method, not in use.
 	 */
 	function index() {
-		BasicAuth::protect_entire_site(false);
 		return "failed";
 	}
 
@@ -26,12 +30,9 @@ class ReflectionProxy_Controller extends Controller {
 	 * @return string json encoded string for validation
 	 */
 	function doprocess($data) {
-		BasicAuth::protect_entire_site(false);
-		
 		if(!in_array($data->getIP(),self::$allowedIP)) {
-			return 'failed';
+			return "failed";
 		}
-		
 		$params = $data->requestVars();
 		$params['isget'] = $data->isGET();
 		
