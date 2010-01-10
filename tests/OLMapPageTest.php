@@ -25,6 +25,9 @@ class OLMapPageTest extends FunctionalTest {
 		$expectedFragment = '<div id="map"></div>';
 		$this->assertContains($expectedFragment, $this->content());
 		
+		
+		echo (Director::isDev());
+		echo "DONE";A
 		$expectedFragment = '/openlayers/javascript/jsparty/lib/OpenLayers.js';
 		$this->assertContains($expectedFragment, $this->content());
 	}
