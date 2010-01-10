@@ -6,7 +6,9 @@
  */
 
 /**
- *
+ * Core MapPage class. The map page will render the OpenLayer map and create
+ * the required html document structure to ensure that the map viewer operates
+ * according to the current setup (defined in @see OLLayer and @OLMapObject).
  */
 class OLMapPage extends Page {
 	
@@ -155,11 +157,11 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	/**
-	* find for layer WhiteList words in the XML response 
+	* Find for layer WhiteList words in the XML response...
+	*
 	* @param string $haystack XML source 
 	* @param string $needles WhiteList words (comma separated)
 	**/
-	
 	static function WhiteList($XMlTag , $keywords){
 		$patterns = explode(",",$keywords);
 	    foreach($patterns as $pattern){
@@ -248,8 +250,7 @@ class OLMapPage_Controller extends Page_Controller {
 				$out->customise( array( "attributes" => $obj, "StationID" => $stationID ) );
 				return $out->renderWith('MapPopup_Detail');
 			}
-		
-			
+
 		} else{
 			$stationIDs = explode(",",$stationID);
 			$obj = new DataObjectSet();

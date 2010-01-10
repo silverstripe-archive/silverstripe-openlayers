@@ -157,7 +157,4 @@ class OLMapObject extends DataObject {
 		$config['Layers'] = $data;
 		return $config;
 	}
-
-
-
 }

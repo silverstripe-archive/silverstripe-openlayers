@@ -325,5 +325,4 @@ class OLLayer extends DataObject {
 /**
  * Customised exception class
  */
-class OLLayer_Exception extends Exception {
-}
+class OLLayer_Exception extends Exception {}

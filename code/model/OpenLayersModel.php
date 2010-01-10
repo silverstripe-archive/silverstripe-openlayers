@@ -27,8 +27,6 @@ class OpenLayersModel {
 		}
 		return $openlayerJS;
 	}
-
 }
 
-class OpenLayersModel_Exception extends Exception {
-}
+class OpenLayersModel_Exception extends Exception {}
