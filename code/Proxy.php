@@ -1,6 +1,15 @@
 <?php
 /**
- * Proxy controller class which delegates requests to the allowed domains.
+ * @author Rainer Spittel (rainer at silverstripe dot com)
+ * @package openlayers
+ * @subpackage code
+ */
+
+/**
+ * Proxy controller delegates HTTP requests to dedicated web servers.
+ * To avoid any cross-domain issues within the map application (i.e. requesting
+ * XML data from features shown on the map via AJAX calls), we use the 
+ * proxy controller which delegates requests to the provided URL.
  */
 class Proxy_Controller extends Controller {
 	
@@ -9,14 +18,14 @@ class Proxy_Controller extends Controller {
 	/**
 	 * Sets the array of allowed hosts.
 	 *
-	 * @param array $value string array of allowed hosts, i.e. IP addresses.
+	 * @param array $value string-array of allowed hosts, i.e. IP addresses.
 	 */
 	static function set_allowed_host($value) {
 		self::$allowed_host = $value;
 	}
 
 	/**
-	 * Return the array of allowed hosts.
+	 * Returns an array of allowed hosts.
 	 *
 	 * @return array list of all allowed hosts
 	 */
@@ -25,8 +34,9 @@ class Proxy_Controller extends Controller {
 	}
 	
 	/**
-	 * This method passes through a HTTP request get request to another 
-	 * webserver. This proxy is used to avoid any cross domain issues.
+	 * This method passes through an HTTP request to another webserver. 
+	 * This proxy is used to avoid any cross domain issues. The proxy
+	 * uses a white-list of domains to minimize security risks. 
 	 *
 	 * @param SS_HTTPRequest $data array of parameters
 	 *

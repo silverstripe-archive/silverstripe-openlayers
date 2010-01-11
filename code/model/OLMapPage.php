@@ -2,13 +2,15 @@
 /**
  * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
- * @subpackage code
+ * @subpackage model
  */
 
 /**
- * Core MapPage class. The map page will render the OpenLayer map and create
- * the required html document structure to ensure that the map viewer operates
- * according to the current setup (defined in @see OLLayer and @OLMapObject).
+ * Core MapPage class. 
+ * 
+ * The map page will render the OpenLayer map and create the required html 
+ * document structure to ensure that the map viewer operates
+ * according to the current setup (defined in see {@link OLLayer} and {@link OLMapObject} ).
  */
 class OLMapPage extends Page {
 	
@@ -52,9 +54,12 @@ class OLMapPage extends Page {
 	}
 	
 	/**
+	 * Returns the configuration array for the default map.
+	 *
 	 * This method returns the default configuration array structure of the 
-	 * default map. It is used to initialize the OpenLayer JavaScript classes
-	 * after the page has been loaded.
+	 * map, which will be sent to the template to generate the required OpenLayers 
+	 * JavaScript classes.
+	 * This method uses {@link OLMapObject::getConfigurationArray()	}
 	 *
 	 * @return array Configuration array which is processed by JS:initMap
 	 */
@@ -68,8 +73,11 @@ class OLMapPage extends Page {
 	}
 
 	/**
-	 * Returnslayers in a customised viewable data object 
-	 * to render the layer control of the default map. 
+	 * Returns all active layers, stored in a viewable-data object.
+	 * 
+	 * This method returns all overlay and background layers of this map
+ 	 * in a viewable dataobject. This method is called via the templates to
+ 	 * generate the interactive layer list for the map control.
 	 *
 	 * @return ViewableData
 	 */
@@ -92,22 +100,23 @@ class OLMapPage extends Page {
 /**
  * Controller Class for Main OpenLayers Page
  *
- * Page controller class for OpenLayersPage (@link OpenLayersPage). The controller
+ * Page controller class for OLMapPage {@link OLMapPage}. The controller
  * class handles the requests and delegates the requests to the page instance
  * as well as to the available OGC webservices.
  */
 class OLMapPage_Controller extends Page_Controller {
 	
 	/**
-	 * varaible to store the open layers instance in the controller class.
+	 * Variable to store the OpenLayers Model in the controller class.
+	 *
 	 * @var OpenLayers openLayers
 	 */
 	protected $openLayers = null;
 
 	/**
-	 * Returns the open layers instance (via singleton pattern).
+	 * Returns the OpenLayers Model (via singleton pattern).
 	 *
-	 * @return OpenLayers model class for the open layers implementation.
+	 * @return OpenLayersModel {@link OpenLayersModel}
 	 */
 	function getOpenLayers() {
 		if ($this->openLayers == null) {
@@ -157,11 +166,12 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	/**
-	* Find for layer WhiteList words in the XML response...
-	*
-	* @param string $haystack XML source 
-	* @param string $needles WhiteList words (comma separated)
-	**/
+	 * Find for layer WhiteList words in the XML response...
+	 *
+	 * @param string $haystack XML source 
+	 * @param string $needles WhiteList words (comma separated)
+	 * @return boolean
+	 **/
 	static function WhiteList($XMlTag , $keywords){
 		$patterns = explode(",",$keywords);
 	    foreach($patterns as $pattern){
@@ -175,9 +185,12 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 	
 	/**
-	 * Render the layer selector.
+	 * Render the rendered layer list.
 	 *
-	 * @return string HTML-string which represents the layer-list div object.
+	 * This method renders the layer list control, using the Layercontrol.ss 
+	 * template.
+	 *
+	 * @return string HTML-string which represents the layer-list.
 	 */
 	function FormLayerSwitcher() {		
 		$page = $this->data();
@@ -187,15 +200,16 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * Returns the HTML response for the map popup-box. After the user clicks
-	 * on the map, the CMS will send of a request to the OGC server to request
+	 * Returns the HTML response for the map popup-box. 
+	 *
+	 * After the user clicks on the map, the CMS will send of a request to the OGC server to request
 	 * a XML data structure for the features on that selected location, parses
 	 * the XML response and renders the HTML, which will be returned to the
 	 * popup window.
 	 *
-	 * @param Request $data
+	 * @param Request $request
 	 *
-	 * @return string HTML segment
+	 * @return string HTML string which will be populated into the bubble/popup window.
 	 */
 	public function dogetfeatureinfo( $request ) {
 		
@@ -218,7 +232,9 @@ class OLMapPage_Controller extends Page_Controller {
 			if($layer){
 				$atts = array();
 				
-				$output = $layer->getFeatureInfo($featureID);
+				$params = array();
+				$params['featureID'] = $featureID;
+				$output = $layer->getFeatureInfo($params);
 				
 				$obj = new DataObjectSet();
 				$out = new ViewableData();

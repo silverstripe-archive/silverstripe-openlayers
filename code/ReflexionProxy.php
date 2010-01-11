@@ -1,35 +1,48 @@
 <?php
-
 /**
+ * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
  * @subpackage code
- *
- * Mockup controller class to simulate the Proxy server side for this test.
+ */
+
+/**
+ * Mockup controller  to simulate the Proxy server side for unit-tests.
+ * This controller returns the http request as a JSON string. The controller
+ * is used for unit tests only and can be used on selected IP addresses 
+ * (i.e. '::1','127.0.0.1').
  */
 class ReflectionProxy_Controller extends Controller implements TestOnly {
 
 	static $allowedIP = array('::1','127.0.0.1','192.168.1.16');
-		
+	
+	/**
+	 * Init method
+	 *
+	 * Disable the basic authentication for this controller.
+	 */
 	function init() {
 		$this->disableBasicAuth();
-		BasicAuth::protect_entire_site(false);
+//		BasicAuth::protect_entire_site(false);
 		return parent::init();
 	}
 
 	/**
-	 * Standard method, not in use.
+	 * Standard index method. Used for unit tests only.
 	 */
 	function index() {
 		return "failed";
 	}
 
 	/**
-	 * Returns the request parameters and request specific parameters so that 
-	 * the calling unit test can perform the validation on the test {@see ProxyTest}.
+	 * Processes requests and returns a JSON object.
 	 *
-	 * @return string json encoded string for validation
-	 */
-	function doprocess($data) {
+	 * This method creates an array, storing all request parameters in that array
+	 * and add request specific parameters. This array will be returned as a JSON object. 
+	 * The calling unit test can validate the request sent to this controller {@link ProxyTest}.
+	 *
+	 * @return string json-encoded string for validation.
+	 *
+	 */	function doprocess($data) {
 		if(!in_array($data->getIP(),self::$allowedIP)) {
 			return "failed";
 		}

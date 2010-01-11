@@ -2,14 +2,16 @@
 /**
  * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
- * @subpackage code
+ * @subpackage model
  */
 
-
 /** 
- * Layer class. Each instance of this layer class represents a JavaScript
- * OpenLayer Layer class. It is used to manage and control the map 
- * behaviour.
+ * Sapphire CMS: Open Layer 
+ *
+ * Each instance of an open layer class is represented as a dataobject in 
+ * Sapphire
+ * This class is used to configure OpenLayers and what information should be shown
+ * on the map.
  */
 class OLLayer extends DataObject {
 	
@@ -31,7 +33,7 @@ class OLLayer extends DataObject {
 		"Cluster"			=> "Boolean",
 		"XMLWhitelist"		=> "Varchar(255)",
 		
-		// temporarily added (will be removed)
+		// temporarily values (shall be re-factored and removed later)
 		"ogc_name"			=> "Varchar(100)",		// layer name (ogc layer name/id)
 		"ogc_map"			=> "Varchar(1024)",		// url to the map file on the server side
 		"ogc_format"		=> "Enum(array('png','jpeg','png24','gif'),'png')",
@@ -84,6 +86,8 @@ class OLLayer extends DataObject {
 
 	/**
 	 * Overwrites SiteTree.getCMSFields.
+	 *
+	 * This method creates a customised CMS form for back-end user.
 	 *
 	 * @return fieldset
 	 */ 
@@ -148,8 +152,11 @@ class OLLayer extends DataObject {
 	}
 	
 	/**
-	 * Creates and returns a layer definition array which will be used to configure
-	 * open layers on the JavaScript side.
+	 * Get the configuration array for OpenLayers
+	 *
+	 * Creates and returns a layer definition array. This array will be used 
+	 * to configure OpenLayers on the JavaScript side. This method is called
+	 * by {@link OLMapObject::getConfigurationArray()}.
 	 *
 	 * @return array
 	 */
@@ -185,43 +192,81 @@ class OLLayer extends DataObject {
 		}
 
 		$config['Options'] = $options;
-
 		return $config;
 	}	
 		
 
 	/**
-	 * Wrapper class to handle OGC get-feature requests for all kind of 
-	 * layer types.
+	 * This method sends OGC get-feature requests for this layer to the OGC webservice.
+	 *
+	 * This method generates OGC getFeature / getFeatureInfo requests (depending on its 
+	 * configuration (WFS/WMS), sends if via a restful service to the OGC service
+	 * and return the response body.
+	 * This method does not perform a response validation.
+	 *
+	 * The parameter for this method needs to be of this structure:
+	 * For WFS layers:
+	 *
+	 * $params = array ('featureID' => string)	: OGC ID for the selected feature.
+	 *
+	 * For WMS layers:
+ 	 *
+	 * $params = array (
+	 *		'BBOX' => 'minx,miny,maxx,maxy' : comma separated list of bbox coordinates
+	 *		'x': integer	: x position of the mouse click (in pixels)
+	 *		'y': integer	: y position of the mouse click (in pixels)
+	 *		'WIDTH': integer	: width of the map-image (in pixels)
+	 *		'HEIGHT': integer : height of the map-image (in pixels)
+	 * )
 	 *
 	 * @throws OLLayer_Exception
 	 *
-	 * @param integer featureID
-	 * @throws OLLayer_Exception
+	 * @param array $params array of parameters
 	 *
 	 * @return string XML response
 	 */
-	function getFeatureInfo($featureID) {
+	function getFeatureInfo($params) {
 		$Type = $this->getField('Type');
 		$url  = $this->getField('Url');
 		
 		$response = null;
 		
+		if (!is_array($params)) {
+			throw new OLLayer_Exception('Invalid request parameter.');
+		}
+		
 		if ($Type == 'wms' || $Type == 'wmsUntiled') {
  			$param = array();
-			$param['BBOX'] = 'bbox';
-			$param['x'] = 'x';
-			$param['y'] = 'y';
-			$param['WIDTH'] = 'width';
-			$param['HEIGHT'] = 'height';
 
-			$requestString = $this->getWMSFeatureRequest($param);
+			if (!isset($params['BBOX'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: BBOX.');
+			}
+
+			if (!isset($params['x'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: x.');
+			}
+
+			if (!isset($params['y'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: y.');
+			}
+
+			if (!isset($params['WIDTH'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: WIDTH.');
+			}
+
+			if (!isset($params['HEIGHT'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: HEIGHT.');
+			}
+
+			$requestString = $this->getWMSFeatureRequest($params);
 		} else 
 		if ($Type == 'wfs') {
 			
-			$param = array();
-			$param['featureID'] = $featureID;
-			$requestString = $this->getWFSFeatureRequest($param);
+			if (!isset($params['featureID'])) {
+				throw new OLLayer_Exception('Mandatory parameter is missing: featureID.');
+			}
+			
+			$requestString = $this->getWFSFeatureRequest($params);
 		} else {
 			// layer type unknown -> error
 			throw new OLLayer_Exception('Request type unknown');
@@ -237,9 +282,9 @@ class OLLayer extends DataObject {
 
 
 	/**
-	 * Returns the GET request string for a OGC WFS get-feature request.
+	 * Returns the OGC 'getfeature' request string for a OGC WFS get-feature request.
 	 *
-	 * @param array array of request parameters (featureID)
+	 * @param array $param array of request parameters (see {@link getFeatureInfo})
 	 *
 	 * @return string request string 
 	 */
@@ -267,14 +312,11 @@ class OLLayer extends DataObject {
 	}
 
 	/**
+	 * Returns the OGC 'getfeature' request string for a OGC WMS getFeatureInfo request.
 	 *
-	 * Parameter structure:
-	 * 		$param['BBOX']
-	 *		$param['WIDTH']
-	 * 		$param['HEIGHT']
-	 * 		$param['x']
-	 * 		$param['z']
-	 * @param array $param array object, storing the WMS relevant parameter information.
+	 * @param array $param array of request parameters (see {@link getFeatureInfo})
+	 *
+	 * @return string request string 
 	 */
 	public function getWMSFeatureRequest($param) {
 		

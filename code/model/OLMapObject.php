@@ -2,12 +2,16 @@
 /**
  * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
- * @subpackage code
+ * @subpackage model
  */
 
 /** 
- * OLMapObject class. Each instance of this map class represents a JavaScript
- * OpenLayer Map class. It is used to manage and control the map behavior.
+ * OLMapObject class. 
+ *
+ * Each OpenLayers map instance is stored in the CMS as a OLMapObject 
+ * dataobject  and can be linked to OLMapPages {@link OLMapPages}.
+ * OLMapObjects stores information about the map configuration, such as
+ * default map view and available layers.
  */
 class OLMapObject extends DataObject {
 	
@@ -113,7 +117,12 @@ class OLMapObject extends DataObject {
 	}
 	
 	/**
-	 * Serialise the data structure into an array.
+	 * This method serialize the map data structure into an array.
+	 *
+	 * This method stores relevant map configurations in an array object,
+	 * iterate through all associate {@link OLLayers} objects and add those
+	 * configurations to the array. This method is called from the templates
+	 * via {@link OLMapPage::getDefaultMapConfiguration()} and calls {@link OLLayer::getConfigurationArray()}.
 	 *
 	 * @return array
 	 */
