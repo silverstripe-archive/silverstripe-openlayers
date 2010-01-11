@@ -365,6 +365,14 @@ class OLLayerTest extends SapphireTest {
 	}
 
 	function testGetFeatureInfo() {
+		
+	}
+
+	function testLayerException() {
+		
+		$exception = new OLLayer_Exception();
+		
+		$this->assertTrue(is_a($exception, "OLLayer_Exception"));
 	}
 
 /*
