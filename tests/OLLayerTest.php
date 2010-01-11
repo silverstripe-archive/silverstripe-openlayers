@@ -6,7 +6,8 @@
  */
 class OLLayerTest extends SapphireTest {
 
-
+	static $test_controller = 'ReflectionProxy_Controller/doprocess';
+	
 	/**
 	 * Initiate the controller and page classes and configure GeoNetwork service
 	 * to use the mockup-controller for testing.
@@ -364,34 +365,159 @@ class OLLayerTest extends SapphireTest {
 		$this->assertEquals($options['map'], NULL);
 	}
 
-	function testGetFeatureInfo() {
-		
-	}
-
+	/**
+	 * Test if the OLLayer_Exception class exist.
+	 */
 	function testLayerException() {
-		
 		$exception = new OLLayer_Exception();
-		
 		$this->assertTrue(is_a($exception, "OLLayer_Exception"));
 	}
+	
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls the other
+	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * the server response.
+	 */
+	function testGetFeatureInfo_Invalid() {
+			$layer = new OLLayer();
 
-/*
-** Parameter structure:
-* 		$param['BBOX']
-*		$param['WIDTH']
-* 		$param['HEIGHT']
-* 		$param['x']
-* 		$param['z']/
-	function testSendWMSFeatureRequest() {
+			$url = Director::absoluteBaseURL() . self::$test_controller;
+
+			$layer->Url = $url;
+			$layer->write();
+
+			try {
+				$layer->getFeatureInfo('ID.1');
+			}
+			catch(Exception $e) {
+				$this->assertEquals("Request type unknown", $e->getMessage());
+				return;
+			}
+			$this->assertTrue(false,"Exception hasn't been thrown.");
+		}	
 		
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls the other
+	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * the server response.
+	 */
+	function testGetFeatureInfo_WFS() {
+
+		$layer = new OLLayer();
+		$layer->Type     = 'wfs';
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
 		
+		$url = Director::absoluteBaseURL() . self::$test_controller;
+		
+		$layer->Url = $url;
+		$layer->write();
+		
+		$response = $layer->getFeatureInfo('ID.1');
+		$obj = json_decode($response,1);
+
+		// get project-path from the absolute URL
+		$baseUrl = explode('/',Director::absoluteBaseURL());
+		$projectPath = $baseUrl[3];
+		
+		// verify/assert response
+		$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['map'], "TestMap");
+		$this->assertEquals($obj['request'], "getfeature");
+		$this->assertEquals($obj['service'], "WFS");
+		$this->assertEquals($obj['version'], "1.0.0");
+		$this->assertEquals($obj['typename'], "featureType");
+		$this->assertEquals($obj['OUTPUTFORMAT'], "gml3");
+		$this->assertEquals($obj['featureid'], "featureType.ID.1");
+		$this->assertEquals($obj['isget'], true);
+	}
+
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls the other
+	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * the server response.
+	 */
+	function testGetFeatureInfo_WMS() {
+
+		$layer = new OLLayer();
+		$layer->Type     = 'wms';
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
+		
+		$url = Director::absoluteBaseURL() . self::$test_controller;
+		
+		$layer->Url = $url;
+		$layer->write();
+		
+		$response = $layer->getFeatureInfo('ID.1');
+		$obj = json_decode($response,1);
+
+		// get project-path from the absolute URL
+		$baseUrl = explode('/',Director::absoluteBaseURL());
+		$projectPath = $baseUrl[3];
+		
+		// verify/assert response
+		$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['map'], "TestMap");
+		$this->assertEquals($obj['REQUEST'], "GetFeatureInfo");
+		$this->assertEquals($obj['INFO_FORMAT'], "application/vnd.ogc.gml");
+		$this->assertEquals($obj['VERSION'], "1.1.1");
+		$this->assertEquals($obj['TRANSPARENT'], true);
+		$this->assertEquals($obj['EXCEPTIONS'], "application/vnd.ogc.se_xml");
+		$this->assertEquals($obj['FORMAT'], "image/png");
+		$this->assertEquals($obj['SRS'], "EPSG:4326");
+		$this->assertEquals($obj['LAYERS'], "featureType");
+		$this->assertEquals($obj['QUERY_LAYERS'], "featureType");
+		$this->assertEquals($obj['BBOX'], "bbox");
+		$this->assertEquals($obj['x'], "x");
+		$this->assertEquals($obj['y'], "y");
+		$this->assertEquals($obj['WIDTH'], "width");
+		$this->assertEquals($obj['HEIGHT'], "height");
+		$this->assertEquals($obj['isget'], true);
 	}
 	
-	function testSendWFSFeatureRequest() {
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls the other
+	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * the server response.
+	 */
+	function testGetFeatureInfo_wmsUntiled() {
+
+		$layer = new OLLayer();
+		$layer->Type     = 'wmsUntiled';
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
+		
+		$url = Director::absoluteBaseURL() . self::$test_controller;
+		
+		$layer->Url = $url;
+		$layer->write();
+		
+		$response = $layer->getFeatureInfo('ID.1');
+		$obj = json_decode($response,1);
+
+		// get project-path from the absolute URL
+		$baseUrl = explode('/',Director::absoluteBaseURL());
+		$projectPath = $baseUrl[3];
+		
+		// verify/assert response
+		$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['map'], "TestMap");
+		$this->assertEquals($obj['REQUEST'], "GetFeatureInfo");
+		$this->assertEquals($obj['INFO_FORMAT'], "application/vnd.ogc.gml");
+		$this->assertEquals($obj['VERSION'], "1.1.1");
+		$this->assertEquals($obj['TRANSPARENT'], true);
+		$this->assertEquals($obj['EXCEPTIONS'], "application/vnd.ogc.se_xml");
+		$this->assertEquals($obj['FORMAT'], "image/png");
+		$this->assertEquals($obj['SRS'], "EPSG:4326");
+		$this->assertEquals($obj['LAYERS'], "featureType");
+		$this->assertEquals($obj['QUERY_LAYERS'], "featureType");
+		$this->assertEquals($obj['BBOX'], "bbox");
+		$this->assertEquals($obj['x'], "x");
+		$this->assertEquals($obj['y'], "y");
+		$this->assertEquals($obj['WIDTH'], "width");
+		$this->assertEquals($obj['HEIGHT'], "height");
+		$this->assertEquals($obj['isget'], true);
 	}	
-	
-	function testGetFeatureInfo() {
-	}
-	
-	*/
+
 }

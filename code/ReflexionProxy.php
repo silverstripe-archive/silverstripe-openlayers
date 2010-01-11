@@ -6,7 +6,7 @@
  *
  * Mockup controller class to simulate the Proxy server side for this test.
  */
-class ReflectionProxy_Controller extends Controller {
+class ReflectionProxy_Controller extends Controller implements TestOnly {
 
 	static $allowedIP = array('::1','127.0.0.1','192.168.1.16');
 		
@@ -39,6 +39,6 @@ class ReflectionProxy_Controller extends Controller {
 		$response = json_encode($params);
 		
 		return $response;
-
 	}
+
 }

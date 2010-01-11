@@ -206,7 +206,15 @@ class OLLayer extends DataObject {
 		$url  = $this->getField('Url');
 		
 		$response = null;
+		
 		if ($Type == 'wms' || $Type == 'wmsUntiled') {
+ 			$param = array();
+			$param['BBOX'] = 'bbox';
+			$param['x'] = 'x';
+			$param['y'] = 'y';
+			$param['WIDTH'] = 'width';
+			$param['HEIGHT'] = 'height';
+
 			$requestString = $this->getWMSFeatureRequest($param);
 		} else 
 		if ($Type == 'wfs') {
