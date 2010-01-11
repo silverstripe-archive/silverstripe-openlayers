@@ -158,7 +158,8 @@ class OLMapPage_Controller extends Page_Controller {
 	
 	
 	/**
-	* Function to render popup for one station (attributes)
+	* Function to render popup for one station (attributes).
+	* gets Whitelist words from the layer and finds tags into the XML file.
 	* @param Object $layer The layer the station belongs to.
 	* @param Int $featureID Station (feature) ID
 	* @param String $stationID Name of the station (layers plus number)
@@ -222,11 +223,10 @@ class OLMapPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * Returns the HTML response for the map popup-box. After the user clicks
-	 * on the map, the CMS will send of a request to the OGC server to request
-	 * a XML data structure for the features on that selected location, parses
-	 * the XML response and renders the HTML, which will be returned to the
-	 * popup window.
+	 * Processes params and finds if request is for a single or multiple stations.
+	 * if single station calls renderSingleStation method with station and layers values
+	 * if multiple stations create list with stations to render HTML
+	 * if not stationID displays message
 	 *
 	 * @param Request $data
 	 *
