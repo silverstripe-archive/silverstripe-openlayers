@@ -165,13 +165,55 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::customScript($jsConfig);
 	}
 	
+	
 	/**
+<<<<<<< .mine
+	* Function to render popup for one station (attributes)
+	* @param Object $layer The layer the station belongs to.
+	* @param Int $featureID Station (feature) ID
+	**/
+	static function renderSingleStation($layer, $featureID, $stationID){
+		$atts = array();
+		$output = $layer->getFeatureInfo($featureID);
+		
+		$obj = new DataObjectSet();
+		$out = new ViewableData();
+		$reader = new XMLReader();
+		$reader->XML($output);
+		
+		// loop xml for attributes 
+		while ($reader->read()) {
+			if($reader->nodeType != XMLReader::END_ELEMENT){
+				if(self::WhiteList($reader->name,$layer->XMLWhitelist)){
+					$atts[$reader->name] = $reader->readInnerXML();
+				}
+			}
+		}
+		$reader->close();
+		foreach($atts as $key => $value){
+			$obj->push(new ArrayData(array(
+				'attributeName' => $key,
+				'attributeValue' => $value
+			)));
+		}
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID ) );
+		return $out->renderWith('MapPopup_Detail');
+	}
+	
+	/**
+	* Find for layer WhiteList words in the XML response...
+	*
+	* @param string $haystack XML source 
+	* @param string $needles WhiteList words (comma separated)
+	**/
+=======
 	 * Find for layer WhiteList words in the XML response...
 	 *
 	 * @param string $haystack XML source 
 	 * @param string $needles WhiteList words (comma separated)
 	 * @return boolean
 	 **/
+>>>>>>> .r96623
 	static function WhiteList($XMlTag , $keywords){
 		$patterns = explode(",",$keywords);
 	    foreach($patterns as $pattern){
@@ -216,6 +258,7 @@ class OLMapPage_Controller extends Page_Controller {
 		$output = "Sorry we cannot retrieve feature information, please try again";
 		// check if the request is for more than one station (clustered)
 		$stationID = Director::urlParam("OtherID");
+		// condition for single station, create request and render template
 		if(strpos($stationID,",") === FALSE){
 			// process request parameters
 			$mapid   = (int)Director::urlParam("ID"); 
@@ -230,43 +273,17 @@ class OLMapPage_Controller extends Page_Controller {
 			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 
 			if($layer){
-				$atts = array();
 				
+<<<<<<< .mine
+				return self::renderSingleStation($layer, $featureID, $stationID);
+=======
 				$params = array();
 				$params['featureID'] = $featureID;
 				$output = $layer->getFeatureInfo($params);
+>>>>>>> .r96623
 				
-				$obj = new DataObjectSet();
-				$out = new ViewableData();
-				$reader = new XMLReader();
-				$reader->XML($output);
-				
-				// loop xml for attributes 
-				while ($reader->read()) {
-					if($reader->nodeType != XMLReader::END_ELEMENT){
-						if(self::WhiteList($reader->name,$layer->XMLWhitelist)){
-							$atts[$reader->name] = $reader->readInnerXML();
-						}
-					}
-					/*
-					if(preg_match($pattern,$reader->name) == 0){
-						if($reader->readInnerXML() != ""){
-							$atts[$reader->name] = $reader->readInnerXML();
-						}
-					} 
-					*/
-				}
-				$reader->close();
-				foreach($atts as $key => $value){
-					$obj->push(new ArrayData(array(
-						'attributeName' => $key,
-						'attributeValue' => $value
-					)));
-				}
-				$out->customise( array( "attributes" => $obj, "StationID" => $stationID ) );
-				return $out->renderWith('MapPopup_Detail');
 			}
-
+		// multiple stations, render list
 		} else{
 			$stationIDs = explode(",",$stationID);
 			$obj = new DataObjectSet();
@@ -282,5 +299,7 @@ class OLMapPage_Controller extends Page_Controller {
 
 		return $output;
 	}
+	
+	
 	
 }
