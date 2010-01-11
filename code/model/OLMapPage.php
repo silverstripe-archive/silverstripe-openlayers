@@ -166,7 +166,8 @@ class OLMapPage_Controller extends Page_Controller {
 	**/
 	static function renderSingleStation($layer, $featureID, $stationID){
 		$atts = array();
-		$output = $layer->getFeatureInfo($featureID);
+		$params = array('featureID' => $featureID);
+		$output = $layer->getFeatureInfo($params);
 		
 		$obj = new DataObjectSet();
 		$out = new ViewableData();
