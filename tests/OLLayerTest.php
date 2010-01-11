@@ -1,9 +1,10 @@
 <?php
-
 /**
+ * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
  * @subpackage tests
  */
+
 class OLLayerTest extends SapphireTest {
 
 	static $test_controller = 'ReflectionProxy_Controller/doprocess';
@@ -372,33 +373,57 @@ class OLLayerTest extends SapphireTest {
 		$exception = new OLLayer_Exception();
 		$this->assertTrue(is_a($exception, "OLLayer_Exception"));
 	}
+
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods without the require parameters.
+	 */
+	function testGetFeatureInfo_InvalidParameterType() {
+		$layer = new OLLayer();
+
+		$url = Director::absoluteBaseURL() . self::$test_controller;
+
+		$layer->Url = $url;
+		$layer->write();
+
+		try {
+			$layer->getFeatureInfo('ID.1');
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Invalid request parameter.", $e->getMessage());
+			return;
+		}
+		$this->assertTrue(false,"Exception hasn't been thrown.");
+	}	
+	
+
 	
 	/**
-	 * Test the business logic around GetFeatureInfo. This method calls the other
-	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods, sends the HTTP request to the OGC server and returns 
 	 * the server response.
 	 */
 	function testGetFeatureInfo_Invalid() {
-			$layer = new OLLayer();
+		$layer = new OLLayer();
 
-			$url = Director::absoluteBaseURL() . self::$test_controller;
+		$url = Director::absoluteBaseURL() . self::$test_controller;
 
-			$layer->Url = $url;
-			$layer->write();
+		$layer->Url = $url;
+		$layer->write();
 
-			try {
-				$layer->getFeatureInfo('ID.1');
-			}
-			catch(Exception $e) {
-				$this->assertEquals("Request type unknown", $e->getMessage());
-				return;
-			}
-			$this->assertTrue(false,"Exception hasn't been thrown.");
-		}	
-		
+		try {
+			$layer->getFeatureInfo(array('featureID' => 'ID.1'));
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Request type unknown", $e->getMessage());
+			return;
+		}
+		$this->assertTrue(false,"Exception hasn't been thrown.");
+	}	
+	
 	/**
-	 * Test the business logic around GetFeatureInfo. This method calls the other
-	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods, sends the HTTP request to the OGC server and returns 
 	 * the server response.
 	 */
 	function testGetFeatureInfo_WFS() {
@@ -413,7 +438,7 @@ class OLLayerTest extends SapphireTest {
 		$layer->Url = $url;
 		$layer->write();
 		
-		$response = $layer->getFeatureInfo('ID.1');
+		$response = $layer->getFeatureInfo(array('featureID' => 'ID.1'));
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
@@ -433,8 +458,95 @@ class OLLayerTest extends SapphireTest {
 	}
 
 	/**
-	 * Test the business logic around GetFeatureInfo. This method calls the other
-	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods, sends the HTTP request to the OGC server and returns 
+	 * the server response.
+	 */
+	function testGetFeatureInfo_WMS_InvalidParams() {
+
+		$layer = new OLLayer();
+		$layer->Type     = 'wms';
+		$layer->ogc_name = "featureType";
+		$layer->ogc_map  = "TestMap";
+		
+		$url = Director::absoluteBaseURL() . self::$test_controller;
+		
+		$layer->Url = $url;
+		$layer->write();
+		
+		// call getFeatureInfo (for a WMS layer) with a incomplete set of
+		// parameters. They should all throw execptions, which is tested in this
+		// nested try-catch structure.
+		try {
+			
+			// test without any parameters
+			$params = array(
+			);
+			$response = $layer->getFeatureInfo($params);
+		}
+		catch(Exception $e) {
+			$this->assertFalse(strpos($e->getMessage(),"Mandatory parameter is missing:")===false);
+
+			try {
+				// test without bbox parameters
+				$params = array(
+					'BBOX' => 'bbox',
+				);
+				$response = $layer->getFeatureInfo($params);
+			}
+			catch(Exception $e) {
+				$this->assertFalse(strpos($e->getMessage(),"Mandatory parameter is missing:")===false);
+
+				// test without bbox,x parameters
+				try {
+					$params = array(
+						'BBOX' => 'bbox',
+						'x' => 'x',
+					);
+					$response = $layer->getFeatureInfo($params);
+				}
+				catch(Exception $e) {
+					$this->assertFalse(strpos($e->getMessage(),"Mandatory parameter is missing:")===false);
+
+					// test without bbox,x,y parameters
+					try {
+						$params = array(
+							'BBOX' => 'bbox',
+							'x' => 'x',
+							'y' => 'y',
+						);
+						$response = $layer->getFeatureInfo($params);
+					}
+					catch(Exception $e) {
+						$this->assertFalse(strpos($e->getMessage(),"Mandatory parameter is missing:")===false);
+						try {
+							// test without bbox,x,y,width parameters
+							$params = array(
+								'BBOX' => 'bbox',
+								'x' => 'x',
+								'y' => 'y',
+								'WIDTH' => 'width',
+							);
+							$response = $layer->getFeatureInfo($params);
+						}
+						catch(Exception $e) {
+							$this->assertFalse(strpos($e->getMessage(),"Mandatory parameter is missing:")===false);
+							return;
+						}
+						return;
+					}
+					return;
+				}
+				return;
+			}
+			return;
+		}
+		$this->assertTrue(false,"Expected exception hasn't been thrown.");
+	}
+
+	/**
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods, sends the HTTP request to the OGC server and returns 
 	 * the server response.
 	 */
 	function testGetFeatureInfo_WMS() {
@@ -449,7 +561,15 @@ class OLLayerTest extends SapphireTest {
 		$layer->Url = $url;
 		$layer->write();
 		
-		$response = $layer->getFeatureInfo('ID.1');
+		$params = array(
+			'BBOX' => 'bbox',
+			'x' => 'x',
+			'y' => 'y',
+			'WIDTH' => 'width',
+			'HEIGHT' => 'height',
+		);
+		
+		$response = $layer->getFeatureInfo($params);
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
@@ -477,8 +597,8 @@ class OLLayerTest extends SapphireTest {
 	}
 	
 	/**
-	 * Test the business logic around GetFeatureInfo. This method calls the other
-	 * getWFS/WMSFeature methods, send the HTTP request to the OGC server and returns 
+	 * Test the business logic around GetFeatureInfo. This method calls 
+	 * getWFS/WMSFeature methods, sends the HTTP request to the OGC server and returns 
 	 * the server response.
 	 */
 	function testGetFeatureInfo_wmsUntiled() {
@@ -493,7 +613,15 @@ class OLLayerTest extends SapphireTest {
 		$layer->Url = $url;
 		$layer->write();
 		
-		$response = $layer->getFeatureInfo('ID.1');
+		$params = array(
+			'BBOX' => 'bbox',
+			'x' => 'x',
+			'y' => 'y',
+			'WIDTH' => 'width',
+			'HEIGHT' => 'height',
+		);
+		
+		$response = $layer->getFeatureInfo($params);
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL

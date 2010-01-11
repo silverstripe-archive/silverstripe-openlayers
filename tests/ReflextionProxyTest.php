@@ -1,8 +1,10 @@
 <?php
 /**
+ * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
  * @subpackage tests
  */
+
 
 /**
  * This unit tests uses the ReflexionProxy class to perform a request and evaluate

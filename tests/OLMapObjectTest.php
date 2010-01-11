@@ -1,9 +1,10 @@
 <?php
-
 /**
+ * @author Rainer Spittel (rainer at silverstripe dot com)
  * @package openlayers
  * @subpackage tests
  */
+
 class OLMapObjectTest extends SapphireTest {
 
 	/**
