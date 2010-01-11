@@ -73,7 +73,7 @@ class OLLayer extends DataObject {
 	    'ogc_transparent' => true,
 		'GeometryType' => 'Point',
 		'LayerType' => 'overlay', 
-		'XMLWhitelist' => 'attribute'
+		'XMLWhitelist' => 'attribute_1, attribute_2, attribute_3, attribute_4, attribute_5'
 	 );
 
 	static $casting = array(
