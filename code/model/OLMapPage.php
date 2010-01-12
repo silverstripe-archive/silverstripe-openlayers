@@ -196,8 +196,8 @@ class OLMapPage_Controller extends Page_Controller {
 	/**
 	* Find for layer WhiteList words in the XML response...
 	*
-	* @param string $haystack XML source 
-	* @param string $needles WhiteList words (comma separated)
+	* @param string $XMLTag XML source 
+	* @param string $Keywords WhiteList words (comma separated)
 	**/
 	static function WhiteList($XMlTag , $keywords){
 		$patterns = explode(",",$keywords);
