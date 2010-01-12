@@ -283,7 +283,7 @@ function sortMapLayers(event , ui){
 //----------------------------------------------------------------
 var isCollapsed = 1;  //this variable is used to remember layer menu status 
 
-function openStationPage( stationID ){
+function openStationPage( stationID, mapID ){
 	if(isCollapsed == 1){
 		collapse();
 		isCollapsed = 0;
@@ -291,7 +291,7 @@ function openStationPage( stationID ){
 	$("#locklayer").show();
 	$("#modalbox").show();
 	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
-	$("#modalbox .mbcontent").load("atlasLoader/loadStation/" + stationID);
+	$("#modalbox .mbcontent").load("atlasLoader/loadStation/" + stationID + "/" + mapID);
 		
 }
 
