@@ -165,6 +165,12 @@ class OLMapPage_Controller extends Page_Controller {
 	* @param String $stationID Name of the station (layers plus number)
 	**/
 	static function renderSingleStation($layer, $featureID, $stationID){
+		if(!$layer || !$featureID || !$stationID){
+			throw new OLLayer_Exception('Wrong params');
+		}
+		if(get_class($layer) != "OLLayer"){
+			throw new OLLayer_Exception('Wrong Layer class');
+		}
 		$atts = array();
 		$params = array('featureID' => $featureID);
 		$output = $layer->getFeatureInfo($params);
@@ -176,8 +182,9 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		// loop xml for attributes 
 		while ($reader->read()) {
-			if($reader->nodeType != XMLReader::END_ELEMENT){
+			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
 				if(self::WhiteList($reader->name,$layer->XMLWhitelist)){
+					
 					$atts[$reader->name] = $reader->readInnerXML();
 				}
 			}
@@ -203,10 +210,11 @@ class OLMapPage_Controller extends Page_Controller {
 		$patterns = explode(",",$keywords);
 	    foreach($patterns as $pattern){
 			$pattern = trim($pattern);
-	        if (strpos($XMlTag,$pattern)) {
-				
-				return true;
-	       }
+			if($pattern != ""){
+	        	if (strpos($XMlTag,$pattern)) {
+					return true;
+	       		}
+			}
 	    }
 	    return false;
 	}
@@ -235,23 +243,28 @@ class OLMapPage_Controller extends Page_Controller {
 	 */
 	public function dogetfeatureinfo( $request ) {
 		
+		if($request->param("ID") == "" || $request->param("OtherID") == ""){
+			throw new OLLayer_Exception('Empty params');
+		}
 		$output = "Sorry we cannot retrieve feature information, please try again";
 		// check if the request is for more than one station (clustered)
-		$stationID = Director::urlParam("OtherID");
+		$stationID =  $request->param("OtherID");
+		
 		// condition for single station, create request and render template
 		if(strpos($stationID,",") === FALSE){
-			// process request parameters
-			$mapid   = (int)Director::urlParam("ID"); 
-			$feature = explode(".",Director::urlParam("OtherID")); 
 			
-			// test if user requests feature-info for one element (otherwise create 
-			// overview template.
-		
+			// process request parameters
+			$mapid   = (int)$request->param("ID"); 
+			$feature = explode(".", $request->param("OtherID")); 
+
+			if(count($feature) <= 1){
+				throw new OLLayer_Exception('Wrong params');
+			}
+			
 			$layerName = Convert::raw2sql($feature[0]);
 			$featureID = Convert::raw2sql($feature[1]);
 		
 			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
-
 			if($layer){
 				
 				return self::renderSingleStation($layer, $featureID, $stationID);
