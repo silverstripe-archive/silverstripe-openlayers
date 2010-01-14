@@ -10,6 +10,8 @@ class OLMapPageTest extends FunctionalTest {
 	static $fixture_file = 'openlayers/tests/OLMapPageTest.yml';
 	static $use_draft_site = true;
 	
+	static $atlas_controller = 'ReflectionProxy_Controller/doXML';
+	
 	/**
 	 * Test getCMSFields  (basic test)
 	 */
@@ -93,5 +95,154 @@ class OLMapPageTest extends FunctionalTest {
 		$idList = $result->getField('backgroundLayers')->getIdList();
 		$this->assertEquals(array("2"=>"2"),$idList);
 	}
+	
+	/**
+	* OLMapPage_Controller
+	**/
+	
+	// Test renderSingleStation with valid params
+	function testrenderSingleStation_validParams(){
+		
+		$url = Director::absoluteBaseURL() . self::$atlas_controller;
+		$featureID = 2;
+		$expectedFragment = "<h4 class=\"popup\">Station stationdetails.$featureID</h4>";
+		
+		$layer = new OLLayer();
+		$layer->ID = 1;
+		$layer->Title = 'allStations';
+		$layer->Url = $url;
+		$layer->ogc_map = 'testmap';
+		$layer->ogc_name = 'stationdetails';
+		$layer->Type = "wfs";
+		$layer->MapID = 1;
+		$layer->write();
+		
+		$mapPage = new OLMapPage_Controller();
+		$resp = $mapPage->renderSingleStation($layer,'1',"stationdetails.$featureID");
+		$this->assertTrue(is_string($resp));
+		$this->assertContains($expectedFragment, $resp);
+		
 
+	}
+	
+	// Test renderSingleStation with invalid params
+	function testrenderSingleStation_invalidParams(){
+		
+		$url = Director::absoluteBaseURL() . self::$atlas_controller;
+		$featureID = 2;
+		$expectedFragment = "<h4 class=\"popup\">Station stationdetails.$featureID</h4>";
+		
+		$layer = new OLLayer();
+		$layer->ID = 1;
+		$layer->Title = 'allStations';
+		$layer->Url = $url;
+		$layer->ogc_map = 'testmap';
+		$layer->ogc_name = 'stationdetails';
+		$layer->Type = "wfs";
+		$layer->MapID = 1;
+		$layer->write();
+		
+		$mapPage = new OLMapPage_Controller();
+		
+		//first param is not an object or is a wrong object (OLLayer)
+		try {
+			$resp = $mapPage->renderSingleStation($featureID,'1',"stationdetails.$featureID");
+			
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Wrong Layer class", $e->getMessage());
+			return;
+		}
+		
+		//first param is not an object or is a wrong object (OLLayer)
+		try {
+			$resp = $mapPage->renderSingleStation($featureID,null,"stationdetails.$featureID");
+			
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Wrong params", $e->getMessage());
+			return;
+		}	
+
+	}
+	
+	function testdogetfeatureinfo(){
+		
+		$url = Director::absoluteBaseURL() . self::$atlas_controller;
+		
+		$mapPage = new OLMapPage();
+		$mapPage->URLSegment = 'themap';
+		$mapurl = $mapPage->URLSegment;
+		$mapPage->write();
+		$layer = new OLLayer();
+		$layer->ID = 1;
+		$layer->Title = 'allStations';
+		$layer->Url = $url;
+		$layer->ogc_map = 'testmap';
+		$layer->ogc_name = 'stationdetails';
+		$layer->MapID = 1;
+		$layer->write();
+		$Map = new OLMapObject();
+		$Map->ID = 1;
+		$Map->Title= "Map Title";
+		$Map->MinScale="200";
+		$Map->AtlasLayerID = 1;
+		$Map->write();
+		
+		$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails.1"));
+		$this->assertContains("Station stationdetails.1", $resp->getBody());
+		
+		// wrong params
+		try {
+			$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails"));
+			
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Wrong params", $e->getMessage());
+			return;
+		}
+		
+		// empty params
+		try {
+			$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/"));
+			
+		}
+		catch(Exception $e) {
+			$this->assertEquals("Empty params", $e->getMessage());
+			return;
+		}
+	}
+	
+	//Test WhiteList
+	function testWhiteList(){
+		
+		// matching attributes
+		$XMlTag = "<ms::attribute>something</ms:attribute>";
+		$keywords = "ms::attribute";
+		
+		$resp = OLMapPage_Controller::WhiteList($XMlTag , $keywords);
+		$this->assertTrue($resp);
+		
+		// not matching attributes
+		$XMlTag = "<ms::attribute>something</ms:attribute>";
+		$keywords = "ms::Theattribute";
+		
+		$resp = OLMapPage_Controller::WhiteList($XMlTag , $keywords);
+		$this->assertFalse($resp);
+	}
+	
+	
+	//test dogetfeatureinfo
+	
+	
+	
+	/*
+	//test FormLayerSwitcher
+	function testFormLayerSwitcher(){
+		
+		$mapPage = new OLMapPage_Controller();
+		$resp = $mapPage->FormLayerSwitcher();
+		var_dump($resp);
+	}
+	*/
 }
