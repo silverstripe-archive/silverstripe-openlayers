@@ -168,7 +168,7 @@ class OLMapPage_Controller extends Page_Controller {
 		$atts = array();
 		$params = array('featureID' => $featureID);
 		$output = $layer->getFeatureInfo($params);
-		
+		$mapID =  $layer->MapID;
 		$obj = new DataObjectSet();
 		$out = new ViewableData();
 		$reader = new XMLReader();
@@ -189,7 +189,7 @@ class OLMapPage_Controller extends Page_Controller {
 				'attributeValue' => $value
 			)));
 		}
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID ) );
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, "MapID" => $mapID ) );
 		return $out->renderWith('MapPopup_Detail');
 	}
 	
