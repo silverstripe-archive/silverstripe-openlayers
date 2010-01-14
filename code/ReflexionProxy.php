@@ -53,5 +53,34 @@ class ReflectionProxy_Controller extends Controller implements TestOnly {
 		
 		return $response;
 	}
+	
+	function doXML($request) {
+		//Debug::show($request);
+		//$request = '';
+		foreach ($this->request->requestVars() as $key=>$value) {
+			$request .= "\t\t<request_item name=\"$key\">$value</request_item>\n";
+		}
+		$get = '';
+		foreach ($this->request->getVars() as $key => $value) {
+			$get .= "\t\t<get_item name=\"$key\">$value</get_item>\n";
+		}
+
+		
+		$out = <<<XML
+<?xml version="1.0"?>
+<test>
+	<request>$request</request>
+	<get>$get</get>
+	
+</test>
+XML;
+		$this->response->setBody($out);
+		$this->response->addHeader('Content-type', 'text/xml');
+		$theRet = $this->response;
+		//var_dump($theRet);
+		
+		return $this->response;
+	}
+	
 
 }
