@@ -23,7 +23,7 @@ class OLLayer extends DataObject {
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
 		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wms')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wfs')",
 		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
@@ -228,7 +228,6 @@ class OLLayer extends DataObject {
 	function getFeatureInfo($params) {
 		$Type = $this->getField('Type');
 		$url  = $this->getField('Url');
-		
 		$response = null;
 		
 		if (!is_array($params)) {
