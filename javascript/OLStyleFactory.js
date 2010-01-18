@@ -94,7 +94,7 @@ OLStyleFactory.createStyleMap_Line = function(strokeColor,strokeWidth,strokeOpac
 	var default_style = new OpenLayers.Style({
         strokeColor: strokeColor,
         strokeWidth: strokeWidth,
-        strokeOpacity: strokeOpacity,
+        strokeOpacity: strokeOpacity
     });
 
 
