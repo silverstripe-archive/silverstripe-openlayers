@@ -14,7 +14,7 @@
 					<div class="panelItem grip">
 						<div class="sortableArea"><img src="themes/niwa/images/map_grip.png"></div>
 						<input type='checkbox' name='$Title' class='change_visibility over' value='$Title' <% if Visible %>checked<% end_if %> />
-						<% if GeometryType = Point %><img src="themes/niwa/images/marker.png"><% end_if %><% if GeometryType = Line %> <img src="themes/niwa/images/layer-shape-polyline.png">  <% end_if %>
+						<% if GeometryType = Point %><img class="shapeImage" src="themes/niwa/images/marker.png"><% end_if %><% if GeometryType = Line %> <img class="shapeImage" src="themes/niwa/images/layer-shape-polyline.png">  <% end_if %>
 						<h5><a class="methodLink" id="$MethodID" title="click for more details">$Title</a></h5>
 					</div>
 				<% end_control %>
