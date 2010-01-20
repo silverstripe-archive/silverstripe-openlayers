@@ -11,7 +11,10 @@ $(document).ready(function() {
 	
 	// reset the layerlist-form
 	$('#layerlist')[0].reset();	
-	$('input:checkbox:change_visibility').checkbox();
+	$('input:checkbox:change_visibility').checkbox({
+		cls: 'jquery-checkbox',  /* checkbox  */
+		empty: 'themes/niwa/images/empty.png'  /* checkbox  */
+	});
 	$(".change_visibility").click( setLayerVisibility );
 		
 	$(".selectAllLayers").click( selectAllLayer );
