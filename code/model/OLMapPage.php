@@ -149,7 +149,6 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('openlayers/javascript/jquery.checkbox.js');
 		Requirements::javascript('openlayers/javascript/SSPopup.js');
 		Requirements::javascript('openlayers/javascript/SSPanZoomBar.js');
-		Requirements::javascript('openlayers/javascript/jquery.jcarousel.pack.js');
 		
 		// we need to add call to js maps somehow, any better way?
 		$googleCheck = DataObject::get_one('OLLayer',"(Type = 'Google Physical' OR Type = 'Google Hybrid' OR Type = 'Google Satellite') AND Enabled = 1");
