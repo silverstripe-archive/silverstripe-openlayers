@@ -23,7 +23,7 @@ class OLLayer extends DataObject {
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
 		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled'),'wfs')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','Google Physical','Google Hybrid','Google Satellite'),'wfs')",
 		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
@@ -288,8 +288,7 @@ class OLLayer extends DataObject {
 	 * @return string request string 
 	 */
 	public function getWFSFeatureRequest($param) {
-		// http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=Beam_trawl&OUTPUTFORMAT=gml3&featureid=Beam_trawl.6
-		// http://202.36.29.39/cgi-bin/mapserv?map=/srv/www/htdocs/mapdata/spittelr/stations.map&request=getfeature&service=wfs&version=1.0.0&typename=stationdetails&OUTPUTFORMAT=gml3&featureid=stationdetails.106
+	
 		$featureID = $param['featureID'];
 		$featureID = Convert::raw2xml($featureID);
 		
@@ -306,6 +305,7 @@ class OLLayer extends DataObject {
 			$requestString = "?map=".$map."&";
 		}
 		
+		// should this be configured from the cms?
 		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
 		return $requestString;
 	}

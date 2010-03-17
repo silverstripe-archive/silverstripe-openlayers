@@ -11,18 +11,17 @@ $(document).ready(function() {
 	
 	// reset the layerlist-form
 	$('#layerlist')[0].reset();	
+	
 	$('input:checkbox:change_visibility').checkbox({
-		cls: 'jquery-checkbox',  /* checkbox  */
-		empty: 'themes/niwa/images/empty.png'  /* checkbox  */
+		cls: 'jquery-checkbox',  
+		empty: 'openlayers/images/empty.png'  
 	});
+	
 	$(".change_visibility").click( setLayerVisibility );
 		
 	$(".selectAllLayers").click( selectAllLayer );
 	$(".unselectAllLayers").click( unselectAllLayer );
 	$("a.multipleStations").click( multipleStationSelect );
-	$(".closeButton").click( closeModalBox );
-	
-	$(".methodLink").click( openMethodPage );
 	
 	OpenLayers.ProxyHost="Proxy/dorequest?u=";
 
@@ -92,7 +91,6 @@ function multipleStationSelect(station){
 	
 	var mapid = ss_config['Map']['ID'];
 
-	//var fid = feature.feature.fid;
 	// prepare request for AJAX 
 	var url = getControllerName() + '/dogetfeatureinfo/'+mapid+"/"+station;
 	
@@ -106,13 +104,12 @@ function multipleStationSelect(station){
  * @param the selected feature.
  **/
 function onFeatureSelect( feature ){
-	
+	console.log(feature);
 	selectedFeature = feature;
 	var info = "";
 	info = 	'<img src=\'openlayers/images/ajax-loader.gif\' /><strong>&nbsp;loading information, please wait...</strong>';
-	//var info = "You clicked on " + feature.layer.name;
-	//info = info + "<br/>There are " + feature.attributes.count + " station in this point.<br/>";
 	// get event class
+	
 	var clusterStations = new Array();
 	var clusterStationsIDs = new Array();
 	clusterStations = feature.cluster;
@@ -124,7 +121,6 @@ function onFeatureSelect( feature ){
 	} else{
 		clusterStationsIDs.push(selectedFeature.fid);
 	}
-	
 	pixel = this.handlers.feature.evt.xy;
 	pixel.y = pixel.y-68; //hack to always open popup above station  
 	pixel.x = pixel.x-20;
@@ -216,7 +212,9 @@ function onPopupClose( evt ) {
  * Set the visibility of a layer (callback from the Layer-List div object).
  */
 function setLayerVisibility( event ){
+	
 	tempLayer = map.getLayersByName(this.value)[0];
+	
 	var status = tempLayer.getVisibility();
 
 	if(status) {
@@ -281,46 +279,11 @@ function sortMapLayers(event , ui){
 	});
 }
 
-//----------------------------------------------------------------
-//Modal Box
-//----------------------------------------------------------------
-var isCollapsed = 1;  //this variable is used to remember layer menu status 
-
-function openStationPage( stationID, mapID ){
-	if(isCollapsed == 1){
-		collapse();
-		isCollapsed = 0;
-	}
-	$("#locklayer").show();
-	$("#modalbox").show();
-	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
-	$("#modalbox .mbcontent").load("atlasLoader/loadStation/" + stationID + "/" + mapID);
-		
-}
-
-function openMethodPage(){
-	collapse();
-	isCollapsed = 0;
-	var methodID = $(this).attr('id');
-	$("#locklayer").show();
-	$("#modalbox").show();
-	$("#modalbox .mbcontent").html("<img src='themes/niwa/images/modalLoader.gif'> Loading content, please wait...");
-	$("#modalbox .mbcontent").load("method/loadMethod/" + methodID);
-}
-
-function closeModalBox(){
-	$("#locklayer").hide();
-	$("#modalbox").hide();
-	if(isCollapsed == 0){
-		isCollapsed = 1;
-		expand();
-	} 
-}
 
 //--------------------------------------------------------------------------------
 // MANAGE LAYERS MENU (OPEN/CLOSE IT AND REMEMBER STATUS WHEN OPENING MODAL BOX)
 //--------------------------------------------------------------------------------
-
+var isCollapsed = 1;  //this variable is used to remember layer menu status
 $('.panelTop .arrow').click(function(){
 	if(isCollapsed == 0 || isCollapsed == 2){
 		expand();

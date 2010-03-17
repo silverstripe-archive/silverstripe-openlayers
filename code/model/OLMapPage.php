@@ -103,6 +103,17 @@ class OLMapPage_Controller extends Page_Controller {
 	 * @var OpenLayers openLayers
 	 */
 	protected $openLayers = null;
+	
+	static function GoogleMapAPIKey() {
+		global $googlemap_api_keys;
+		$environment = Director::get_environment_type();
+
+		$api_key = null;
+		if (isset($googlemap_api_keys["$environment"])) {
+			$api_key = $googlemap_api_keys["$environment"];
+		}
+		return $api_key;
+	}
 
 	/**
 	 * Returns the open layers instance (via singleton pattern).
@@ -135,10 +146,17 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('openlayers/javascript/OLMapWrapper.js');
 		Requirements::javascript('openlayers/javascript/OLStyleFactory.js');
 		Requirements::javascript('openlayers/javascript/OLMapPage.js');
-		Requirements::javascript('themes/niwa/javascript/jquery.checkbox.js');
-		Requirements::javascript('themes/niwa/javascript/SSPopup.js');
-		Requirements::javascript('themes/niwa/javascript/SSPanZoomBar.js');
-		Requirements::javascript('themes/niwa/javascript/jquery.jcarousel.pack.js');
+		Requirements::javascript('openlayers/javascript/jquery.checkbox.js');
+		Requirements::javascript('openlayers/javascript/SSPopup.js');
+		Requirements::javascript('openlayers/javascript/SSPanZoomBar.js');
+		Requirements::javascript('openlayers/javascript/jquery.jcarousel.pack.js');
+		
+		// we need to add call to js maps somehow, any better way?
+		$googleCheck = DataObject::get_one('OLLayer',"(Type = 'Google Physical' OR Type = 'Google Hybrid' OR Type = 'Google Satellite') AND Enabled = 1");
+		if($googleCheck){
+			$api_key = self::GoogleMapAPIKey();
+			Requirements::javascript("http://maps.google.com/maps?file=api&amp;v=2&amp;key={$api_key}&sensor=true");
+		}
 		
 		
 		Requirements::themedCSS('OLMapPage');
@@ -165,6 +183,7 @@ class OLMapPage_Controller extends Page_Controller {
 	* @param String $stationID Name of the station (layers plus number)
 	**/
 	static function renderSingleStation($layer, $featureID, $stationID){
+		
 		if(!$layer || !$featureID || !$stationID){
 			throw new OLLayer_Exception('Wrong params');
 		}

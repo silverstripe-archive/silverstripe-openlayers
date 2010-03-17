@@ -1,57 +1,105 @@
-
-#layersMenu p {
-	margin: 0;
+/* PAGE */
+#Layout{
+	width:100%;
+	margin:30px auto;
+	height:100%;
 }
 
-#layersMenu ul 
-{
-        list-style-type: none;
-        padding-left: 0px;
-}
+/* MAP DIV */
+#map{ z-index:1; height:100%; background:#A7C0FD; overflow:hidden;}
 
-#layersMenu ul li span { 
-        float: left;
-        width: 25px;
-}
+/* LAYER MENU (CHECKBOX)
+   ------------------------------------------ */
 
-#layersMenu h2 { 
-	color: white;
-}
 
-.selectAllLayers {
-	cursor:pointer;
-}
+.jquery-checkbox img {vertical-align: middle; 	width: 20px; 	height: 18px;	background: transparent url(../images/panel_eyes.png) no-repeat;	margin:0px 2px;}
+.jquery-checkbox img{	background-position: 0px -18px;	border:none;	cursor:pointer;}
+.jquery-checkbox-checked img{	background-position: 0px 2px;	border:none;	cursor:pointer;}
+.jquery-checkbox-checked .jquery-checkbox-hover {	cursor:pointer;}
 
-.unselectAllLayers {
-	cursor:pointer;
-}
-/*
-.olPopup {
-	background:#000 !important;
-}
+/* LAYER MENU 
+   ----------------------------------------------- */
 
-.olPopupCloseBox {
-	background: transparent url(../images/close_bt_mini.png)  no-repeat !important;
-}
+#mapPanel{padding:0 0 0 15px; width:230px; top:200px; position: absolute; right:0; background:transparent url(../images/panel_bg.png) repeat-y top left; color:#fff; z-index:4000;}
+	#mapPanel .panelTop .arrow{position:absolute; top:13px; width:18px; height:15px; background:transparent url(../images/map_arrow.png) no-repeat top left; left:10px; display:block; cursor:pointer; }
+		#mapPanel .panelTop .arrow:hover{background-position: left -15px ;}
+		#mapPanel .panelTop .arrow.layers{background:transparent url(../images/map_layers_icon.png) no-repeat top left; top:10px;}
+	#mapPanel .panelTop{background:transparent url(../images/panel_top.png) no-repeat top left; position:absolute; height:38px; top:-50px; left:-30px; padding:12px 10px 0px 40px; width:225px;}
+	#mapPanel .panelBg{margin:15px 0 0 0; padding:10px 0 0 0; border-top: 2px solid #49BAEF;}
+	#mapPanel .panelBottom{background:transparent url(../images/panel_bottom.png) no-repeat top left; position:absolute; height:15px; bottom:-15px; left:0px; width:245px;}
 
-.popupLink {
-	cursor:pointer;
-	color:#FFF;
-}
-*/
-li.popupattr {
-	color:#FFF;
-	font-size:1.1em;
-	list-style:none;
-	margin:0.2em 0;
-}
+	#mapPanel h3, #mapPanel h4, #mapPanel p, .tooltip h3{color:#fff;}
+		#mapPanel h3.layers{background:transparent url(../images/map_layers_icon.png) no-repeat left 5px; padding:5px 0 5px 20px;}
+		#mapPanel h3.bg{background:transparent url(../images/map_bg_icon.png) no-repeat left 5px; padding:5px 0 5px 20px;}
+	#mapPanel h5{margin:0; padding:0 0 0 2px; display:inline;}
+	#mapPanel h5.bg{margin:0; padding:0 0 0 6px; display:inline; font-size:.9em; color:#FFF; font-weight:normal !important; cursor:default !important;}
 
-h4.popup {
-	color:#FFF;
-	font:1.2em;
-}
 
-h5.popup {
-	color:#FFF;
-	font:1.1em;
+	#mapPanel .panelItem a{color:white; font-weight:normal; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; text-decoration:none;}
+		#mapPanel .panelItem a.polygon{background:transparent url(../images/layer-shape-polygon.png) no-repeat left center; padding:0 0 0 18px;}
+		#mapPanel .panelItem a.line{background:transparent url(../images/layer-shape-polyline.png) no-repeat left center; padding:0 0 0 18px;}
+		#mapPanel .panelItem a.point{background:transparent url(../images/marker.png) no-repeat left center; padding:0 0 0 18px;}
+		#mapPanel .panelItem a.image{background:transparent url(../images/layer-transparent.png) no-repeat left center; padding:0 0 0 18px;}
+	
+	#mapPanel .panelItem .eye{background:transparent url(../images/panel_eyes.png) no-repeat top left; height:16px; width:20px; display:inline-block;  cursor:pointer;}
+		#mapPanel .panelItem .eye.closed{background-position:left -20px; color:#999;}
+		#mapPanel .panelItem .mark{position:absolute; top:1px; left:20px;}
+		
+	#backgrounds .panelItem h5{color:#ccc; padding-left: 30px; font-weight: normal;}
+	#backgrounds .panelItem .mark{left:0px;}	
+	
+	
+	.panelItem{width:220px; border-top:solid 1px #444; padding:2px 0; position:relative; }
+	
+	#mapPanel #innerLayers{overflow-x:hidden; overflow-y:auto; height:auto;}
+	#mapPanel #backgrounds {height:auto;}
+	 	.panelItem.bg { height:80px;}
+ 		.panelItem.grip{padding:2px 0 2px 2px;}
+		.panelItem.grip img.shapeImage {margin-left:34px;}
+		.ui-state-highlight{background:#000; height:28px; display:block;}
+	#mapPanel .panelItem .sortableArea{ display:inline; width:40px; cursor:move; }
+	#views{ list-style:none; position: absolute;right:0px; }
+	#views ul{ list-style:none;}
+		#views ul li {float:left; padding:0 .5em;}
+		.pin {position:absolute; z-index:5; }
+	
+	#allLayers{ position:absolute; right:10px; top:-35px;	padding-bottom:4px;	text-align:center;}
+		#allLayers a{color:#FFF;text-decoration:none; font-size: 10px; cursor:pointer;}
+
+	.tooltip{position:absolute; left:345px; top:170px; z-index:2000; background:#000; color:#fff; width:275px; padding:0 1em; background:transparent url(../images/bubble_bg.png) repeat-y top left;}
+	.tooltip .bubbleTop{position:absolute; left:0px; top:-12px; width:275px; height:12px; background:transparent url(../images/bubble_top.png) no-repeat top left;}
+	.tooltip .bubbleBottom{position:absolute; left:0px; bottom:-35px; width:300px; height:35px; background:transparent url(../images/bubble_bottom.png) no-repeat top left;}
+	.tooltip strong{color:#49BAEF; font-weight:normal;}
+	.tooltip em{color:#999;}
+	.tooltip .closeButton{ position:absolute; z-index:15; width:18px; height:18px; top:-5px; left:250px; background: transparent url(../images/close_bt_mini.png) no-repeat top left; cursor:pointer;}
+	.tooltip p{font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;}
+
+	/* SMALL POPUP (on map)
+	   -------------------------------------------------- */
+
+	.olPopup{	width:303px !important;	padding:0 !important;	overflow:auto;	height:auto !important;}
+	.olPopupContent{	background: transparent url(../images/bubble_bg.png) repeat-y top center !important;	width:251px !important;	padding:0px 10px !important;	overflow:hidden !important;	height:auto !important;}
+	.olPopupCloseBox{	background: transparent url(../images/close_bt_mini.png) no-repeat top right !important;	margin-right:40px !important;}
+	#popupinfo_TopDiv{	background: transparent url(../images/bubble_top.png) no-repeat top center !important;	width:271px !important;	height:12px !important;}
+	#popupinfo_BottomDiv{	background: transparent url(../images/bubble_bottom.png) no-repeat bottom center !important;	width:303px !important;	height:34px !important;}
+	.buttonBlue{	background: transparent url(../images/button_blue_right.png) no-repeat top right; 	display:block; 	height:28px; 	text-decoration:none; 	float:left; 	margin-left:8px; 	margin-top:10px;	cursor:pointer;}
+	.buttonBlue em{	background: transparent url(../images/button_blue_left.png) no-repeat top left; 	color:white !important; 	display:block; 	height:28px; 	padding: 5px 12px 0 12px; 	margin-left:-8px;	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; 	font-style:normal; 	color:#D0E7F5; 	text-shadow: -1px -1px #4577AF;}
+
+	.olPopupContent strong{color:#49BAEF; font-weight:normal;}
+	.olPopupContent em{color:#999;}
+	.olPopupContent .closeButton{ position:absolute; z-index:15; width:18px; height:18px; top:-5px; left:250px; background: transparent url(images/close_bt_mini.png) no-repeat top left; cursor:pointer;}
+	.olPopupContent p{font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;}
+	.olPopupContent ul li{font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color:#EFEFEF; cursor:pointer;}
+	.olPopupContent ul li a{font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; color:#EFEFEF; cursor:pointer;}
+	.olPopupContent h4{ color:#FFF;}
+	.olPopupContent h5{ color:#EFEFEF;}
+	
+/* GOOGLE */
+.olLayerGoogleCopyright {
+    right: 3px;
+    bottom: 120px !important;
+}
+.olLayerGooglePoweredBy {
+    left: 2px;
+    bottom: 120px !important;   
 }

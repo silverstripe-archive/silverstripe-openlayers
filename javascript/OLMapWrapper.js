@@ -50,6 +50,7 @@ function initMap(divMap, mapConfig) {
 	var layers = mapConfig['Layers'];
 	layers.reverse();
 	jQuery.each( layers , initLayer );
+	
 	map.events.register("zoomend", map, onFeatureUnselect);
 	
 	map.setCenter(new OpenLayers.LonLat(lon, lat), zoom);
@@ -62,13 +63,14 @@ function initMap(divMap, mapConfig) {
  * Initiate a single layer by its layer-definitiion array. The array
  * is generated via the CMS backend.
  *
- * @param int index Index of layer in the complate layer-array.
+ * @param int index Index of layer in the complete layer-array.
  * @param array layerDef layer definition array.
  */
 function initLayer( index, layerDef ) {	
 
 	var layer = null;
-
+	
+	
 	if (layerDef.Type == 'wms' || layerDef.Type == 'wmsUntiled') {
 		var title = layerDef.Title;
 		var url = layerDef.Url;
@@ -81,8 +83,7 @@ function initLayer( index, layerDef ) {
 		else{
 			layer = new OpenLayers.Layer.WMS( title, url, options );
 		} 			
-	} else
-	if (layerDef.Type == 'wfs') {
+	} else if (layerDef.Type == 'wfs') {
 
 		// create WFS layer	
 		if (layerDef.Cluster == '1') {
@@ -95,7 +96,22 @@ function initLayer( index, layerDef ) {
 		var styleMap = OLStyleFactory.createStyleMap(featureType);
 		layer.styleMap = styleMap;
 	}  
-
+	// create a google map layer (it can be Google Physical, Google Hybrid, Google Satellite)
+	// should we add google street?
+	
+	else if(layerDef.Type == 'Google Physical'){
+		
+		initGoogle('Google Physical');	
+	} 
+	else if(layerDef.Type == 'Google Hybrid'){
+		
+		initGoogle('Google Hybrid');	
+	}
+	else if(layerDef.Type == 'Google Satellite'){
+		
+		initGoogle('Google Satellite');	
+	}
+	
 	// add new created layer to the map
 	if (layer) {
 		var visible = layerDef.Visible;
@@ -112,6 +128,30 @@ function initLayer( index, layerDef ) {
 	}
 }
 
+function initGoogle(type){
+	if(type == 'Google Satellite'){
+		var layer = new OpenLayers.Layer.Google(
+			"Google Satellite",
+			{type: G_SATELLITE_MAP}
+		);
+	}
+	
+	if(type == 'Google Hybrid'){
+		var layer = new OpenLayers.Layer.Google(
+			"Google Hybrid",
+			{type: G_HYBRID_MAP}
+		);
+	}
+	
+	if(type == 'Google Physical'){
+		var layer = new OpenLayers.Layer.Google(
+			"Google Physical",
+			{type: G_PHYSICAL_MAP}
+		);
+	}
+	
+	map.addLayer(layer);
+}
 
 /**
  * Create a WFS layer instance for Open Layers.
@@ -144,6 +184,8 @@ function createClusteredWFSLayer(layerDef) {
     });
 	return layer;
 }
+
+
 
 
 /**
