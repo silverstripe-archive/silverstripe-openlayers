@@ -1,7 +1,4 @@
-/**
- * 
- */
-var map   = null;		// global map instance
+var map = null;		// global map instance
 
 
 /**
@@ -32,18 +29,18 @@ function initMap(divMap, mapConfig) {
 	var extent_top     = (map_extent['top']);
 
 	map = new OpenLayers.Map(divMap, {
-	    controls: [
-	        new OpenLayers.Control.Navigation(),
-	        new OpenLayers.Control.SSPanZoomBar(),
-	        new OpenLayers.Control.ScaleLine(),
-	        new OpenLayers.Control.KeyboardDefaults()
-	    ],
+		controls: [
+			new OpenLayers.Control.Navigation(),
+			new OpenLayers.Control.SSPanZoomBar(),
+			new OpenLayers.Control.ScaleLine(),
+			new OpenLayers.Control.KeyboardDefaults()
+		],
 
 		// apply extent/resolution settings to the map
 		minScale:      minScale,
 		maxResolution: maxResolution,
 		maxScale:      maxScale
-//		maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
+		// maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
 	map.paddingForPopups = new OpenLayers.Bounds(20, 20, 400, 20);
 	// initiate all overlay layers
@@ -160,28 +157,29 @@ function createClusteredWFSLayer(layerDef) {
 
 	var title   = layerDef.Title;
 	var options = layerDef.Options;
-	var wfs_url = layerDef.Url+"?map="+options['map'];
+	var wfs_url = layerDef.Url;
 	var featureType = layerDef.ogc_name;
 
 	var p = new OpenLayers.Protocol.WFS({ 
-			url: wfs_url,
-			featureType: featureType,
-			featurePrefix: null
+		url: wfs_url,
+		featureType: featureType,
+		featurePrefix: null
 	});			
 	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
 
-    var strategyCluster = new OpenLayers.Strategy.Cluster();
+	var strategyCluster = new OpenLayers.Strategy.Cluster();
 	strategyCluster.distance = 25;
 
 	strategies =  [
-        new OpenLayers.Strategy.Fixed(),
-    	strategyCluster
-    ];
+		new OpenLayers.Strategy.Fixed(),
+		strategyCluster
+	];
 
-    layer = new OpenLayers.Layer.Vector(title, {
-        strategies: strategies,
-        protocol: p 
-    });
+	layer = new OpenLayers.Layer.Vector(title, {
+		strategies: strategies,
+		protocol: p 
+	});
+	
 	return layer;
 }
 
