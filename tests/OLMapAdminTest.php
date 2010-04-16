@@ -9,6 +9,11 @@ class OLMapAdminTest extends FunctionalTest {
 
 	static $fixture_file = 'openlayers/tests/OLMapAdminTest.yml';
 	
+	protected $extraDataObjects = array(
+		'ModelAdminTest_Admin',
+		'ModelAdminTest_Contact',
+	);
+	
 	function testModelAdminOpens() {
 		$this->autoFollowRedirection = false;
 		$this->logInAs('admin');
