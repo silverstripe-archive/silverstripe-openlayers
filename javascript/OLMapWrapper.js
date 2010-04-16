@@ -154,10 +154,10 @@ function initGoogle(type){
  * Create a WFS layer instance for Open Layers.
  */
 function createClusteredWFSLayer(layerDef) {
-
+	
 	var title   = layerDef.Title;
 	var options = layerDef.Options;
-	var wfs_url = layerDef.Url;
+	var wfs_url = layerDef.Url+"?map="+options['map'];
 	var featureType = layerDef.ogc_name;
 
 	var p = new OpenLayers.Protocol.WFS({ 
