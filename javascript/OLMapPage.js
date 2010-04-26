@@ -104,7 +104,7 @@ function multipleStationSelect(station){
  * @param the selected feature.
  **/
 function onFeatureSelect( feature ){
-	console.log(feature);
+	
 	selectedFeature = feature;
 	var info = "";
 	info = 	'<img src=\'openlayers/images/ajax-loader.gif\' /><strong>&nbsp;loading information, please wait...</strong>';
