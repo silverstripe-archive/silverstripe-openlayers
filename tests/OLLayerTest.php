@@ -15,12 +15,11 @@ class OLLayerTest extends SapphireTest {
 	 */
 	function setUp() {
 		parent::setUp();
-
+		
+		if(!self::using_temp_db()) self::create_temp_db();
+		self::empty_temp_db();
 	}
 
-	/**
-	 * Remove test controller from global controller-stack.
-	 */
 	function tearDown() {
 		parent::tearDown();
 	}
@@ -337,7 +336,7 @@ class OLLayerTest extends SapphireTest {
 		$options = $result['Options'];
 
 		$this->assertEquals($options['map'], 'map');
-		$this->assertEquals($options['SSID'], '2');
+		$this->assertEquals($options['SSID'], '1');
 		$this->assertEquals($options['layers'], 'ogc_name');
 		$this->assertEquals($options['transparent'], "true");
 		$this->assertEquals($options['format'], 'jpeg');
