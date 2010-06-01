@@ -23,7 +23,7 @@ class OLLayer extends DataObject {
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
 		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
-		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','Google Physical','Google Hybrid','Google Satellite'),'wfs')",
+		"Type"			  	=> "Enum(array('wms','wfs','wmsUntiled','Google Streets','Google Physical','Google Hybrid','Google Satellite'),'wfs')",
 		"DisplayPriority" 	=> "Int",		
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
