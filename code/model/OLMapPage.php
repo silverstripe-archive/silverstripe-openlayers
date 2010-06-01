@@ -151,7 +151,7 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::javascript('openlayers/javascript/SSPanZoomBar.js');
 		
 		// we need to add call to js maps somehow, any better way?
-		$googleCheck = DataObject::get_one('OLLayer',"(Type = 'Google Physical' OR Type = 'Google Hybrid' OR Type = 'Google Satellite') AND Enabled = 1");
+		$googleCheck = DataObject::get_one('OLLayer',"(Type = 'Google Physical' OR Type = 'Google Hybrid' OR Type = 'Google Satellite' OR Type = 'Google Satellite') AND Enabled = 1");
 		if($googleCheck){
 			$api_key = self::GoogleMapAPIKey();
 			Requirements::javascript("http://maps.google.com/maps?file=api&amp;v=2&amp;key={$api_key}&sensor=true");
@@ -186,7 +186,8 @@ class OLMapPage_Controller extends Page_Controller {
 		if(!$layer || !$featureID || !$stationID){
 			throw new OLLayer_Exception('Wrong params');
 		}
-		if(get_class($layer) != "OLLayer"){
+		
+		if(!is_object($layer) || get_class($layer) != "OLLayer"){
 			throw new OLLayer_Exception('Wrong Layer class');
 		}
 		$atts = array();
