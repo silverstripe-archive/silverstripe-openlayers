@@ -75,11 +75,10 @@ class ProxyTest extends FunctionalTest {
 		$obj = json_decode($response->getBody(),1);
 		
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
-		
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		// verify/assert response
-		$this->assertEquals($obj['url'], "/".$projectPath."/ReflectionProxy_Controller/doprocess");
+		$this->assertEquals($obj['url'], "/".$projectPath."ReflectionProxy_Controller/doprocess");
 		$this->assertEquals($obj['param'], "proxyTest");
 		$this->assertEquals($obj['isget'], true);
 	}
@@ -102,11 +101,11 @@ class ProxyTest extends FunctionalTest {
 		$obj = json_decode($response->getBody(),1);
 		
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		
 		// verify/assert response
-		$this->assertEquals($obj['url'], "/".$projectPath."/ReflectionProxy_Controller/doprocess");
+		$this->assertEquals($obj['url'], "/".$projectPath."ReflectionProxy_Controller/doprocess");
 		$this->assertEquals($obj['param'], "proxyTest");
 		$this->assertEquals($obj['isget'], true);
 	}
@@ -129,11 +128,11 @@ class ProxyTest extends FunctionalTest {
 		$obj = json_decode($response->getBody(),1);
 
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		
 		// verify/assert response
-		$this->assertEquals($obj['url'], "/".$projectPath."/ReflectionProxy_Controller/doprocess");
+		$this->assertEquals($obj['url'], "/".$projectPath."ReflectionProxy_Controller/doprocess");
 		$this->assertEquals($obj['param'], "proxyTest_Post");
 		$this->assertEquals($obj['isget'], false);
 	}	
