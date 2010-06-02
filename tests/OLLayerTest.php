@@ -441,11 +441,11 @@ class OLLayerTest extends SapphireTest {
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		
 		// verify/assert response
-		$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['url'], "/".$projectPath . self::$test_controller);
 		$this->assertEquals($obj['map'], "TestMap");
 		$this->assertEquals($obj['request'], "getfeature");
 		$this->assertEquals($obj['service'], "WFS");
@@ -572,11 +572,11 @@ class OLLayerTest extends SapphireTest {
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		
 		// verify/assert response
-		//$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['url'], "/".$projectPath . self::$test_controller);
 		$this->assertEquals($obj['map'], "TestMap");
 		$this->assertEquals($obj['REQUEST'], "GetFeatureInfo");
 		$this->assertEquals($obj['INFO_FORMAT'], "application/vnd.ogc.gml");
@@ -624,11 +624,11 @@ class OLLayerTest extends SapphireTest {
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
-		$baseUrl = explode('/',Director::absoluteBaseURL());
-		$projectPath = $baseUrl[3];
+		$baseUrl = array_slice(explode('/',Director::absoluteBaseURL()),3);
+		$projectPath = implode("/",$baseUrl);
 		
 		// verify/assert response
-		//$this->assertEquals($obj['url'], "/".$projectPath."/".self::$test_controller);
+		$this->assertEquals($obj['url'], "/".$projectPath . self::$test_controller);
 		$this->assertEquals($obj['map'], "TestMap");
 		$this->assertEquals($obj['REQUEST'], "GetFeatureInfo");
 		$this->assertEquals($obj['INFO_FORMAT'], "application/vnd.ogc.gml");
