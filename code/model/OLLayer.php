@@ -19,6 +19,8 @@ class OLLayer extends DataObject {
 	
 	public static $plural_name = 'Layers';	
 	
+	public static $wfs_pagesize = 8;
+	
 	static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
@@ -83,6 +85,15 @@ class OLLayer extends DataObject {
 	);
 	
 	static $default_sort = "Title ASC";
+	
+	static function get_wfs_pagesize() {
+		return self::$wfs_pagesize;
+	}
+
+	static function set_wfs_pagesize($value) {
+		return self::$wfs_pagesize = $value;
+	}
+
 
 	/**
 	 * Overwrites SiteTree.getCMSFields.
@@ -256,15 +267,12 @@ class OLLayer extends DataObject {
 			if (!isset($params['HEIGHT'])) {
 				throw new OLLayer_Exception('Mandatory parameter is missing: HEIGHT.');
 			}
-
 			$requestString = $this->getWMSFeatureRequest($params);
 		} else 
 		if ($Type == 'wfs') {
-			
 			if (!isset($params['featureID'])) {
 				throw new OLLayer_Exception('Mandatory parameter is missing: featureID.');
-			}
-			
+			}			
 			$requestString = $this->getWFSFeatureRequest($params);
 		} else {
 			// layer type unknown -> error
@@ -282,6 +290,9 @@ class OLLayer extends DataObject {
 
 	/**
 	 * Returns the OGC 'getfeature' request string for a OGC WFS get-feature request.
+	 * Add pagination kind of approach. When the pageNum parameter has been set, use
+	 * this parameter to define the number of max-features we require to render 
+	 * the requested page type. Otherwise, request all features.
 	 *
 	 * @param array $param array of request parameters (see {@link getFeatureInfo})
 	 *
@@ -295,7 +306,8 @@ class OLLayer extends DataObject {
 		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
 		$map          = $this->getField('ogc_map');
 		$typename     = $this->getField('ogc_name');
-		
+				
+				
 		if ($typename == '') {
 			throw new OLLayer_Exception('Invalid featuretype name. This layer has not been initialized correctly.');
 		}
@@ -307,6 +319,14 @@ class OLLayer extends DataObject {
 		
 		// should this be configured from the cms?
 		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
+		
+		// Apply pagingation if required
+		if (isset($param['pageNum'])) {
+			$page = Convert::raw2sql($param['pageNum']);
+			$pagesize = self::get_wfs_pagesize();
+
+			$requestString .= sprintf("&maxfeatures=%s", (($pagesize*($page))+1) );
+		}
 		return $requestString;
 	}
 
@@ -343,7 +363,6 @@ class OLLayer extends DataObject {
 			throw new OLLayer_Exception('Feature type of the layer is not defined.');
 		}
 		
-		
 		$staticParams = array(
 			'REQUEST' => 'GetFeatureInfo', 
 			'INFO_FORMAT' => 'application/vnd.ogc.gml', 
@@ -354,6 +373,7 @@ class OLLayer extends DataObject {
 			'FORMAT' => 'image/png',
 			'SRS' => 'EPSG%3A4326'
 		);
+
 		//$vars = $data->getVars();
 		$URLRequest = "?";
 		if ($this->ogc_map != '') {
@@ -366,6 +386,7 @@ class OLLayer extends DataObject {
 		$URLRequest .= "LAYERS=".$this->ogc_name."&QUERY_LAYERS=".$this->ogc_name."&BBOX=".$param['BBOX'];
 		$URLRequest .= "&x=".$param['x']."&y=".$param['y']."&WIDTH=".$param['WIDTH']."&HEIGHT=".$param['HEIGHT'];
 		$URLRequest = trim($URLRequest,"&");
+		
 		return $URLRequest;
 	}
 
