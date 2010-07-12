@@ -210,12 +210,15 @@ class OLMapPage_Controller extends Page_Controller {
 		}
 		$reader->close();
 		foreach($atts as $key => $value){
+			
+			if(strpos($key,'ms:') !== false) $key = str_replace('ms:','',$key);
 			$obj->push(new ArrayData(array(
 				'attributeName' => $key,
 				'attributeValue' => $value
 			)));
 		}
 		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, "MapID" => $mapID ) );
+		
 		return $out->renderWith('MapPopup_Detail');
 	}
 	
