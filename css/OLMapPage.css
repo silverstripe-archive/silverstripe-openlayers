@@ -51,7 +51,7 @@
 	
 	.panelItem{width:220px; border-top:solid 1px #444; padding:2px 0; position:relative; }
 	
-	#mapPanel #innerLayers{overflow-x:hidden; overflow-y:auto; height:auto;}
+	#mapPanel #innerLayers{overflow-x:hidden; overflow-y:auto; height:auto; position: relative;}
 	#mapPanel #backgrounds {height:auto;}
 	 	.panelItem.bg { height:80px;}
  		.panelItem.grip{padding:2px 0 2px 2px;}
