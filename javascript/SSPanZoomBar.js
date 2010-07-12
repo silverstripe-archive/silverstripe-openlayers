@@ -418,5 +418,5 @@ OpenLayers.Control.SSPanZoomBar = OpenLayers.Class(OpenLayers.Control.PanZoom, {
 
 
 // reset position of the control
-OpenLayers.Control.PanZoom.X = 10;
-OpenLayers.Control.PanZoom.Y = 14;
+OpenLayers.Control.PanZoom.X = 15;
+OpenLayers.Control.PanZoom.Y = 30;
