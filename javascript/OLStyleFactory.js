@@ -24,20 +24,16 @@ OLStyleFactory.createStyleMap = function (layerName) {
 		styleMap = this.createStyleMap_Point("#FF66CC", "#606060");
 	} else
 	if (layerName == 'Beam_trawl') {
-		// line
-		styleMap = this.createStyleMap_Line("#202020", 4, 0.8);
+		styleMap = this.createStyleMap_Point("#00AAFF", "#606060");
 	} else
 	if (layerName == 'Brenke_sled') {
-		// line
-		styleMap = this.createStyleMap_Line("#602020", 4, 0.8);
+		styleMap = this.createStyleMap_Point("#88FFFF", "#606060");
 	} else
 	if (layerName == 'Dredge') {
-		// line
-		styleMap = this.createStyleMap_Line("#206020", 4, 0.8);
+		styleMap = this.createStyleMap_Point("#FFAAFF", "#606060");
 	} else
 	if (layerName == 'Epibenthic_sled') {
-		// line
-		styleMap = this.createStyleMap_Line("#202060", 4, 0.8);
+		styleMap = this.createStyleMap_Point("#55FF99", "#606060");
 	} else {
 		// default style
 		styleMap = this.createStyleMap_Point("#FFCC66", "#cc6633");
