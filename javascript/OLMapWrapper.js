@@ -42,7 +42,7 @@ function initMap(divMap, mapConfig) {
 		maxScale:      maxScale
 		// maxExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
 	});
-	map.paddingForPopups = new OpenLayers.Bounds(20, 20, 400, 60);
+	map.paddingForPopups = new OpenLayers.Bounds(80, 20, 400, 60);
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
 	layers.reverse();
