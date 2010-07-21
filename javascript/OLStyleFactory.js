@@ -12,7 +12,8 @@ OLStyleFactory.createStyleMap = function (layerName) {
 		styleMap = this.createStyleMap_Point("#FFCC66", "#cc6633");
 	} else
 	if (layerName == 'CTD') {
-		styleMap = this.createStyleMap_CTD();
+		styleMap = this.createStyleMap_Point("#90ee90", "#60B060");
+		// styleMap = this.createStyleMap_CTD();
 	} else
 	if (layerName == 'Bottom_grab') {
 		styleMap = this.createStyleMap_Point("#CCFF66", "#606060");
