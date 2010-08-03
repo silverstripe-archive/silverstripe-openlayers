@@ -38,7 +38,7 @@ class OLLayer extends DataObject {
 		// temporarily values (shall be re-factored and removed later)
 		"ogc_name"			=> "Varchar(100)",		// layer name (ogc layer name/id)
 		"ogc_map"			=> "Varchar(1024)",		// url to the map file on the server side
-		"ogc_format"		=> "Enum(array('png','jpeg','png24','gif'),'png')",
+		"ogc_format"		=> "Enum(array('png','jpeg','png24','gif','image/png','image/jpeg','image/gif'),'png')",
 		"ogc_transparent"	=> "Boolean"			// transparent overlay layer
 	);
 	
