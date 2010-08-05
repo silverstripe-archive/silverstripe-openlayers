@@ -41,7 +41,8 @@ $(document).ready(function() {
 		var handle = $("#innerLayers").sortable({ 
 			cursor: 'move',
 			opacity: 0.6,
-			update: function(event, ui) { sortMapLayers(event , ui); }
+			update: function(event, ui) { sortMapLayers(event , ui); },
+			stop: function(event, ui) { ui.item.css({'top':'0','left':'0'}); }
 		});
 		$('#innerLayers').sortable('option', 'handle', '.sortableArea');
 	});
