@@ -165,18 +165,24 @@ function createClusteredWFSLayer(layerDef) {
 	var options = layerDef.Options;	
 	
 	var wfs_url = layerDef.Url;
+	var delimiter = '?';
 	if (options['map'] != null) {
-		wfs_url = layerDef.Url+"?map="+options['map'];
+		wfs_url = layerDef.Url+delimiter+"map="+options['map'];
+		delimiter = '&';
 	} 
 	var featureType = layerDef.ogc_name;
 
 	var p = new OpenLayers.Protocol.WFS({ 
 		url: wfs_url,
 		featureType: featureType,
-		featurePrefix: null
+		featurePrefix: null,
+		
 	});			
+	
+	// store the url into a separate parameter to have a backup in case we 
+	// need to change the url (i.e for the species picklist).
+	p.wfs_url = wfs_url + delimiter;
 	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
-
 	var strategyCluster = new OpenLayers.Strategy.Cluster();
 	strategyCluster.distance = 25;
 

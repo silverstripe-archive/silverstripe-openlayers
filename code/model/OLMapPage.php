@@ -187,7 +187,7 @@ class OLMapPage_Controller extends Page_Controller {
 			throw new OLLayer_Exception('Wrong params');
 		}
 		
-		if(!is_object($layer) || get_class($layer) != "OLLayer"){
+		if(!is_object($layer) || !(is_a($layer,"OLLayer") || is_subclass_of($layer, 'OLLayer')) ) {
 			throw new OLLayer_Exception('Wrong Layer class');
 		}
 		$atts = array();
