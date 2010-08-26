@@ -69,6 +69,8 @@ class OLLayer extends DataObject {
 		'Map.Title'
 	 );
 
+	static $searchable_fields = array('Title','ogc_name','LayerType','Type','Enabled','Visible','Cluster');
+
 	static $defaults = array(
 	    'DisplayPriority' => 50,
 	    'Enabled' => true,
@@ -284,6 +286,7 @@ class OLLayer extends DataObject {
 		$response = $request->request($requestString);
 
 		$xml = $response->getBody();
+		
 		return $xml;
 	}
 
