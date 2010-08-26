@@ -276,11 +276,12 @@ class OLLayer extends DataObject {
 				throw new OLLayer_Exception('Mandatory parameter is missing: featureID.');
 			}			
 			$requestString = $this->getWFSFeatureRequest($params);
+			
 		} else {
 			// layer type unknown -> error
 			throw new OLLayer_Exception('Request type unknown');
 		}
-		
+
 		// send request to OGC web service
 		$request  = new RestfulService($url,0);
 		$response = $request->request($requestString);
@@ -392,6 +393,51 @@ class OLLayer extends DataObject {
 		
 		return $URLRequest;
 	}
+
+	
+	/**
+	* Function to render popup for one station (attributes).
+	* gets Whitelist words from the layer and finds tags into the XML file.
+	* @param Object $layer The layer the station belongs to.
+	* @param Int $featureID Station (feature) ID
+	* @param String $stationID Name of the station (layers plus number)
+	**/
+	public function renderBubbleForOneFeature($featureID, $stationID){
+		
+		if(!$featureID || !$stationID){
+			throw new OLLayer_Exception('Wrong params');
+		}
+		
+		$atts = array();
+		$params = array('featureID' => $featureID);
+		$output = $this->getFeatureInfo($params);
+		$mapID =  $this->MapID;
+		$obj = new DataObjectSet();
+		$out = new ViewableData();
+		$reader = new XMLReader();
+		$reader->XML($output);
+		
+		// loop xml for attributes 
+		while ($reader->read()) {
+			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
+				if(self::WhiteList($reader->name,$this->XMLWhitelist)){
+					$atts[$reader->name] = $reader->readInnerXML();
+				}
+			}
+		}
+		$reader->close();
+		foreach($atts as $key => $value){
+			
+			if(strpos($key,'ms:') !== false) $key = str_replace('ms:','',$key);
+			$obj->push(new ArrayData(array(
+				'attributeName' => $key,
+				'attributeValue' => $value
+			)));
+		}
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, "MapID" => $mapID ) );
+		return $out->renderWith('MapPopup_Detail');
+	}
+
 
 }
 

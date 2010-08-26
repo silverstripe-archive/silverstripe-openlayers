@@ -177,49 +177,14 @@ class OLMapPage_Controller extends Page_Controller {
 	/**
 	* Function to render popup for one station (attributes).
 	* gets Whitelist words from the layer and finds tags into the XML file.
+	 *
 	* @param Object $layer The layer the station belongs to.
 	* @param Int $featureID Station (feature) ID
 	* @param String $stationID Name of the station (layers plus number)
 	**/
 	static function renderSingleStation($layer, $featureID, $stationID){
-		
-		if(!$layer || !$featureID || !$stationID){
-			throw new OLLayer_Exception('Wrong params');
-		}
-		
-		if(!is_object($layer) || !(is_a($layer,"OLLayer") || is_subclass_of($layer, 'OLLayer')) ) {
-			throw new OLLayer_Exception('Wrong Layer class');
-		}
-		$atts = array();
-		$params = array('featureID' => $featureID);
-		$output = $layer->getFeatureInfo($params);
-		$mapID =  $layer->MapID;
-		$obj = new DataObjectSet();
-		$out = new ViewableData();
-		$reader = new XMLReader();
-		$reader->XML($output);
-		
-		// loop xml for attributes 
-		while ($reader->read()) {
-			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
-				if(self::WhiteList($reader->name,$layer->XMLWhitelist)){
-					
-					$atts[$reader->name] = $reader->readInnerXML();
-				}
-			}
-		}
-		$reader->close();
-		foreach($atts as $key => $value){
-			
-			if(strpos($key,'ms:') !== false) $key = str_replace('ms:','',$key);
-			$obj->push(new ArrayData(array(
-				'attributeName' => $key,
-				'attributeValue' => $value
-			)));
-		}
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, "MapID" => $mapID ) );
-		
-		return $out->renderWith('MapPopup_Detail');
+		// @todo: re-factor this static function and update the unit tests.
+		return $layer->renderBubbleForOneFeature($featureID, $stationID);
 	}
 	
 	/**
@@ -288,12 +253,10 @@ class OLMapPage_Controller extends Page_Controller {
 		
 			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 			if($layer){
-				
-				return self::renderSingleStation($layer, $featureID, $stationID);
-				
+				return $layer->renderBubbleForOneFeature( $featureID, $stationID);
 			}
-		// multiple stations, render list
 		} else{
+			// multiple stations, render list
 			$stationIDs = explode(",",$stationID);
 			$obj = new DataObjectSet();
 			$out = new ViewableData();
