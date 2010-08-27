@@ -291,6 +291,28 @@ class OLLayer extends DataObject {
 		return $xml;
 	}
 
+	/**
+	* Find for layer WhiteList words in the XML response... 
+	*
+	* @param string $XMLTag XML source 
+	* @param string $Keywords WhiteList words (comma separated) | null
+	**/
+	function WhiteList($XMlTag , $keywords = null){
+		if ($keywords == null) {
+			$keywords = $this->XMLWhitelist;
+		}
+		
+		$patterns = explode(",",$keywords);
+	    foreach($patterns as $pattern){
+			$pattern = trim($pattern);
+			if($pattern != ""){
+	        	if (strpos($XMlTag,$pattern)) {
+					return true;
+	       		}
+			}
+	    }
+	    return false;
+	}
 
 	/**
 	 * Returns the OGC 'getfeature' request string for a OGC WFS get-feature request.
@@ -404,7 +426,7 @@ class OLLayer extends DataObject {
 	**/
 	public function renderBubbleForOneFeature($featureID, $stationID){
 		
-		if(!$featureID || !$stationID){
+		if(!$featureID || !$stationID) {
 			throw new OLLayer_Exception('Wrong params');
 		}
 		
@@ -420,7 +442,7 @@ class OLLayer extends DataObject {
 		// loop xml for attributes 
 		while ($reader->read()) {
 			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
-				if(self::WhiteList($reader->name,$this->XMLWhitelist)){
+				if($this->WhiteList($reader->name)){
 					$atts[$reader->name] = $reader->readInnerXML();
 				}
 			}

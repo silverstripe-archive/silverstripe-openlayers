@@ -213,25 +213,6 @@ class OLMapPageTest extends FunctionalTest {
 		}
 	}
 	
-	//Test WhiteList
-	function testWhiteList(){
-		
-		// matching attributes
-		$XMlTag = "<ms::attribute>something</ms:attribute>";
-		$keywords = "ms::attribute";
-		
-		$resp = OLMapPage_Controller::WhiteList($XMlTag , $keywords);
-		$this->assertTrue($resp);
-		
-		// not matching attributes
-		$XMlTag = "<ms::attribute>something</ms:attribute>";
-		$keywords = "ms::Theattribute";
-		
-		$resp = OLMapPage_Controller::WhiteList($XMlTag , $keywords);
-		$this->assertFalse($resp);
-	}
-	
-	
 	//test dogetfeatureinfo
 	
 	

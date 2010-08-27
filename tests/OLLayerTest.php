@@ -647,4 +647,24 @@ class OLLayerTest extends SapphireTest {
 		$this->assertEquals($obj['isget'], true);
 	}	
 
+	
+	//Test WhiteList
+	function testWhiteList(){
+		$layer = new OLLayer();
+		
+		// matching attributes
+		$XMlTag = "<ms::attribute>something</ms:attribute>";
+		$keywords = "ms::attribute";
+		
+		$resp = $layer->WhiteList($XMlTag , $keywords);
+		$this->assertTrue($resp);
+		
+		// not matching attributes
+		$XMlTag = "<ms::attribute>something</ms:attribute>";
+		$keywords = "ms::Theattribute";
+		
+		$resp = $layer->WhiteList($XMlTag , $keywords);
+		$this->assertFalse($resp);
+	}
+
 }
