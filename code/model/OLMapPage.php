@@ -81,7 +81,8 @@ class OLMapPage extends Page {
 		if($mapObject) {
 			$overlayLayers    = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'overlay'",'DisplayPriority DESC');
 			$backgroundLayers = $mapObject->getComponents('Layers',"Enabled = 1 AND LayerType = 'background'",'DisplayPriority DESC');
-
+			
+			$obj->setField("MapPage", $this);
 			$obj->setField("overlayLayers", $overlayLayers);
 			$obj->setField("backgroundLayers", $backgroundLayers);
 		}
