@@ -174,20 +174,6 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::customScript($jsConfig);
 	}
 	
-	
-	/**
-	* Function to render popup for one station (attributes).
-	* gets Whitelist words from the layer and finds tags into the XML file.
-	 *
-	* @param Object $layer The layer the station belongs to.
-	* @param Int $featureID Station (feature) ID
-	* @param String $stationID Name of the station (layers plus number)
-	**/
-	static function renderSingleStation($layer, $featureID, $stationID){
-		// @todo: re-factor this static function and update the unit tests.
-		return $layer->renderBubbleForOneFeature($featureID, $stationID);
-	}
-	
 	/**
 	 * Render the layer selector.
 	 *

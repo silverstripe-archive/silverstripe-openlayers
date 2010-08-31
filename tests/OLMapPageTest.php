@@ -118,7 +118,7 @@ class OLMapPageTest extends FunctionalTest {
 		$layer->write();
 		
 		$mapPage = new OLMapPage_Controller();
-		$resp = $mapPage->renderSingleStation($layer,'1',"stationdetails.$featureID");
+		$resp = $layer->renderBubbleForOneFeature('1',"stationdetails.$featureID");
 		$this->assertTrue(is_string($resp));
 		$this->assertContains($expectedFragment, $resp);
 		
@@ -146,7 +146,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		//first param is not an object or is a wrong object (OLLayer)
 		try {
-			$resp = $mapPage->renderSingleStation($layer, $featureID,'1',"stationdetails.$featureID");
+			$resp = $layer->renderSingleStation($featureID,"stationdetails.$featureID");
 			
 		}
 		catch(Exception $e) {
@@ -156,7 +156,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		//first param is not an object or is a wrong object (OLLayer)
 		try {
-			$resp = $mapPage->renderSingleStation($layer, $featureID,null,"stationdetails.$featureID");
+			$resp = $layer->renderSingleStation(null,"stationdetails.$featureID");
 			
 		}
 		catch(Exception $e) {
