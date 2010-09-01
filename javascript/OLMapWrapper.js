@@ -175,7 +175,7 @@ function createClusteredWFSLayer(layerDef) {
 	var p = new OpenLayers.Protocol.WFS({ 
 		url: wfs_url,
 		featureType: featureType,
-		featurePrefix: null,
+		featurePrefix: null
 		
 	});			
 	
