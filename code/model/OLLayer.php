@@ -423,6 +423,8 @@ class OLLayer extends DataObject {
 	* @param Object $layer The layer the station belongs to.
 	* @param Int $featureID Station (feature) ID
 	* @param String $stationID Name of the station (layers plus number)
+	*
+	* @return String HTML - rendered information bubble
 	**/
 	public function renderBubbleForOneFeature($featureID, $stationID){
 		
@@ -460,7 +462,18 @@ class OLLayer extends DataObject {
 		return $out->renderWith('MapPopup_Detail');
 	}
 
-
+	/**
+	* Function to render popup for cluster items.
+	*
+	* @param DataObjectSet $obj A list items, shown on the template, created by {@see OLMapPage->dogetfeatureinfo}.
+	*
+	* @return String HTML - rendered information bubble
+	**/
+	public function renderClusterInformationBubble( $obj ) {			
+		$out = new ViewableData();
+		$out->customise( array( "stations" => $obj ) );
+		return $out->renderWith('MapPopup_List');
+	}
 }
 
 /**

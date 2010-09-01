@@ -204,42 +204,38 @@ class OLMapPage_Controller extends Page_Controller {
 		$output = "Sorry we cannot retrieve feature information, please try again";
 		// check if the request is for more than one station (clustered)
 		$stationID =  $request->param("OtherID");
+
+		// determin the layer 
+		$feature = explode(".", $request->param("OtherID")); 
+		if(count($feature) <= 1) {
+			throw new OLLayer_Exception('Wrong params');
+		}
+
+		$mapid = (int)$request->param("ID"); 
+		$layerName = Convert::raw2sql($feature[0]);
+		$featureID = Convert::raw2sql($feature[1]);
+	
+		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
+
+		if(!$layer) {
+			throw new OLLayer_Exception('Unknown layer-name.');			
+		}
 		
 		// condition for single station, create request and render template
-		if(strpos($stationID,",") === FALSE){
-			
-			// process request parameters
-			$mapid   = (int)$request->param("ID"); 
-			$feature = explode(".", $request->param("OtherID")); 
-
-			if(count($feature) <= 1){
-				throw new OLLayer_Exception('Wrong params');
-			}
-			
-			$layerName = Convert::raw2sql($feature[0]);
-			$featureID = Convert::raw2sql($feature[1]);
-		
-			$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
-			if($layer){
-				return $layer->renderBubbleForOneFeature( $featureID, $stationID);
-			}
+		if(strpos($stationID,",") === FALSE){			
+			return $layer->renderBubbleForOneFeature( $featureID, $stationID);
 		} else{
 			// multiple stations, render list
 			$stationIDs = explode(",",$stationID);
 			$obj = new DataObjectSet();
-			$out = new ViewableData();
 			foreach($stationIDs as $stationID){
 				$obj->push(new ArrayData(array(
 					'Station' => $stationID
 				)));
-			}
-			$out->customise( array( "stations" => $obj ) );
-			return $out->renderWith('MapPopup_List');
+			}			
+			return $layer->renderClusterInformationBubble( $obj );
 		}
-
 		return $output;
 	}
-	
-	
 	
 }
