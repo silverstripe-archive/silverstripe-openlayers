@@ -218,11 +218,13 @@ class OLMapPage_Controller extends Page_Controller {
 		if(count($feature) <= 1) {
 			throw new OLLayer_Exception('Wrong params');
 		}
+		
+		// we need the OLMapObject ID, so we can find layers that belong to this map object
+		$mapid = $this->getComponent('Map')->ID; 
 
-		$mapid = (int)$request->param("ID"); 
 		$layerName = Convert::raw2sql($feature[0]);
 		$featureID = Convert::raw2sql($feature[1]);
-	
+		
 		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
 
 		if(!$layer) {
@@ -231,7 +233,7 @@ class OLMapPage_Controller extends Page_Controller {
 
 		// condition for single station, create request and render template
 		if(strpos($stationID,",") === FALSE){			
-			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam);
+			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid);
 
 		} else{
 			// multiple stations, render list
@@ -242,7 +244,7 @@ class OLMapPage_Controller extends Page_Controller {
 					'Station' => $stationID
 				)));
 			}			
-			return $layer->renderClusterInformationBubble( $obj );
+			return $layer->renderClusterInformationBubble( $obj, $extraParam);
 		}
 		return $output;
 	}

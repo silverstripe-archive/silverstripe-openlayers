@@ -239,6 +239,7 @@ class OLLayer extends DataObject {
 	 * @return string XML response
 	 */
 	function getFeatureInfo($params) {
+		
 		$Type = $this->getField('Type');
 		$url  = $this->getField('Url');
 		$response = null;
@@ -331,7 +332,7 @@ class OLLayer extends DataObject {
 		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
 		$map          = $this->getField('ogc_map');
 		$typename     = $this->getField('ogc_name');
-				
+		$extraParams = (isset($param['ExtraParams'])) ? $param['ExtraParams'] : '';
 				
 		if ($typename == '') {
 			throw new OLLayer_Exception('Invalid featuretype name. This layer has not been initialized correctly.');
@@ -343,7 +344,7 @@ class OLLayer extends DataObject {
 		}
 		
 		// should this be configured from the cms?
-		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId.$param['ExtraParams'];
+		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId.$extraParams;
 		
 		// Apply pagingation if required
 		if (isset($param['pageNum'])) {
@@ -418,24 +419,31 @@ class OLLayer extends DataObject {
 	
 	/**
 	* Function to render popup for one station (attributes).
-	* gets Whitelist words from the layer and finds tags into the XML file.
-	* @param Object $layer The layer the station belongs to.
+	*
 	* @param Int $featureID Station (feature) ID
 	* @param String $stationID Name of the station (layers plus number)
+	* @param String $extraParams extra params from JS
+	* @param Int $mapID, the mapObjectID, it is needed sometimes to find specific layers that belong to the map
 	*
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = ''){
+	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = '', $mapID = null){
 		
 		$out = new ViewableData();
-		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams = '');
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID) );
+		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams);
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID) );
 		return $out->renderWith('MapPopup_Detail');
 	}
 	
 	
 	/**
-	 * DOCUMENTATION.
+	 * Gets the request result, converts it from XML to DOS and returns it.
+	 * gets Whitelist words from the layer and finds tags into the XML file.
+	 *
+	 * @param Int $featureID Station (feature) ID
+	 * @param String $stationID Name of the station (layers plus number) 
+	 * @param String $extraParams, extra param for the request (normally coming from JS)
+	 * @return DataObjectSet $obj, set of results 
 	**/
 	function doSingleStationRequest($featureID, $stationID, $extraParams = ''){
 		
@@ -446,6 +454,7 @@ class OLLayer extends DataObject {
 		$atts = array();
 		
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
+		
 		$output = $this->getFeatureInfo($params);
 		
 		$obj = new DataObjectSet();
@@ -477,10 +486,10 @@ class OLLayer extends DataObject {
 	* Function to render popup for cluster items.
 	*
 	* @param DataObjectSet $obj A list items, shown on the template, created by {@see OLMapPage->dogetfeatureinfo}.
-	*
+	* @param String $extraParam, extra param, normally from JS.
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderClusterInformationBubble( $obj ) {			
+	public function renderClusterInformationBubble( $obj, $extraParam = null ) {			
 		$out = new ViewableData();
 		$out->customise( array( "stations" => $obj ) );
 		return $out->renderWith('MapPopup_List');
