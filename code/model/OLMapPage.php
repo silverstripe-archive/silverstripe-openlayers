@@ -99,6 +99,10 @@ class OLMapPage extends Page {
  */
 class OLMapPage_Controller extends Page_Controller {
 	
+	public static $url_handlers = array(
+		'dogetfeatureinfo/$ID/$OtherID/$ExtraID' => 'dogetfeatureinfo'
+	);
+	
 	/**
 	 * varaible to store the open layers instance in the controller class.
 	 * @var OpenLayers openLayers
@@ -201,6 +205,10 @@ class OLMapPage_Controller extends Page_Controller {
 		if($request->param("ID") == "" || $request->param("OtherID") == ""){
 			throw new OLLayer_Exception('Empty params');
 		}
+		
+		// we need this for species list
+		$extraParam = ($request->param("ExtraID")) ? $request->param("ExtraID") : '';
+		
 		$output = "Sorry we cannot retrieve feature information, please try again";
 		// check if the request is for more than one station (clustered)
 		$stationID =  $request->param("OtherID");
@@ -220,10 +228,11 @@ class OLMapPage_Controller extends Page_Controller {
 		if(!$layer) {
 			throw new OLLayer_Exception('Unknown layer-name.');			
 		}
-		
+
 		// condition for single station, create request and render template
 		if(strpos($stationID,",") === FALSE){			
-			return $layer->renderBubbleForOneFeature( $featureID, $stationID);
+			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam);
+
 		} else{
 			// multiple stations, render list
 			$stationIDs = explode(",",$stationID);

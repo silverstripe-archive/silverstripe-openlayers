@@ -285,7 +285,6 @@ class OLLayer extends DataObject {
 		// send request to OGC web service
 		$request  = new RestfulService($url,0);
 		$response = $request->request($requestString);
-
 		$xml = $response->getBody();
 		
 		return $xml;
@@ -325,7 +324,7 @@ class OLLayer extends DataObject {
 	 * @return string request string 
 	 */
 	public function getWFSFeatureRequest($param) {
-	
+
 		$featureID = $param['featureID'];
 		$featureID = Convert::raw2xml($featureID);
 		
@@ -344,7 +343,7 @@ class OLLayer extends DataObject {
 		}
 		
 		// should this be configured from the cms?
-		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId;
+		$requestString .= "request=getfeature&service=WFS&version=1.0.0&typename=".$typename."&OUTPUTFORMAT=gml3&featureid=".$ogcFeatureId.$param['ExtraParams'];
 		
 		// Apply pagingation if required
 		if (isset($param['pageNum'])) {
@@ -426,18 +425,31 @@ class OLLayer extends DataObject {
 	*
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderBubbleForOneFeature($featureID, $stationID){
+	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = ''){
+		
+		$out = new ViewableData();
+		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams = '');
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID) );
+		return $out->renderWith('MapPopup_Detail');
+	}
+	
+	
+	/**
+	 * DOCUMENTATION.
+	**/
+	function doSingleStationRequest($featureID, $stationID, $extraParams = ''){
 		
 		if(!$featureID || !$stationID) {
 			throw new OLLayer_Exception('Wrong params');
 		}
 		
 		$atts = array();
-		$params = array('featureID' => $featureID);
+		
+		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		$output = $this->getFeatureInfo($params);
-		$mapID =  $this->MapID;
+		
 		$obj = new DataObjectSet();
-		$out = new ViewableData();
+		
 		$reader = new XMLReader();
 		$reader->XML($output);
 		
@@ -458,8 +470,7 @@ class OLLayer extends DataObject {
 				'attributeValue' => $value
 			)));
 		}
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, "MapID" => $mapID ) );
-		return $out->renderWith('MapPopup_Detail');
+		return $obj;
 	}
 
 	/**
