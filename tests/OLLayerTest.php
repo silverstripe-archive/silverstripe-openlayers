@@ -667,4 +667,23 @@ class OLLayerTest extends SapphireTest {
 		$this->assertFalse($resp);
 	}
 
+	//Test WhiteListLabels
+	function testWhiteListLabels(){
+		$layer = new OLLayer();
+		$layer->XMLWhitelist = "attribute1,attribute2,attribute3";
+		$layer->Labels = "Label1,Label2,Label3";
+		
+		$label = $layer->WhiteListLabels('attribute1');
+		$this->assertEquals($label, "Label1");
+
+		$label = $layer->WhiteListLabels('attribute2');
+		$this->assertEquals($label, "Label2");
+
+		$label = $layer->WhiteListLabels('attribute3');
+		$this->assertEquals($label, "Label3");
+
+		$label = $layer->WhiteListLabels('attribute4');
+		$this->assertEquals($label, "attribute4");
+	}
+
 }

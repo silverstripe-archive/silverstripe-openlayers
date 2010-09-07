@@ -34,6 +34,7 @@ class OLLayer extends DataObject {
 		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
 		"Cluster"			=> "Boolean",
 		"XMLWhitelist"		=> "Varchar(255)",
+		"Labels"			=> "Varchar(255)",
 		
 		// temporarily values (shall be re-factored and removed later)
 		"ogc_name"			=> "Varchar(100)",		// layer name (ogc layer name/id)
@@ -313,6 +314,41 @@ class OLLayer extends DataObject {
 	    }
 	    return false;
 	}
+	
+	/**
+	* Find for labels for the whiteListed items... 
+	*
+	* @param string $XMLTag XML source 
+	* @param string $Keywords WhiteList words (comma separated) | null
+	**/
+	function WhiteListLabels($keyword = null){
+		$result = $keyword;
+		$keywords = $this->XMLWhitelist;
+		$labels = $this->Labels;
+		
+		$keywordlist = explode(",",$keywords);
+		$labellist = explode(",",$labels);
+		
+		if ($labels != '') {
+			$index = 0;
+			// Number of Catches,Min-Depth, Max-Depth
+		    foreach($keywordlist as $key) {
+				if ($index > count($labellist) ) {
+					break;
+				}
+				
+				if ($key == $keyword) {
+					$result = $labellist[$index];
+					break;
+				}
+				$index++;
+			}
+		}
+		if ($result == '') {
+			$result = $keyword;
+		}
+		return $result;
+	}	
 
 	/**
 	 * Returns the OGC 'getfeature' request string for a OGC WFS get-feature request.
@@ -456,7 +492,7 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		
 		$output = $this->getFeatureInfo($params);
-		
+
 		$obj = new DataObjectSet();
 		
 		$reader = new XMLReader();
@@ -475,7 +511,7 @@ class OLLayer extends DataObject {
 			
 			if(strpos($key,'ms:') !== false) $key = str_replace('ms:','',$key);
 			$obj->push(new ArrayData(array(
-				'attributeName' => $key,
+				'attributeName' => $this->WhiteListLabels($key),
 				'attributeValue' => $value
 			)));
 		}
