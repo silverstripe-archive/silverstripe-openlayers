@@ -51,9 +51,6 @@ class OLMapObject extends DataObject {
 	 );
 
 	static $defaults = array(
-	    'MinScale'      => 8000000,
-	    'MaxScale'      => 10000,
-	    'MaxResolution' => 'auto',
 	    'Enabled'       => true,
 	 );
 
