@@ -12,20 +12,15 @@ function initMap(divMap, mapConfig) {
 	// set default location of the map
 	var map_config = mapConfig['Map'];
 
-	var lon  = map_config['Longitude'];
-	var lat  = map_config['Latitude'];
-	var zoom = 1; //parseInt(map_config['Zoom']);
-
-	var minScale = parseInt(map_config['MinScale']);
-	var maxScale = parseInt(map_config['MaxScale']);
-	var maxResolution = parseInt(map_config['MaxResolution']);
-	var maxExtent = parseInt(map_config['maxExtent']);
+	var lon  = parseFloat(map_config['Longitude']);
+	var lat  = parseFloat(map_config['Latitude']);
+	var zoom = parseInt(map_config['Zoom']);
 
 	var map_resolutions = map_config['Resolutions'];
 	var map_projection = map_config['Projection'];
 
-	var map_extent = mapConfig['MaxMapExtent'];
-
+	// get default map extend (stored in the CMS)
+	var map_extent = mapConfig['MaxMapExtent']
 	var extent_left = parseFloat(map_extent['left']);
 	var extent_bottom  = parseFloat(map_extent['bottom']);
 	var extent_right = parseFloat(map_extent['right']);
@@ -36,13 +31,13 @@ function initMap(divMap, mapConfig) {
 			new OpenLayers.Control.Navigation(),
 			new OpenLayers.Control.SSPanZoomBar(),
 			new OpenLayers.Control.ScaleLine(),
-			new OpenLayers.Control.KeyboardDefaults()
+			new OpenLayers.Control.KeyboardDefaults(),
+			new OpenLayers.Control.MousePosition()
 		],
 		resolutions: map_resolutions,
 		projection: new OpenLayers.Projection(map_projection),
 
 		// apply extent/resolution settings to the map
-		maxResolution: 'auto',
 		maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
 		
 		restrictedExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
@@ -55,6 +50,7 @@ function initMap(divMap, mapConfig) {
 	jQuery.each( layers , initLayer );
 	
 	map.events.register("zoomend", map, onFeatureUnselect);
+	map.zoomTo(zoom);
 	
 	map.setCenter(new OpenLayers.LonLat(lon, lat));
 	controls = map.getControlsByClass('OpenLayers.Control.Navigation');
@@ -81,10 +77,10 @@ function initLayer( index, layerDef ) {
 
 		LayerType = 'wms';
 		if(layerDef.Type == 'wmsUntiled'){
-			layer = new OpenLayers.Layer.WMS.Untiled( title, url, options );
+			layer = new OpenLayers.Layer.WMS.Untiled( title, url, options, {wrapDateLine: true} );
 		} 
 		else{
-			layer = new OpenLayers.Layer.WMS( title, url, options );
+			layer = new OpenLayers.Layer.WMS( title, url, options, {wrapDateLine: true} );
 		} 			
 	} else if (layerDef.Type == 'wfs') {
 
