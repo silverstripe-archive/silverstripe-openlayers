@@ -60,9 +60,6 @@ class OLMapPageTest extends FunctionalTest {
 		$this->assertEquals(sizeof($result),3);
 		
 		$this->assertEquals( $result['Map']['Title'], 'map title');
-
-		$this->assertEquals( $result['Map']['MinScale'], '200');
-		$this->assertEquals( $result['Map']['MaxScale'], '400');
 	}
 	
 	/**
