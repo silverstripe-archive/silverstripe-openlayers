@@ -15,6 +15,17 @@
  */
 class OpenLayersModel {
 	
+	
+	static $openlayers_path = "openlayers/javascript/jsparty/lib/OpenLayers.js";
+	
+	static function set_openlayers_path($value) {
+		self::$openlayers_path = $value;
+	}
+
+	static function get_openlayers_path() {
+		return self::$openlayers_path;
+	}
+	
 	function __construct() {
 	}
 	
@@ -29,11 +40,8 @@ class OpenLayersModel {
 	 * @return string URL
 	 */
 	function getRequiredJavaScript() {
-		$openlayerJS = "openlayers/javascript/jsparty/OpenLayers.js";
 		
-		if (Director::isDev() == true) {
-			$openlayerJS = "openlayers/javascript/jsparty/lib/OpenLayers.js";
-		}
+		$openlayerJS = self::get_openlayers_path();
 		return $openlayerJS;
 	}
 }
