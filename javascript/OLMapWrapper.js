@@ -22,9 +22,7 @@ function initMap(divMap, mapConfig) {
 	map = new OpenLayers.Map(divMap, {
 		controls: [],
 		resolutions: map_resolutions,
-		projection: new OpenLayers.Projection(map_projection),
-
-		maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90)
+		projection: new OpenLayers.Projection(map_projection)
 	});
 
 	// get map extend (stored in the CMS)
@@ -35,6 +33,7 @@ function initMap(divMap, mapConfig) {
 	var extent_top = parseFloat(map_extent['top']);
 	
 	if (extent_left != 0 && extent_bottom != 0 && extent_right != 0 && extent_top != 0) {
+		map.maxExtent = new OpenLayers.Bounds(-180, -90, 180, 90);
 		map.restrictedExtent = new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top);
 	}
 	
@@ -202,11 +201,47 @@ function createClusteredWFSLayer(layerDef) {
  */
 function createWFSLayer(layerDef) {
 
-	var wfs_url = layerDef.Url;
+	
 	var title   = layerDef.Title;
-	var options = layerDef.Options;
+	var options = layerDef.Options;	
+	
+	var wfs_url = layerDef.Url;
+	var delimiter = '?';
+	if (options['map'] != null) {
+		wfs_url = layerDef.Url+delimiter+"map="+options['map'];
+		delimiter = '&';
+	} 
 	var featureType = layerDef.ogc_name;
 
-	var layer    = new OpenLayers.Layer.WFS(title, wfs_url, options);
+	var p = new OpenLayers.Protocol.WFS({ 
+		url: wfs_url,
+		featureType: featureType,
+		featurePrefix: null
+		
+	});			
+	
+	// store the url into a separate parameter to have a backup in case we 
+	// need to change the url (i.e for the species picklist).
+	p.wfs_url = wfs_url + delimiter;
+	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
+
+	strategies =  [
+		new OpenLayers.Strategy.Fixed()
+	];
+
+	layer = new OpenLayers.Layer.Vector(title, {
+		strategies: strategies,
+		protocol: p 
+	});
+	
 	return layer;
+	
+	// 
+	// var wfs_url = layerDef.Url;
+	// var title   = layerDef.Title;
+	// var options = layerDef.Options;
+	// var featureType = layerDef.ogc_name;
+	// 
+	// var layer    = new OpenLayers.Layer.WFS(title, wfs_url, options);
+	// return layer;
 }	
