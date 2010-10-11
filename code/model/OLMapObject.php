@@ -103,6 +103,7 @@ class OLMapObject extends DataObject {
 						new TextField("Resolutions", "Resolutions"),
 						new LiteralField("Resolution_example1","<h4>Example for the Resolutions for EPSG:4326</h4><p>0.703125, 0.3515625, 0.17578125, 0.087890625, 0.0439453125, 0.02197265625, 0.010986328125, 0.0054931640625, 0.00274658203125, 0.001373291015625, 6.866455078125E-4, 3.4332275390625E-4, 1.71661376953125E-4, 8.58306884765625E-5, 4.291534423828125E-5, 2.1457672119140625E-5, 1.0728836059570312E-5, 5.364418029785156E-6, 2.682209014892578E-6, 1.341104507446289E-6, 6.705522537231445E-7, 3.3527612686157227E-7, 1.6763806343078613E-7, 8.381903171539307E-8, 4.190951585769653E-8, 2.0954757928848267E-8, 1.0477378964424133E-8, 5.238689482212067E-9, 2.6193447411060333E-9, 1.3096723705530167E-9, 6.548361852765083E-10</p>"),
 						new LiteralField("MapLabel3","<h3>Maximum Map Extent</h3>"),
+						new LiteralField("MapLabel3_Label","<p>Leave this extend field empty or enter 0.00 when the data crosses the dateline.</p>"),
 						new NumericField("ExtentLeft", "Left"),
 						new NumericField("ExtentBottom", "Bottom"),
 						new NumericField("ExtentRight", "Right"),

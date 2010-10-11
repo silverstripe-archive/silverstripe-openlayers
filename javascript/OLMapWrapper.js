@@ -8,7 +8,7 @@ var map = null;		// global map instance
  * @param string divMap name of the target div object
  **/
 function initMap(divMap, mapConfig) {
-	
+
 	// set default location of the map
 	var map_config = mapConfig['Map'];
 
@@ -19,29 +19,25 @@ function initMap(divMap, mapConfig) {
 	var map_resolutions = map_config['Resolutions'];
 	var map_projection = map_config['Projection'];
 
-	// get default map extend (stored in the CMS)
+	map = new OpenLayers.Map(divMap, {
+		controls: [],
+		resolutions: map_resolutions,
+		projection: new OpenLayers.Projection(map_projection),
+
+		maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90)
+	});
+
+	// get map extend (stored in the CMS)
 	var map_extent = mapConfig['MaxMapExtent']
 	var extent_left = parseFloat(map_extent['left']);
 	var extent_bottom  = parseFloat(map_extent['bottom']);
 	var extent_right = parseFloat(map_extent['right']);
 	var extent_top = parseFloat(map_extent['top']);
-
-	map = new OpenLayers.Map(divMap, {
-		controls: [
-			new OpenLayers.Control.Navigation(),
-			new OpenLayers.Control.SSPanZoomBar(),
-			new OpenLayers.Control.ScaleLine(),
-			new OpenLayers.Control.KeyboardDefaults(),
-			new OpenLayers.Control.MousePosition()
-		],
-		resolutions: map_resolutions,
-		projection: new OpenLayers.Projection(map_projection),
-
-		// apply extent/resolution settings to the map
-		maxExtent: new OpenLayers.Bounds(-180, -90, 180, 90),
-		
-		restrictedExtent: new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top)
-	});
+	
+	if (extent_left != 0 && extent_bottom != 0 && extent_right != 0 && extent_top != 0) {
+		map.restrictedExtent = new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top);
+	}
+	
 	map.paddingForPopups = new OpenLayers.Bounds(80, 20, 400, 60);
 	
 	// initiate all overlay layers
@@ -53,9 +49,15 @@ function initMap(divMap, mapConfig) {
 	map.zoomTo(zoom);
 	
 	map.setCenter(new OpenLayers.LonLat(lon, lat));
+	
+    map.addControl(new OpenLayers.Control.Navigation());
+    map.addControl(new OpenLayers.Control.SSPanZoomBar());
+    map.addControl(new OpenLayers.Control.ScaleLine());
+    map.addControl(new OpenLayers.Control.KeyboardDefaults());
+    map.addControl(new OpenLayers.Control.MousePosition());
+		
 	controls = map.getControlsByClass('OpenLayers.Control.Navigation');
-	controls[0].handlers.wheel.activate();
-	     
+	controls[0].handlers.wheel.activate();   
 }
 
 /**
@@ -194,9 +196,6 @@ function createClusteredWFSLayer(layerDef) {
 	
 	return layer;
 }
-
-
-
 
 /**
  * Create a WFS layer instance for Open Layers.
