@@ -27,18 +27,15 @@ class OLMapPageTest extends FunctionalTest {
 	 * Test page rendering (basic test)
 	 */
 	function testPageRendering() {
+
+		$ol_path = "openlayers/javascript/jsparty/openlayers-2.10/OpenLayers.js";
+		OpenLayersModel::set_openlayers_path($ol_path);
 		
 		$response = $this->get('openlayers-map-1');
 		$expectedFragment = '<div id="map"></div>';
 		$this->assertContains($expectedFragment, $this->content());
 		
-		
-		$expectedFragment = '/openlayers/javascript/jsparty/lib/OpenLayers.js';
-		if (!Director::isDev()) {
-			$expectedFragment = '/openlayers/javascript/jsparty/OpenLayers.js';
-		}
-		
-		$this->assertContains($expectedFragment, $this->content());
+		$this->assertContains($ol_path, $this->content());
 	}
 
 	/**

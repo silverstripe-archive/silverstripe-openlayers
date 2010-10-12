@@ -13,35 +13,23 @@ class OpenLayersModelTest extends SapphireTest {
 	 */
 	function testgetRequiredJavaScript_InDev() {
 		Director::set_environment_type('dev');
+
+		$ol_path = "openlayers/javascript/jsparty/openlayers-2.10/OpenLayers.js";
+		OpenLayersModel::set_openlayers_path($ol_path);
 		
 		$obj = new OpenLayersModel();
 		$jscript = $obj->getRequiredJavaScript();		
 
-		$this->assertEquals($jscript, "openlayers/javascript/jsparty/lib/OpenLayers.js");
-	}
+		$this->assertEquals($jscript, $ol_path);
 
-	/**
-	 * Test getCMSFields  (basic test)
-	 */
-	function testgetRequiredJavaScript_InTest() {
-		Director::set_environment_type('test');
+		$ol_path = "openlayers/javascript/jsparty/openlayers-2.10/lib/OpenLayers.js";
+		OpenLayersModel::set_openlayers_path($ol_path);
 		
 		$obj = new OpenLayersModel();
 		$jscript = $obj->getRequiredJavaScript();		
 
-		$this->assertEquals($jscript, "openlayers/javascript/jsparty/OpenLayers.js");
-	}
+		$this->assertEquals($jscript, $ol_path);
 
-	/**
-	 * Test getCMSFields  (basic test)
-	 */
-	function testgetRequiredJavaScript_InProd() {
-		Director::set_environment_type('live');
-		
-		$obj = new OpenLayersModel();
-		$jscript = $obj->getRequiredJavaScript();		
-
-		$this->assertEquals($jscript, "openlayers/javascript/jsparty/OpenLayers.js");
 	}
 
 }
