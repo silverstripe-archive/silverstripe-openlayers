@@ -95,7 +95,11 @@ function initLayer( index, layerDef ) {
 		
 		var styleMap = OLStyleFactory.createStyleMap(featureType);
 		layer.styleMap = styleMap;
+		
+		
 	}  
+	
+	
 	// create a google map layer (it can be Google Physical, Google Hybrid, Google Satellite)
 	// should we add google street?
 	
@@ -125,6 +129,43 @@ function initLayer( index, layerDef ) {
 		if(current_layer == null && layerDef.ogc_transparent != 0) {
 			current_layer =  layer;
 		}
+	}
+	
+	/** duplicate features for this layer (date line issue)
+	 * @todo duplicate polygon layers (how?)
+	 * @todo check if the map is configured to deal with date line?
+	 */
+	if(layer.features){
+		
+		var max_map_bounds = new OpenLayers.Bounds(-180,-90, 180, 90);
+		layer.onFeatureInsert= function(feature) {
+
+			if(!feature.isMirror){
+
+				var featureMirror1 = new OpenLayers.Feature.Vector(
+				new OpenLayers.Geometry.Point(
+					(feature.geometry.x - max_map_bounds.getWidth()), feature.geometry.y),
+					feature.attributes,
+					feature.style);
+
+				// copy feature attributes which are missing by default.
+				featureMirror1.fid = feature.fid;
+
+				featureMirror1.bounds = new OpenLayers.Bounds(featureMirror1.geometry.x,featureMirror1.geometry.y, featureMirror1.geometry.x,featureMirror1.geometry.y);
+
+				if (feature.cluster != undefined) {
+					featureMirror1.cluster = feature.cluster;
+				}
+
+				if (feature.data != undefined) {
+					featureMirror1.data = feature.data;
+				}
+				featureMirror1.isMirror = true;
+
+				feature.isMirror = false;
+				this.addFeatures([featureMirror1]);
+			}
+		};
 	}
 }
 
