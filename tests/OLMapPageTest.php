@@ -99,7 +99,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		$url = Director::absoluteBaseURL() . self::$atlas_controller;
 		$featureID = 2;
-		$expectedFragment = "<h4 class=\"popup\"> stationdetails.$featureID</h4>";
+		$expectedFragment = "<h4 class=\"popup\">Feature stationdetails.$featureID</h4>";
 		
 		$layer = new OLLayer();
 		$layer->ID = 1;
@@ -108,6 +108,7 @@ class OLMapPageTest extends FunctionalTest {
 		$layer->ogc_map = 'testmap';
 		$layer->ogc_name = 'stationdetails';
 		$layer->Type = "wfs";
+		$layer->SinglePopupHeader = "Feature";
 		$layer->MapID = 1;
 		$layer->write();
 		
