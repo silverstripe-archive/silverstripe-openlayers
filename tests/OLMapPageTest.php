@@ -99,7 +99,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		$url = Director::absoluteBaseURL() . self::$atlas_controller;
 		$featureID = 2;
-		$expectedFragment = "<h4 class=\"popup\">Station stationdetails.$featureID</h4>";
+		$expectedFragment = "<h4 class=\"popup\"> stationdetails.$featureID</h4>";
 		
 		$layer = new OLLayer();
 		$layer->ID = 1;
@@ -124,7 +124,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		$url = Director::absoluteBaseURL() . self::$atlas_controller;
 		$featureID = 2;
-		$expectedFragment = "<h4 class=\"popup\">Station stationdetails.$featureID</h4>";
+		$expectedFragment = "<h4 class=\"popup\"> stationdetails.$featureID</h4>";
 		
 		$layer = new OLLayer();
 		$layer->ID = 1;
@@ -185,7 +185,7 @@ class OLMapPageTest extends FunctionalTest {
 		$Map->write();
 		
 		$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails.1"));
-		$this->assertContains("Station stationdetails.1", $resp->getBody());
+		$this->assertContains("stationdetails.1", $resp->getBody());
 		
 		// wrong params
 		try {

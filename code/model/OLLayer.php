@@ -35,6 +35,8 @@ class OLLayer extends DataObject {
 		"Cluster"			=> "Boolean",
 		"XMLWhitelist"		=> "Varchar(255)",
 		"Labels"			=> "Varchar(255)",
+		"SinglePopupHeader"	=> "Varchar(255)",
+		"ClusterPopupHeader"=> "Varchar(255)",
 		
 		// temporarily values (shall be re-factored and removed later)
 		"ogc_name"			=> "Varchar(100)",		// layer name (ogc layer name/id)
@@ -54,7 +56,9 @@ class OLLayer extends DataObject {
 		"ogc_format"       => "Image Format",
 		"ogc_transparent"  => "Transparency",
 		"Map.Title"        => "Map Name",
-		"XMLWhitelist"     => "Get Feature XML Whitelist (comma separated)"
+		"XMLWhitelist"     => "Get Feature XML Whitelist (comma separated)",
+		"SinglePopupHeader" => "Single Feature Popup Header (i.e. <strong><em>Site</em></strong> DTI.22)",
+		"ClusterPopupHeader" => "Features Cluster Popup Header (i.e. There are 3 <strong><em>Sites</em></strong>)"
 	);	
 	
 	static $summary_fields = array(
@@ -467,7 +471,7 @@ class OLLayer extends DataObject {
 		
 		$out = new ViewableData();
 		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams);
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID) );
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID, 'PopupHeader' => $this->SinglePopupHeader) );
 		return $out->renderWith('MapPopup_Detail');
 	}
 	
@@ -527,7 +531,7 @@ class OLLayer extends DataObject {
 	**/
 	public function renderClusterInformationBubble( $obj, $extraParam = null ) {			
 		$out = new ViewableData();
-		$out->customise( array( "stations" => $obj ) );
+		$out->customise( array( "stations" => $obj , 'PopupHeader' => $this->ClusterPopupHeader) );
 		return $out->renderWith('MapPopup_List');
 	}
 }
