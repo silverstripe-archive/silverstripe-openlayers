@@ -496,30 +496,37 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		
 		$output = $this->getFeatureInfo($params);
-
+		//var_dump($output);
 		$obj = new DataObjectSet();
 		
 		$reader = new XMLReader();
 		$reader->XML($output);
+		
+		$attributes = explode(",",$this->XMLWhitelist);
 		
 		// loop xml for attributes 
 		while ($reader->read()) {
 			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
 				if($this->WhiteList($reader->name)){
 					$atts[$reader->name] = $reader->readInnerXML();
+					
 				}
 			}
 		}
 		$reader->close();
-		foreach($atts as $key => $value){
-			
-			if(strpos($key,'ms:') !== false) $key = str_replace('ms:','',$key);
-			$obj->push(new ArrayData(array(
-				'attributeName' => $this->WhiteListLabels($key),
-				'attributeValue' => $value
-			)));
+		
+		if($attributes) foreach($attributes as $attribute){
+			if(array_key_exists("ms:".$attribute,$atts)){
+
+				$obj->push(new ArrayData(array(
+					'attributeName' => $this->WhiteListLabels($attribute),
+					'attributeValue' => $atts["ms:".$attribute]
+				)));
+			}
 		}
+
 		return $obj;
+
 	}
 
 	/**

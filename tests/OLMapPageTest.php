@@ -99,7 +99,7 @@ class OLMapPageTest extends FunctionalTest {
 		
 		$url = Director::absoluteBaseURL() . self::$atlas_controller;
 		$featureID = 2;
-		$expectedFragment = "<h4 class=\"popup\">Feature stationdetails.$featureID</h4>";
+		$expectedFragment = "<h4 class=\"popup\">Feature</h4>";
 		
 		$layer = new OLLayer();
 		$layer->ID = 1;
