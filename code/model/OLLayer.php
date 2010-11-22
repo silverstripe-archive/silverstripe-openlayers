@@ -471,7 +471,8 @@ class OLLayer extends DataObject {
 		
 		$out = new ViewableData();
 		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams);
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID, 'PopupHeader' => $this->SinglePopupHeader) );
+		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID, 'PopupHeader' => $this->SinglePopupHeader, 'LayerName' => $this->Title) );
+
 		return $out->renderWith('MapPopup_Detail');
 	}
 	
