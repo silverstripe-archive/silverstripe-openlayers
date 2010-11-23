@@ -194,7 +194,7 @@ class OLLayer extends DataObject {
 		
 		// create options element
 		$options = array();
-		$options['map']  = $this->getField("ogc_map");
+		$options['url_params']['map']  = $this->getField("ogc_map");
 				
 		// handle layer type: WMS (tiled and untiled)
 		if ($layerType == 'wms' || $layerType == 'wmsUntiled') {

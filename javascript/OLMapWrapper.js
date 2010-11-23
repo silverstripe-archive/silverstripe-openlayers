@@ -201,17 +201,22 @@ function createClusteredWFSLayer(layerDef) {
 	
 	var title   = layerDef.Title;
 	var options = layerDef.Options;	
-	
+	var url_params = '';
 	var wfs_url = layerDef.Url;
 	var delimiter = '?';
-	if (options['map'] != null) {
-		wfs_url = layerDef.Url+delimiter+"map="+options['map'];
-		delimiter = '&';
-	} 
+	
+	if(typeof options['url_params'] !== 'undefined'){
+		for(key in options['url_params']){
+			
+			if(options['url_params'][key] !== null) url_params += key + "=" + options['url_params'][key] + "&";
+		}
+		url_params = url_params.substring(0, url_params.length-1);
+	}
+
 	var featureType = layerDef.ogc_name;
 
 	var p = new OpenLayers.Protocol.WFS({ 
-		url: wfs_url,
+		url: wfs_url + "?" + url_params,
 		featureType: featureType,
 		featurePrefix: null
 		

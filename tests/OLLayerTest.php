@@ -293,7 +293,7 @@ class OLLayerTest extends SapphireTest {
 
 		$options = $result['Options'];
 
-		$this->assertEquals($options['map'], 'map');
+		$this->assertEquals($options['url_params']['map'], 'map');
 		//$this->assertEquals($options['SSID'], '1');
 		$this->assertEquals($options['typename'], 'ogc_name');
 	}
@@ -335,7 +335,7 @@ class OLLayerTest extends SapphireTest {
 
 		$options = $result['Options'];
 
-		$this->assertEquals($options['map'], 'map');
+		$this->assertEquals($options['url_params']['map'], 'map');
 		//$this->assertEquals($options['SSID'], '1');
 		$this->assertEquals($options['layers'], 'ogc_name');
 		$this->assertEquals($options['transparent'], "true");
@@ -362,7 +362,7 @@ class OLLayerTest extends SapphireTest {
 
 		$options = $result['Options'];
 
-		$this->assertEquals($options['map'], NULL);
+		$this->assertEquals($options['url_params']['map'], NULL);
 	}
 
 	/**
