@@ -143,17 +143,20 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		$openLayers = $this->getOpenLayers();
 		Requirements::javascript( $openLayers->getRequiredJavaScript() );		
+
+		Requirements::combine_files('jquery_min.js',array(	
+			"openlayers/javascript/jquery/jquery-ui-1.7.2.custom.min.js"
+		));
 		
-		Requirements::javascript('openlayers/javascript/jquery/jquery-1.3.2.min.js');
-		Requirements::javascript('openlayers/javascript/jquery/jquery-ui-1.7.2.custom.min.js');
-		//Requirements::javascript(THIRDPARTY_DIR."/jquery/jquery.js");
+		Requirements::combine_files('openlayer_mappage.js',array(	
+			"openlayers/javascript/OLMapWrapper.js",
+			"openlayers/javascript/OLMapPage.js",
+			"openlayers/javascript/jquery.checkbox.js",
+			"openlayers/javascript/SSPopup.js",
+			"openlayers/javascript/SSPanZoomBar.js"
+		));
 		
-		Requirements::javascript('openlayers/javascript/OLMapWrapper.js');
 		Requirements::javascript('openlayers/javascript/OLStyleFactory.js');
-		Requirements::javascript('openlayers/javascript/OLMapPage.js');
-		Requirements::javascript('openlayers/javascript/jquery.checkbox.js');
-		Requirements::javascript('openlayers/javascript/SSPopup.js');
-		Requirements::javascript('openlayers/javascript/SSPanZoomBar.js');
 		
 		// we need to add call to js maps somehow, any better way?
 		$googleCheck = DataObject::get_one('OLLayer',"(Type = 'Google Physical' OR Type = 'Google Hybrid' OR Type = 'Google Satellite' OR Type = 'Google Satellite') AND Enabled = 1");
@@ -198,25 +201,34 @@ class OLMapPage_Controller extends Page_Controller {
 	 *
 	 * @param Request $data
 	 *
+	 * @throws OLLayer_Exception
+	 *
 	 * @return string HTML segment
 	 */
 	public function dogetfeatureinfo( $request ) {
 		
+		// 
+		// CHECK IF PARAMETERS ARE VALID
+		// 
+		
 		if($request->param("ID") == "" || $request->param("OtherID") == ""){
-			throw new OLLayer_Exception('Empty params');
+			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
 		
-		// we need this for species list
+		// get the ExtraID (required for species list)
 		$extraParam = ($request->param("ExtraID")) ? $request->param("ExtraID") : '';
 		
-		$output = "Sorry we cannot retrieve feature information, please try again";
+		// create standard message.
+		$output = "Sorry we cannot retrieve feature information, please try again.";
+		
 		// check if the request is for more than one station (clustered)
 		$stationID =  $request->param("OtherID");
 
-		// determin the layer 
-		$feature = explode(".", $request->param("OtherID")); 
+		// determin the layer via the provided feature ID
+		$feature = explode(".", $request->param("OtherID"));
+		 
 		if(count($feature) <= 1) {
-			throw new OLLayer_Exception('Wrong params');
+			throw new OLLayer_Exception('Invalid parameter: FeatureType name not present in current request.');
 		}
 		
 		// we need the OLMapObject ID, so we can find layers that belong to this map object
@@ -225,28 +237,24 @@ class OLMapPage_Controller extends Page_Controller {
 		$layerName = Convert::raw2sql($feature[0]);
 		$featureID = Convert::raw2sql($feature[1]);
 		
-		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}'");
+		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}' AND Enabled = true");
 
 		if(!$layer) {
-			throw new OLLayer_Exception('Unknown layer-name.');			
+			throw new OLLayer_Exception('Invalid parameter: Unknown layer-name.');			
 		}
 
-		// condition for single station, create request and render template
-		if(strpos($stationID,",") === FALSE){			
-			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid);
+		// 
+		// RETRIEVE DATA FROM WFS SOURCE
+		// 
 
+		// condition for single station, create request and render template
+		if (strpos($stationID,",") === FALSE) {		
+			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid);
 		} else{
-			// multiple stations, render list
-			$stationIDs = explode(",",$stationID);
-			$obj = new DataObjectSet();
-			foreach($stationIDs as $stationID){
-				$obj->push(new ArrayData(array(
-					'Station' => $stationID
-				)));
-			}			
-			return $layer->renderClusterInformationBubble( $obj, $extraParam);
+			
+
+			return $layer->renderClusterInformationBubble( $stationID, $extraParam);
 		}
 		return $output;
 	}
-	
 }

@@ -15,6 +15,14 @@
  */
 class OLLayer extends DataObject {
 	
+	
+	/** 
+	 * Example for DTIS:
+	 * Cluster Popup Header:
+	 * - There are $stations.count DTIS stations
+	 * Cluster Attributes:
+	 * - Station $Station ($Cruise) <% if Depth %>: $Depth m depths<% end_if %>
+	 */
 	public static $singular_name = 'Layer';
 	
 	public static $plural_name = 'Layers';	
@@ -33,10 +41,16 @@ class OLLayer extends DataObject {
 		
 		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
 		"Cluster"			=> "Boolean",
+		
+		//
 		"XMLWhitelist"		=> "Varchar(255)",
 		"Labels"			=> "Varchar(255)",
 		"SinglePopupHeader"	=> "Varchar(255)",
+		
+		// 
 		"ClusterPopupHeader"=> "Varchar(255)",
+		"ClusterAttributes" => "Varchar(255)",
+		
 		
 		// temporarily values (shall be re-factored and removed later)
 		"ogc_name"			=> "Varchar(100)",		// layer name (ogc layer name/id)
@@ -58,7 +72,7 @@ class OLLayer extends DataObject {
 		"Map.Title"        => "Map Name",
 		"XMLWhitelist"     => "Get Feature XML Whitelist (comma separated)",
 		"SinglePopupHeader" => "Single Feature Popup Header (i.e. <strong><em>Site</em></strong> DTI.22)",
-		"ClusterPopupHeader" => "Features Cluster Popup Header (i.e. There are 3 <strong><em>Sites</em></strong>)"
+		"ClusterPopupHeader" => "Features Cluster Popup Header (i.e. 'There are \$items.TotalItems Sites'></strong>)"
 	);	
 	
 	static $summary_fields = array(
@@ -93,6 +107,14 @@ class OLLayer extends DataObject {
 	
 	static $default_sort = "Title ASC";
 	
+
+	/**
+	 * Getter method for single-info-bubble template name.
+	 */
+	public function get_map_popup_detail_template() {
+		return 'MapPopup_Detail';
+	}
+
 	static function get_wfs_pagesize() {
 		return self::$wfs_pagesize;
 	}
@@ -124,10 +146,24 @@ class OLLayer extends DataObject {
 		$ogc_format = $fields->fieldByName("Root.Main.ogc_format");
 		$fields->removeFieldFromTab("Root.Main","ogc_format");
 
-
 		$LayerType = $fields->fieldByName("Root.Main.Type");
 		$fields->removeFieldFromTab("Root.Main","Type");
 
+		$clusterPopupHeader = $fields->fieldByName("Root.Main.ClusterPopupHeader");
+		$clusterAttributes = $fields->fieldByName("Root.Main.ClusterAttributes");
+		
+		$fields->removeFieldFromTab("Root.Main","ClusterPopupHeader");
+		$fields->removeFieldFromTab("Root.Main","ClusterAttributes");
+
+		$XMLWhitelist = $fields->fieldByName("Root.Main.XMLWhitelist");
+		$Labels = $fields->fieldByName("Root.Main.Labels");
+		$SinglePopupHeader = $fields->fieldByName("Root.Main.SinglePopupHeader");
+
+		$fields->removeFieldFromTab("Root.Main","XMLWhitelist");
+		$fields->removeFieldFromTab("Root.Main","Labels");
+		$fields->removeFieldFromTab("Root.Main","SinglePopupHeader");
+
+		//
 		$fields->addFieldsToTab("Root.Main", 
 			array(
 				new LiteralField("DisLabel","<h2>Layer Settings</h2>"),
@@ -162,10 +198,31 @@ class OLLayer extends DataObject {
 						$ogc_format,
 						new CheckboxField("ogc_transparent", "Transparency")
 					)
-					
 				)
 			)
 		);
+	
+		$fields->addFieldsToTab("Root.MapPopup", 
+			array(
+				new LiteralField("label01","<h3>Map Information Popup - Single Item</h3>"),
+				new TextField("SinglePopupHeader", "Popup Header"),
+				new LiteralField("SinglePopupHeader_description","<strong>Popup Header</strong>: Static text line for popup header for this layer, i.e., '<strong><em>Selected Item:</em></strong>)'. If no value is provided, the layer title will be shown instead.<br/><br/>"),
+				
+				new TextField("XMLWhitelist", "Attributes"),
+				new LiteralField("XMLWhitelist_description","<strong>Attributes</strong>: comma separated list of attributes (available via the OGC interface).<br/><br/>"),
+				
+				new TextField("Labels", "Labels for Attributes"),
+				new LiteralField("Labels_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>"),
+
+				new LiteralField("label02","<h3>Map Information Popup - Multiple Items</h3>"),
+				new TextField("ClusterPopupHeader", "Popup Header"),
+				new LiteralField("ClusterPopupHeader_description","<strong>Attributes</strong>: Text line for cluster popup header, i.e., 'There are \$items.TotalItems Sites'></strong>).<br/><br/>"),
+				
+				new TextField("ClusterAttributes", "Attributes"),
+				new LiteralField("ClusterAttributes_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>")	
+			)
+		);
+
 		return $fields;
 	}
 	
@@ -282,7 +339,6 @@ class OLLayer extends DataObject {
 				throw new OLLayer_Exception('Mandatory parameter is missing: featureID.');
 			}			
 			$requestString = $this->getWFSFeatureRequest($params);
-			
 		} else {
 			// layer type unknown -> error
 			throw new OLLayer_Exception('Request type unknown');
@@ -290,9 +346,10 @@ class OLLayer extends DataObject {
 
 		// send request to OGC web service
 		$request  = new RestfulService($url,0);
-		$response = $request->request($requestString);
-		$xml = $response->getBody();
 		
+		$response = $request->request($requestString);
+
+		$xml = $response->getBody();	
 		return $xml;
 	}
 
@@ -369,7 +426,12 @@ class OLLayer extends DataObject {
 		$featureID = $param['featureID'];
 		$featureID = Convert::raw2xml($featureID);
 		
-		$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
+		// concat feature-type name if not provided in featureID string.
+		$ogcFeatureId = $featureID;
+		if (strpos($featureID,".") === FALSE) {
+			$ogcFeatureId = $this->getField('ogc_name').".".$featureID;
+		}
+		
 		$map          = $this->getField('ogc_map');
 		$typename     = $this->getField('ogc_name');
 		$extraParams = (isset($param['ExtraParams'])) ? $param['ExtraParams'] : '';
@@ -455,7 +517,119 @@ class OLLayer extends DataObject {
 		
 		return $URLRequest;
 	}
+	
+	/**
+	 * Gets the request result, converts it from XML to DOS and returns it.
+	 * gets Whitelist words from the layer and finds tags into the XML file.
+	 *
+	 * @param Int $featureID Station (feature) ID
+	 * @param String $extraParams, extra param for the request (normally coming from JS)
+	 * @return DataObjectSet $obj, set of results 
+	**/
+	function doSingleStationRequest($featureID, $extraParams = '', $XMLWhitelist){
+		
+		if(!$featureID) {
+			throw new OLLayer_Exception('Wrong params');
+		}
+		
+		$atts = array();
+		
+		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
+		
+		$output = $this->getFeatureInfo($params);
+		
+		$obj = new DataObjectSet();
+		
+		$reader = new XMLReader();
+		$reader->XML($output);
+		
+		$attributes = explode(",",$XMLWhitelist);
+		
+		// loop xml for attributes 
+		while ($reader->read()) {
+			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
+				if($this->WhiteList($reader->name)){
+					$atts[$reader->name] = $reader->readInnerXML();
+				}
+			}
+		}
+		$reader->close();
 
+		if($attributes) foreach($attributes as $attribute){
+			if(array_key_exists("ms:".$attribute,$atts)){
+				$obj->push(new ArrayData(array(
+					'attributeName' => $this->WhiteListLabels($attribute),
+					'attributeValue' => $atts["ms:".$attribute]
+				)));
+			}
+		}
+		return $obj;
+	}
+
+
+	/**
+	 * Gets the request result, converts it from XML to DOS and returns it.
+	 * gets Whitelist words from the layer and finds tags into the XML file.
+	 *
+	 * @param Int $featureID Station (feature) ID
+	 * @param String $extraParams, extra param for the request (normally coming from JS)
+	 *
+	 * @return DataObjectSet $obj, set of results 
+	**/
+	function getFeature($featureID, $extraParams = ''){
+		$namespace = 'ms';
+
+		if(!$featureID) {
+			throw new OLLayer_Exception('Wrong params');
+		}
+		
+		$currentFeatureID = '';
+
+		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
+		$output = $this->getFeatureInfo($params);
+
+		$obj = new DataObjectSet();
+
+		$reader = new XMLReader();
+		$reader->XML($output);
+		
+		// loop xml for attributes 
+		$attributes = array();
+		while ($reader->read()) {
+			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
+
+				// skip ms:msFeatureCollection
+				if ($reader->name != $namespace.":msFeatureCollection") {
+
+					// strip ms: namespace from xml response
+					if (substr_compare($reader->name,$namespace.":",0,3) === 0) {
+						$name = substr_replace($reader->name,'',0,3);
+
+						if ($name != $this->ogc_name) {
+							$attributes[$name] = $reader->readInnerXML();
+						} else {
+
+							// found a new ID tag which is at the beginning of
+							// an new feature item.
+							if (!empty($attributes)) {
+								$attributes['FeatureID'] = $currentFeatureID;
+								$obj->push(new ArrayData($attributes));
+							}
+							$currentFeatureID = $reader->getAttribute('gml:id');
+							$attributes = array();
+						}
+					}
+				}
+			}
+		}
+		
+		if (!empty($attributes)) {
+			$attributes['FeatureID'] = $currentFeatureID;
+			$obj->push(new ArrayData($attributes));
+		}
+		$reader->close();
+		return $obj;
+	}
 	
 	/**
 	* Function to render popup for one station (attributes).
@@ -468,68 +642,23 @@ class OLLayer extends DataObject {
 	* @return String HTML - rendered information bubble
 	**/
 	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = '', $mapID = null){
-		
+
 		$out = new ViewableData();
-		$obj = $this->doSingleStationRequest($featureID, $stationID, $extraParams);
-		$out->customise( array( "attributes" => $obj, "StationID" => $stationID, 'MapID' => $mapID, 'PopupHeader' => $this->SinglePopupHeader, 'LayerName' => $this->Title) );
 
-		return $out->renderWith('MapPopup_Detail');
+		$obj = $this->doSingleStationRequest($featureID, $extraParams, $this->XMLWhitelist);
+		$out->customise( 
+			array( 
+				"attributes" => $obj, 
+				"StationID" => $stationID, 
+				'MapID' => $mapID, 
+				'PopupHeader' => $this->SinglePopupHeader, 
+				'LayerName' => $this->Title
+			) 
+		);
+
+		return $out->renderWith($this->get_map_popup_detail_template());
 	}
 	
-	
-	/**
-	 * Gets the request result, converts it from XML to DOS and returns it.
-	 * gets Whitelist words from the layer and finds tags into the XML file.
-	 *
-	 * @param Int $featureID Station (feature) ID
-	 * @param String $stationID Name of the station (layers plus number) 
-	 * @param String $extraParams, extra param for the request (normally coming from JS)
-	 * @return DataObjectSet $obj, set of results 
-	**/
-	function doSingleStationRequest($featureID, $stationID, $extraParams = ''){
-		
-		if(!$featureID || !$stationID) {
-			throw new OLLayer_Exception('Wrong params');
-		}
-		
-		$atts = array();
-		
-		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
-		
-		$output = $this->getFeatureInfo($params);
-		//var_dump($output);
-		$obj = new DataObjectSet();
-		
-		$reader = new XMLReader();
-		$reader->XML($output);
-		
-		$attributes = explode(",",$this->XMLWhitelist);
-		
-		// loop xml for attributes 
-		while ($reader->read()) {
-			if($reader->nodeType != XMLReader::END_ELEMENT && $reader->readInnerXML() != ""){
-				if($this->WhiteList($reader->name)){
-					$atts[$reader->name] = $reader->readInnerXML();
-					
-				}
-			}
-		}
-		$reader->close();
-		
-		if($attributes) foreach($attributes as $attribute){
-			if(array_key_exists("ms:".$attribute,$atts)){
-
-				$obj->push(new ArrayData(array(
-					'attributeName' => $this->WhiteListLabels($attribute),
-					'attributeValue' => $atts["ms:".$attribute]
-				)));
-			}
-		}
-
-		return $obj;
-
-	}
-
 	/**
 	* Function to render popup for cluster items.
 	*
@@ -537,9 +666,45 @@ class OLLayer extends DataObject {
 	* @param String $extraParam, extra param, normally from JS.
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderClusterInformationBubble( $obj, $extraParam = null ) {			
+	public function renderClusterInformationBubble( $stationIDList, $extraParam = null ) {		
+		
+		// multiple stations, render list
+		$obj = new DataObjectSet();
+		
+		$listItemTemplate = 'Station: $FeatureID';
+		if ($this->ClusterAttributes) {
+			$listItemTemplate = $this->ClusterAttributes;
+		}
+		$obj = $this->getFeature($stationIDList , $extraParam);
+
+		$template = '<% control items %>';
+		$template .= '<li><a onClick="multipleStationSelect(\'$FeatureID\');return false;">'.$listItemTemplate.'</a></li>';
+		$template .= '<%  end_control %>';
+		
+		$data = new ArrayData(array(
+			"items" => $obj,
+			"count" => $obj->Count(), 
+		));	
+		
+		$header = 'There are $count Items.';
+		
+		if ($this->ClusterPopupHeader) {
+			$header = $this->ClusterPopupHeader;
+		}
+		
+		$viewer = SSViewer::fromString($header);
+			
+		$clusterPopupHeader = $viewer->process($data);
+		
+		$viewer = SSViewer::fromString($template);
+		$stationListTemplate = $viewer->process($data);
+				
 		$out = new ViewableData();
-		$out->customise( array( "stations" => $obj , 'PopupHeader' => $this->ClusterPopupHeader) );
+		$out->customise( array( 
+			"stationList" =>  $stationListTemplate,
+			"PopupHeader" => $clusterPopupHeader
+		));
+		
 		return $out->renderWith('MapPopup_List');
 	}
 }

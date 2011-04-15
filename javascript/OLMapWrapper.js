@@ -83,6 +83,7 @@ function initLayer( index, layerDef ) {
 		else{
 			layer = new OpenLayers.Layer.WMS( title, url, options, {wrapDateLine: true} );
 		} 			
+		layer.wms_url = url;
 	} else if (layerDef.Type == 'wfs') {
 
 		// create WFS layer	
