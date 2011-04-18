@@ -237,8 +237,8 @@ class OLMapPage_Controller extends Page_Controller {
 		$layerName = Convert::raw2sql($feature[0]);
 		$featureID = Convert::raw2sql($feature[1]);
 		
-		$layer = DataObject::get_one('OLLayer',"ogc_name = '{$layerName}' AND MapID = '{$mapid}' AND Enabled = true");
-
+		$sqlWhere = "ogc_name = '{$layerName}' AND MapID = '{$mapid}' AND Enabled = 1";
+		$layer = DataObject::get_one('OLLayer',$sqlWhere);
 		if(!$layer) {
 			throw new OLLayer_Exception('Invalid parameter: Unknown layer-name.');			
 		}

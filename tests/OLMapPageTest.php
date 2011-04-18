@@ -134,6 +134,7 @@ class OLMapPageTest extends FunctionalTest {
 		$layer->ogc_map = 'testmap';
 		$layer->ogc_name = 'stationdetails';
 		$layer->Type = "wfs";
+		$layer->Enabled = 1;
 		$layer->MapID = 1;
 		$layer->write();
 		
@@ -141,9 +142,9 @@ class OLMapPageTest extends FunctionalTest {
 		
 		//first param is not an object or is a wrong object (OLLayer)
 		try {
-			$resp = $layer->renderBubbleForOneFeature($featureID,"stationdetails.$featureID");
-			
-		}
+			$resp = $layer->renderBubbleForOneFeature($featureID,"stationdetails.$featureID");			
+		}		
+		
 		catch(Exception $e) {
 			$this->assertEquals("Wrong Layer class", $e->getMessage());
 			return;
@@ -170,14 +171,17 @@ class OLMapPageTest extends FunctionalTest {
 		$mapurl = $mapPage->URLSegment;
 		$mapPage->MapID = 1;
 		$mapPage->write();
+		
 		$layer = new OLLayer();
 		$layer->ID = 1;
 		$layer->Title = 'allStations';
 		$layer->Url = $url;
 		$layer->ogc_map = 'testmap';
 		$layer->ogc_name = 'stationdetails';
+		$layer->Enabled = 1;
 		$layer->MapID = 1;
 		$layer->write();
+		
 		$Map = new OLMapObject();
 		$Map->ID = 1;
 		$Map->Title= "Map Title";
@@ -190,11 +194,10 @@ class OLMapPageTest extends FunctionalTest {
 		
 		// wrong params
 		try {
-			$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails"));
-			
+			$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails"));			
 		}
 		catch(Exception $e) {
-			$this->assertEquals("Wrong params", $e->getMessage());
+			$this->assertContains("FeatureType name not present in current request.", $e->getMessage());
 			return;
 		}
 		
