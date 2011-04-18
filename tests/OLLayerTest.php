@@ -438,6 +438,7 @@ class OLLayerTest extends SapphireTest {
 		$layer->write();
 		
 		$response = $layer->getFeatureInfo(array('featureID' => 'ID.1'));
+		
 		$obj = json_decode($response,1);
 
 		// get project-path from the absolute URL
@@ -452,7 +453,7 @@ class OLLayerTest extends SapphireTest {
 		$this->assertEquals($obj['version'], "1.0.0");
 		$this->assertEquals($obj['typename'], "featureType");
 		$this->assertEquals($obj['OUTPUTFORMAT'], "gml3");
-		$this->assertEquals($obj['featureid'], "featureType.ID.1");
+		$this->assertEquals($obj['featureid'], "ID.1");
 		$this->assertEquals($obj['isget'], true);
 	}
 
