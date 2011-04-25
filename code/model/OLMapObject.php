@@ -60,9 +60,10 @@ class OLMapObject extends DataObject {
 	
 	static $default_sort = "Title ASC";
 	
-
 	/**
 	 * Overwrites SiteTree.getCMSFields.
+	 *
+     * @codeCoverageIgnore
 	 *
 	 * @return fieldset
 	 */

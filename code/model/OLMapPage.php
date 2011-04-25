@@ -22,6 +22,9 @@ class OLMapPage extends Page {
 	/**
 	 * Overwrites SiteTree.getCMSFields.
 	 *
+	 *
+     * @codeCoverageIgnore
+	 *
 	 * @return fieldset
 	 */
 	function getCMSFields() {

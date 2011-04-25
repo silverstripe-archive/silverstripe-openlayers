@@ -18,6 +18,8 @@ class Proxy_Controller extends Controller {
 	/**
 	 * Sets the array of allowed hosts.
 	 *
+     * @codeCoverageIgnore
+	 *
 	 * @param array $value string-array of allowed hosts, i.e. IP addresses.
 	 */
 	static function set_allowed_host($value) {
@@ -26,6 +28,8 @@ class Proxy_Controller extends Controller {
 
 	/**
 	 * Returns an array of allowed hosts.
+	 *
+     * @codeCoverageIgnore
 	 *
 	 * @return array list of all allowed hosts
 	 */

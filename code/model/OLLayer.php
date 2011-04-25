@@ -129,6 +129,8 @@ class OLLayer extends DataObject {
 	 *
 	 * This method creates a customised CMS form for back-end user.
 	 *
+     * @codeCoverageIgnore
+	 *
 	 * @return fieldset
 	 */ 
 	function getCMSFields() {

@@ -43,6 +43,8 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 	 *
 	 * @param array $searchCriteria passed through from ResultsForm 
 	 *
+     * @codeCoverageIgnore
+	 *
 	 * @return TableListField 
 	 */
 	function getResultsTable($searchCriteria) {

@@ -28,6 +28,9 @@ class ReflectionProxy_Controller extends Controller implements TestOnly {
 
 	/**
 	 * Standard index method. Used for unit tests only.
+	 *
+     * @codeCoverageIgnore
+	 *
 	 */
 	function index() {
 		return "failed";
@@ -42,7 +45,8 @@ class ReflectionProxy_Controller extends Controller implements TestOnly {
 	 *
 	 * @return string json-encoded string for validation.
 	 *
-	 */	function doprocess($data) {
+	 */
+	function doprocess($data) {
 		if(!in_array($data->getIP(),self::$allowedIP)) {
 			return "failed";
 		}
@@ -81,6 +85,4 @@ XML;
 		
 		return $this->response;
 	}
-	
-
 }
