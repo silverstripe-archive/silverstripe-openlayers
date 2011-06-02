@@ -210,23 +210,24 @@ class OLMapPage_Controller extends Page_Controller {
 	 */
 	public function dogetfeatureinfo( $request ) {
 		
-		$parameters = $request->getVars();
+		$parameters = $request->postVars();
 
 		// 
 		// CHECK IF PARAMETERS ARE VALID
 		// 
-
-		if(!isset($parameters['specieName']) || !isset($parameters['featureList'])){
+		if(!isset($parameters['featureList'])){
 			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
 		
-		if($parameters['specieName'] == "" || $parameters['featureList'] == ""){
+		if($parameters['featureList'] == ""){
 			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
 		
+		$extraParam = '';
 		// get the ExtraID (required for species list)
-		$extraParam = $parameters['specieName'];
-		
+		if (isset($parameters['featureList'])) {
+			$extraParam = $parameters['specieName'];
+		}
 		// check if the request is for more than one station (clustered)
 		$stationID =  $parameters['featureList'];
 
