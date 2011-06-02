@@ -220,7 +220,6 @@ function createClusteredWFSLayer(layerDef) {
 		url: wfs_url + "?" + url_params,
 		featureType: featureType,
 		featurePrefix: null
-		
 	});			
 	
 	// store the url into a separate parameter to have a backup in case we 
@@ -248,7 +247,6 @@ function createClusteredWFSLayer(layerDef) {
  */
 function createWFSLayer(layerDef) {
 
-	
 	var title   = layerDef.Title;
 	var options = layerDef.Options;	
 	
@@ -282,13 +280,4 @@ function createWFSLayer(layerDef) {
 	});
 	
 	return layer;
-	
-	// 
-	// var wfs_url = layerDef.Url;
-	// var title   = layerDef.Title;
-	// var options = layerDef.Options;
-	// var featureType = layerDef.ogc_name;
-	// 
-	// var layer    = new OpenLayers.Layer.WFS(title, wfs_url, options);
-	// return layer;
 }	

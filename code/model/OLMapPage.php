@@ -210,25 +210,31 @@ class OLMapPage_Controller extends Page_Controller {
 	 */
 	public function dogetfeatureinfo( $request ) {
 		
+		$parameters = $request->getVars();
+
 		// 
 		// CHECK IF PARAMETERS ARE VALID
 		// 
+
+		if(!isset($parameters['specieName']) || !isset($parameters['featureList'])){
+			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
+		}
 		
-		if($request->param("ID") == "" || $request->param("OtherID") == ""){
+		if($parameters['specieName'] == "" || $parameters['featureList'] == ""){
 			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
 		
 		// get the ExtraID (required for species list)
-		$extraParam = ($request->param("ExtraID")) ? $request->param("ExtraID") : '';
+		$extraParam = $parameters['specieName'];
 		
+		// check if the request is for more than one station (clustered)
+		$stationID =  $parameters['featureList'];
+
 		// create standard message.
 		$output = "Sorry we cannot retrieve feature information, please try again.";
 		
-		// check if the request is for more than one station (clustered)
-		$stationID =  $request->param("OtherID");
-
 		// determin the layer via the provided feature ID
-		$feature = explode(".", $request->param("OtherID"));
+		$feature = explode(".", $stationID);
 		 
 		if(count($feature) <= 1) {
 			throw new OLLayer_Exception('Invalid parameter: FeatureType name not present in current request.');
