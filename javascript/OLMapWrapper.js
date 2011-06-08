@@ -57,6 +57,8 @@ function initMap(divMap, mapConfig) {
 		
 	controls = map.getControlsByClass('OpenLayers.Control.Navigation');
 	controls[0].handlers.wheel.activate();   
+
+	$('#'+divMap).trigger('maploaded');
 }
 
 /**
