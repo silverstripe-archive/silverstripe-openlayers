@@ -15,7 +15,6 @@
  */
 class OLLayer extends DataObject {
 	
-	
 	/** 
 	 * Example for DTIS:
 	 * Cluster Popup Header:
@@ -60,7 +59,8 @@ class OLLayer extends DataObject {
 	);
 	
 	static $has_one = array(
-		'Map' => 'OLMapObject'
+		'Map' => 'OLMapObject',
+		'StyleMap' => 'OLStyleMap'
 	);	
 	
 	static $field_labels = array(
@@ -348,7 +348,6 @@ class OLLayer extends DataObject {
 
 		// send request to OGC web service
 		$request  = new RestfulService($url,0);
-		
 		$response = $request->request($requestString);
 
 		$xml = $response->getBody();	
@@ -539,7 +538,6 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		
 		$output = $this->getFeatureInfo($params);
-		
 		$obj = new DataObjectSet();
 		
 		$reader = new XMLReader();
@@ -644,7 +642,6 @@ class OLLayer extends DataObject {
 	* @return String HTML - rendered information bubble
 	**/
 	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = '', $mapID = null){
-
 		$out = new ViewableData();
 
 		$obj = $this->doSingleStationRequest($featureID, $extraParams, $this->XMLWhitelist);

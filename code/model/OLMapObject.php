@@ -116,6 +116,24 @@ class OLMapObject extends DataObject {
 		return $fields;
 	}
 	
+	function getJSStyleMaps() {
+		$styles = '';
+
+		$layers = $this->getComponents('Layers',null,'DisplayPriority');
+
+		if ($layers) {
+			foreach($layers as $layer) {
+				if ($layer->Enabled == true) {
+					$style = $layer->StyleMap();
+					if ($style->ID) {
+						$styles .= $style->renderWith('StyleMap');					
+					}
+				}
+			}
+		}
+		return $styles;
+	}
+	
 	/**
 	 * This method serialize the map data structure into an array.
 	 *

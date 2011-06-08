@@ -23,6 +23,7 @@ class OpenLayersMapAdmin extends ModelAdmin {
 	static $managed_models = array(
 		"OLMapObject",
 		"OLLayer",
+		"OLStyleMap"
 	);
 	
 	static $allowed_actions = array(

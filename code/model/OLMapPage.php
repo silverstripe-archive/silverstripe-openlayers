@@ -70,6 +70,14 @@ class OLMapPage extends Page {
 		return $result;
 	}
 
+	public function getStyleMap() {
+		$mapObject = $this->GetComponent('Map');
+		if($mapObject && $mapObject->ID != 0) {
+			$result = $mapObject->getJSStyleMaps();
+		}
+		return $result;
+	}
+
 	/**
 	 * Returnslayers in a customised viewable data object 
 	 * to render the layer control of the default map. 
@@ -182,6 +190,10 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		// add configuration json object to custom scripts
 		Requirements::customScript($jsConfig);
+
+		$jsStyleMap = $page->getStyleMap();		
+		Requirements::customScript($jsStyleMap);
+		
 	}
 	
 	/**
@@ -261,8 +273,6 @@ class OLMapPage_Controller extends Page_Controller {
 		if (strpos($stationID,",") === FALSE) {		
 			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid);
 		} else{
-			
-
 			return $layer->renderClusterInformationBubble( $stationID, $extraParam);
 		}
 		return $output;
