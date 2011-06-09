@@ -94,7 +94,12 @@ function initLayer( index, layerDef ) {
 		}
 		var featureType = layerDef.ogc_name;
 		
-		var styleMap = OLStyleFactory.createStyleMap(featureType);
+		var styleMap = null;
+		if (layerDef.StyleMapName != null) {
+			styleMap = OLStyleFactory.getStyle(layerDef.StyleMapName);
+		} else {
+			styleMap = OLStyleFactory.createStyleMap(featureType);
+		}
 		layer.styleMap = styleMap;
 		
 		

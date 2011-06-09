@@ -1,4 +1,21 @@
+var styleMapList = new Array();
+
 function OLStyleFactory() {
+
+}
+
+/**
+ * Create a WFS layer instance for Open Layers.
+ */
+OLStyleFactory.addStyle = function (name, styleMap) {
+	styleMapList[name] = styleMap;
+}
+
+/**
+ * Return WFS layer instance for Open Layers.
+ */
+OLStyleFactory.getStyle = function(name) {
+	return styleMapList[name];
 }
 
 /**

@@ -61,5 +61,7 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 				
 		return $tf;
 	}
+	
+	// $style->renderWith('StyleMap');		
 
 }

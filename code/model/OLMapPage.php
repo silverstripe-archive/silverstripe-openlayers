@@ -192,6 +192,7 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::customScript($jsConfig);
 
 		$jsStyleMap = $page->getStyleMap();		
+
 		Requirements::customScript($jsStyleMap);
 		
 	}
@@ -237,7 +238,7 @@ class OLMapPage_Controller extends Page_Controller {
 		
 		$extraParam = '';
 		// get the ExtraID (required for species list)
-		if (isset($parameters['featureList'])) {
+		if (isset($parameters['specieName'])) {
 			$extraParam = $parameters['specieName'];
 		}
 		// check if the request is for more than one station (clustered)

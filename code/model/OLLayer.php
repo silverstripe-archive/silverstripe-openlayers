@@ -251,6 +251,12 @@ class OLLayer extends DataObject {
 		$config['GeometryType']= $this->getField('GeometryType');
 		$config['Cluster']    = $this->getField('Cluster');
 		
+		$config['StyleMapName'] = '';
+		if ($this->StyleMap()) {
+			$config['StyleMapName']    = $this->StyleMap()->getField('Name');
+		}
+		
+		
 		// create options element
 		$options = array();
 		$options['url_params']['map']  = $this->getField("ogc_map");
