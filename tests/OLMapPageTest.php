@@ -180,6 +180,7 @@ class OLMapPageTest extends FunctionalTest {
 		$layer->ogc_name = 'stationdetails';
 		$layer->Enabled = 1;
 		$layer->MapID = 1;
+		$layer->SinglePopupHeader = 'stationdetails.1';
 		$layer->write();
 		
 		$Map = new OLMapObject();
@@ -189,12 +190,18 @@ class OLMapPageTest extends FunctionalTest {
 		$Map->AtlasLayerID = 1;
 		$Map->write();
 		
-		$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails.1"));
+		$resp = $this->post(Director::absoluteURL($mapurl."/dogetfeatureinfo/1"),
+			array("featureList" => "stationdetails.1")
+		);
+		
 		$this->assertContains("stationdetails.1", $resp->getBody());
 		
 		// wrong params
 		try {
-			$resp = $this->get(Director::absoluteURL($mapurl."/dogetfeatureinfo/1/stationdetails"));			
+
+			$resp = $this->post(Director::absoluteURL($mapurl."/dogetfeatureinfo/1"),
+				array("featureList" => "stationdetails")
+			);
 		}
 		catch(Exception $e) {
 			$this->assertContains("FeatureType name not present in current request.", $e->getMessage());

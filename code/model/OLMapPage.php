@@ -71,6 +71,7 @@ class OLMapPage extends Page {
 	}
 
 	public function getStyleMap() {
+		$result = null;
 		$mapObject = $this->GetComponent('Map');
 		if($mapObject && $mapObject->ID != 0) {
 			$result = $mapObject->getJSStyleMaps();
@@ -224,7 +225,6 @@ class OLMapPage_Controller extends Page_Controller {
 	public function dogetfeatureinfo( $request ) {
 		
 		$parameters = $request->postVars();
-
 		// 
 		// CHECK IF PARAMETERS ARE VALID
 		// 
