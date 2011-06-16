@@ -45,9 +45,26 @@ function initMap(divMap, mapConfig) {
 	jQuery.each( layers , initLayer );
 	
 	map.events.register("zoomend", map, onFeatureUnselect);
-	map.zoomTo(zoom);
-	
-	map.setCenter(new OpenLayers.LonLat(lon, lat));
+
+	var extent = null;
+	if (map_config['DefaultExtent']) {
+		var map_extent = map_config['DefaultExtent'];
+		var extent_left = parseFloat(map_extent['left']);
+		var extent_bottom  = parseFloat(map_extent['bottom']);
+		var extent_right = parseFloat(map_extent['right']);
+		var extent_top = parseFloat(map_extent['top']);
+
+		if (extent_left != 0 && extent_bottom != 0 && extent_right != 0 && extent_top != 0) {
+			extent = new OpenLayers.Bounds(extent_left,extent_bottom,extent_right,extent_top);
+		}
+	}
+
+	if (extent) {
+		map.zoomToExtent(extent, true);
+	} else {
+		map.setCenter(new OpenLayers.LonLat(lon, lat));
+		map.zoomTo(zoom);
+	}
 	
     map.addControl(new OpenLayers.Control.Navigation());
     map.addControl(new OpenLayers.Control.SSPanZoomBar());

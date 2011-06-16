@@ -65,7 +65,28 @@ class OLMapPage extends Page {
 		$result    = array();
 		$mapObject = $this->GetComponent('Map');
 		if($mapObject && $mapObject->ID != 0) {
+			
 			$result = $mapObject->getConfigurationArray();
+
+			$cont = Controller::curr();
+			$request = $cont->getRequest();
+			if ($request->getVar('bbox')) {
+				
+				$param = $request->getVar('bbox');
+				$array = preg_split("/[\s]*[,][\s]*/", $param);
+				
+				if (sizeof($array) == 4) {
+					$result['Latitude'] = '';
+					$result['Longitude'] = '';
+					$result['Zoom'] = '';
+				
+					$extent['left'] = $array[0];
+					$extent['top'] = $array[1];
+					$extent['right'] = $array[2];
+					$extent['bottom'] = $array[3];
+					$result['Map']['DefaultExtent'] = $extent;
+				}
+			}
 		}
 		return $result;
 	}
