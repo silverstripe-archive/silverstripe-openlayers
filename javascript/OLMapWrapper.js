@@ -60,7 +60,7 @@ function initMap(divMap, mapConfig) {
 	}
 
 	if (extent) {
-		map.zoomToExtent(extent, true);
+		map.zoomToExtent(extent);
 	} else {
 		map.setCenter(new OpenLayers.LonLat(lon, lat));
 		map.zoomTo(zoom);
