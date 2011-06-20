@@ -681,9 +681,13 @@ class OLLayer extends DataObject {
 			$listItemTemplate = $this->ClusterAttributes;
 		}
 		$obj = $this->getFeature($stationIDList , $extraParam);
+		
+		foreach($obj as $item) {
+			$item->classname = "content_".str_replace('.','_',$item->FeatureID);
+		}
 
 		$template = '<% control items %>';
-		$template .= '<li><a onClick="multipleStationSelect(\'$FeatureID\');return false;">'.$listItemTemplate.'</a></li>';
+		$template .= sprintf('<li><a onClick="multipleStationSelect(\'$FeatureID\');return false;">%s</a></li><div class=\'$classname\'></div>',$listItemTemplate);
 		$template .= '<%  end_control %>';
 		
 		$data = new ArrayData(array(

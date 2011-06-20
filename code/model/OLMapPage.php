@@ -132,6 +132,10 @@ class OLMapPage extends Page {
  */
 class OLMapPage_Controller extends Page_Controller {
 	
+	static $allowed_actions = array(
+		'dogetfeatureinfo'
+	);
+	
 	public static $url_handlers = array(
 		'dogetfeatureinfo/$ID/$OtherID/$ExtraID' => 'dogetfeatureinfo'
 	);
