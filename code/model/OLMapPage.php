@@ -250,6 +250,13 @@ class OLMapPage_Controller extends Page_Controller {
 	public function dogetfeatureinfo( $request ) {
 		
 		$parameters = $request->postVars();
+		
+		$templateName = '';
+		
+		if(isset($parameters['template'])){
+			$templateName = $parameters['template'];
+		}
+		
 		// 
 		// CHECK IF PARAMETERS ARE VALID
 		// 
@@ -294,12 +301,11 @@ class OLMapPage_Controller extends Page_Controller {
 		// 
 		// RETRIEVE DATA FROM WFS SOURCE
 		// 
-
 		// condition for single station, create request and render template
 		if (strpos($stationID,",") === FALSE) {		
-			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid);
+			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid, $templateName);
 		} else{
-			return $layer->renderClusterInformationBubble( $stationID, $extraParam);
+			return $layer->renderClusterInformationBubble( $stationID, $extraParam, $templateName);
 		}
 		return $output;
 	}

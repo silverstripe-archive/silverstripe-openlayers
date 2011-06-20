@@ -111,7 +111,7 @@ class OLLayer extends DataObject {
 	/**
 	 * Getter method for single-info-bubble template name.
 	 */
-	public function get_map_popup_detail_template() {
+	public function get_map_popup_detail_template($templateName = '') {
 		return 'MapPopup_Detail';
 	}
 
@@ -647,7 +647,7 @@ class OLLayer extends DataObject {
 	*
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = '', $mapID = null){
+	public function renderBubbleForOneFeature($featureID, $stationID, $extraParams = '', $mapID = null, $templateName=''){
 		$out = new ViewableData();
 
 		$obj = $this->doSingleStationRequest($featureID, $extraParams, $this->XMLWhitelist);
@@ -661,7 +661,7 @@ class OLLayer extends DataObject {
 			) 
 		);
 
-		return $out->renderWith($this->get_map_popup_detail_template());
+		return $out->renderWith($this->get_map_popup_detail_template($templateName));
 	}
 	
 	/**
@@ -671,7 +671,7 @@ class OLLayer extends DataObject {
 	* @param String $extraParam, extra param, normally from JS.
 	* @return String HTML - rendered information bubble
 	**/
-	public function renderClusterInformationBubble( $stationIDList, $extraParam = null ) {		
+	public function renderClusterInformationBubble( $stationIDList, $extraParam = null, $templateName='') {		
 		
 		// multiple stations, render list
 		$obj = new DataObjectSet();
