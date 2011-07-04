@@ -70,21 +70,24 @@ class OLMapPage extends Page {
 
 			$cont = Controller::curr();
 			$request = $cont->getRequest();
-			if ($request->getVar('bbox')) {
+			
+			if ($request) {
+				if ($request->getVar('bbox')) {
 				
-				$param = $request->getVar('bbox');
-				$array = preg_split("/[\s]*[,][\s]*/", $param);
+					$param = $request->getVar('bbox');
+					$array = preg_split("/[\s]*[,][\s]*/", $param);
 				
-				if (sizeof($array) == 4) {
-					$result['Latitude'] = '';
-					$result['Longitude'] = '';
-					$result['Zoom'] = '';
+					if (sizeof($array) == 4) {
+						$result['Latitude'] = '';
+						$result['Longitude'] = '';
+						$result['Zoom'] = '';
 				
-					$extent['left'] = $array[0];
-					$extent['top'] = $array[1];
-					$extent['right'] = $array[2];
-					$extent['bottom'] = $array[3];
-					$result['Map']['DefaultExtent'] = $extent;
+						$extent['left'] = $array[0];
+						$extent['top'] = $array[1];
+						$extent['right'] = $array[2];
+						$extent['bottom'] = $array[3];
+						$result['Map']['DefaultExtent'] = $extent;
+					}
 				}
 			}
 		}
