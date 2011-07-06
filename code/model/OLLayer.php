@@ -80,15 +80,16 @@ class OLLayer extends DataObject {
 		'ogc_name',
 		'Type',
 		'GeometryType',
-		'Cluster',
+		'DisplayPriority',
 		'Enabled',
 		'Visible',
+		'Cluster',
 		'Queryable',
 		'ogc_transparent',
 		'Map.Title'
 	 );
 
-	static $searchable_fields = array('Title','ogc_name','LayerType','Type','Enabled','Visible','Cluster');
+	static $searchable_fields = array('Title','ogc_name','LayerType','Type','Enabled','Visible','Cluster','Map.Title');
 
 	static $defaults = array(
 	    'DisplayPriority' => 50,
@@ -175,6 +176,7 @@ class OLLayer extends DataObject {
 						new LiteralField("OGCLabel","<h3>Display Settings</h3>"),
 						new CheckboxField("Enabled", "Enabled <i>(To disable this layer from the frontend side, please set the checkbox status.)</i>"),
 						new NumericField("DisplayPriority", "Draw Priority"),
+						new LiteralField("DisplayPriorityDesc", "<strong>DisplayPriority:</strong>Higher numbered layers will be drawn on top or lower numbered layers."),
 						$geometryType,
 						$LayerCategory,
 						new LiteralField("OGCLabel","<i>Use the layer type field to define the layer behaviour (overlay: selectable, background: static data, contextual: base map).</i>"),
