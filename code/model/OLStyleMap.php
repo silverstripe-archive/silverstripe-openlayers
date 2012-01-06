@@ -36,5 +36,9 @@ class OLStyleMap extends DataObject {
 			)
 		);
 		return $fields;
-	}	
+	}
+	
+	function getStyleMapTemplateName() {
+		return 'StyleMap';
+	}
 }

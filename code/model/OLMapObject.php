@@ -126,7 +126,7 @@ class OLMapObject extends DataObject {
 				if ($layer->Enabled == true) {
 					$style = $layer->StyleMap();
 					if ($style->ID) {
-						$styles .= $style->renderWith('StyleMap');					
+						$styles .= $style->renderWith($style->getStyleMapTemplateName());					
 					}
 				}
 			}

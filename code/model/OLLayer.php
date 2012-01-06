@@ -37,6 +37,7 @@ class OLLayer extends DataObject {
 		"Enabled"         	=> "Boolean",
 		"Visible"         	=> "Boolean",
 		"Queryable"			=> "Boolean",
+		"Baselayer"			=> "Boolean",
 		
 		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
 		"Cluster"			=> "Boolean",
@@ -249,6 +250,8 @@ class OLLayer extends DataObject {
 		$config['Url']         = $this->getField('Url');
 		$config['Visible']     = $this->getField('Visible');
 		$config['ogc_name']    = $this->getField('ogc_name');
+		$config['isBaseLayer']    = $this->getField('Baselayer')?true:false;
+		
 		
 		$config['GeometryType']= $this->getField('GeometryType');
 		$config['Cluster']    = $this->getField('Cluster');
@@ -354,7 +357,7 @@ class OLLayer extends DataObject {
 			throw new OLLayer_Exception('Request type unknown');
 		}
 
-		// send request to OGC web service
+		// send request to OGC web service	
 		$request  = new RestfulService($url,0);
 		$response = $request->request($requestString);
 
