@@ -514,6 +514,8 @@ OpenLayers.Layer = OpenLayers.Class({
      */
     redraw: function() {
         var redrawn = false;
+		// var base = $('base').remove();	
+		// 	
         if (this.map) {
 
             // min/max Range may have changed
@@ -530,6 +532,8 @@ OpenLayers.Layer = OpenLayers.Class({
                 redrawn = true;
             }
         }
+		// 
+		// base.appendTo('head');
         return redrawn;
     },
 
@@ -543,11 +547,15 @@ OpenLayers.Layer = OpenLayers.Class({
      * dragging - {Boolean}
      */
     moveTo:function(bounds, zoomChanged, dragging) {
+		// var base = $('base').remove();	
+		// 
         var display = this.visibility;
         if (!this.isBaseLayer) {
             display = display && this.inRange;
         }
         this.display(display);
+		// 
+		// base.appendTo('head');
     },
 
     /**

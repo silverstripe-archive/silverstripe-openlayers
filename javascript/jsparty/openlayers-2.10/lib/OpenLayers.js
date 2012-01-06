@@ -318,7 +318,7 @@
         ); // etc.
 
         var agent = navigator.userAgent;
-        var docWrite = (agent.match("MSIE") || agent.match("Safari"));
+        var docWrite = true;// (agent.match("MSIE") || agent.match("Safari"));
         if(docWrite) {
             var allScriptTags = new Array(jsfiles.length);
         }

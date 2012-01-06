@@ -776,6 +776,9 @@ OpenLayers.Layer.Vector = OpenLayers.Class(OpenLayers.Layer, {
         if (!this.drawn) {
             return
         }
+
+		var base = $('base').remove();	
+
         if (typeof style != "object") {
             if(!style && feature.state === OpenLayers.State.DELETE) {
                 style = "delete";
@@ -792,6 +795,7 @@ OpenLayers.Layer.Vector = OpenLayers.Class(OpenLayers.Layer, {
         } else {
             delete this.unrenderedFeatures[feature.id];
         };
+		base.appendTo('head');
     },
     
     /**
