@@ -156,6 +156,13 @@ class OLLayer extends DataObject {
 		$clusterPopupHeader = $fields->fieldByName("Root.Main.ClusterPopupHeader");
 		$clusterAttributes = $fields->fieldByName("Root.Main.ClusterAttributes");
 		
+		$baselayer = $fields->fieldByName("Root.Main.Baselayer");
+		$fields->removeFieldFromTab("Root.Main","Baselayer");
+
+		$styleMaps = $fields->fieldByName("Root.Main.StyleMapID");
+		$fields->removeFieldFromTab("Root.Main","StyleMapID");
+
+		
 		$fields->removeFieldFromTab("Root.Main","ClusterPopupHeader");
 		$fields->removeFieldFromTab("Root.Main","ClusterAttributes");
 
@@ -179,7 +186,9 @@ class OLLayer extends DataObject {
 						new NumericField("DisplayPriority", "Draw Priority"),
 						new LiteralField("DisplayPriorityDesc", "<strong>DisplayPriority:</strong>Higher numbered layers will be drawn on top or lower numbered layers."),
 						$geometryType,
+						$styleMaps,
 						$LayerCategory,
+						$baselayer,
 						new LiteralField("OGCLabel","<i>Use the layer type field to define the layer behaviour (overlay: selectable, background: static data, contextual: base map).</i>"),
 						new FieldGroup(
 							new CheckboxField("Visible","Visible"),

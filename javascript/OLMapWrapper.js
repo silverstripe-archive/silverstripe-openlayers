@@ -165,6 +165,53 @@ LayerFactory.prototype.getWMSLayer = function( layerDef ) {
 	return layer;
 }
 
+LayerFactory.prototype.postGetWFSLayer = function(layer, layerDef, styleMap) {
+	var defaultStyle = null;
+	var mapstylesObj = null;
+
+	if (styleMap.defaultStyle != undefined) {
+		defaultStyle = styleMap.defaultStyle[0];
+
+		// define default style
+		var style = OLStyleFactory.convertCSStoJS(defaultStyle.cssName);
+
+		layer.map_style = style.mapstyle;
+		layer.map_strokecolor = style.strokecolor;
+		layer.map_color = style.fillcolor;
+		layer.map_showLabel = defaultStyle.showLabel;
+		
+		// overwrite style if style has been stored in cookie
+		var mapJSON = $.cookie('mapstyle');
+		
+		if (mapJSON != null) {
+			mapstylesObj = JSON.parse(mapJSON);
+		}		
+
+		if (mapstylesObj == null) {
+			return;
+		}
+		
+		var layerStyle = mapstylesObj[layer.name];
+		
+		if (layerStyle) {
+			var style = OLStyleFactory.convertCSStoJS(layerStyle.classname);
+			
+			if (style) {
+				layer.map_style = style.mapstyle;
+				layer.map_strokecolor = style.strokecolor;
+				layer.map_color = style.fillcolor;
+				layer.map_showLabel = layerStyle.showLabel;
+				
+				var layerImg = $("img[layername='"+layer.name+"']");
+				if (layerImg.length == 1) {
+					setLayerControllerSymbol(layerImg[0], layerStyle.classname)
+				}
+			}
+		}
+	}
+	
+}
+
 /**
  * Factory method to create a WFS OpenLayer object and returns its instance.
  */
@@ -184,17 +231,9 @@ LayerFactory.prototype.getWFSLayer = function( layerDef ) {
 	} else {
 		layer = this.createWFSLayerObj(layerDef, styleMap);
 	}
+	
+	this.postGetWFSLayer(layer, layerDef, styleMap);
 
-	if (styleMap.defaultStyle != undefined) {
-		var defaultStyle = null;
-		defaultStyle = styleMap.defaultStyle[0];
-		
-		var style = OLStyleFactory.convertCSStoJSON(defaultStyle.cssName);
-		layer.map_style = style.mapstyle;
-		layer.map_strokecolor = style.strokecolor;
-		layer.map_color = style.fillcolor;
-		layer.map_showLabel = defaultStyle.showLabel;
-	}
 	return layer;
 }
 
