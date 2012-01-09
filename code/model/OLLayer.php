@@ -238,7 +238,7 @@ class OLLayer extends DataObject {
 				new TextField("ClusterAttributes", "Attributes"),
 				new LiteralField("ClusterAttributes_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>"),
 
-				new LiteralField("label03","<h3>Available Attributes</h3>"),
+				new LiteralField("label03","<h3>Available Attributes (WFS layers only)</h3>"),
 				new LiteralField('describeFeatureType',"<a href='#' class='describeFeatureType' onclick='return false;'>List available Labels</a>"),
 				new LiteralField('featureTypeAttributes',"<div id='featureTypeAttributes'><ul><li>Not loaded...</li></ul></div>")
 
@@ -745,6 +745,15 @@ class OLLayer extends DataObject {
 		return $out->renderWith('MapPopup_List');
 	}
 
+	/** 
+	 * Returns an array (non associated) with all attributes of the OGC feature type.
+	 * It requests the labels from the OGC WFS server via the DescribeFeatureType
+	 * call and parses the XML document.
+	 *
+	 * Geometry attribute is filtered and not returned.
+	 *
+	 * @return Array List of attributes
+	 */ 
 	function describeFeatureType() {
 		$requestString = "?request=DescribeFeatureType&service=WFS&version=1.0.0&TYPENAME=%s";
 		$requestString = sprintf($requestString,Convert::raw2xml($this->ogc_name));

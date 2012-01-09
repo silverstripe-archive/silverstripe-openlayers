@@ -67,15 +67,30 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 
 class OpenLayersMapAdmin_RecordController extends ModelAdmin_RecordController {
 	
+	/**
+	 * Handler: server side implementation of the 'describe feature type' button 
+	 * in the CMS. The method returns a JSON string with a list of all labels of a
+	 * WFS layer. 
+	 * If the layer is not setup correctly or this layer is a WMS layer, it returns a 
+	 * Message string as a JSON string.
+	 *
+	 */
 	function describeFeature($request) {
 		
 		$layer = $this->currentRecord;
 		
 		if(!$layer->canCreate(Member::currentUser())) return false;
 
-		$message = 'Import successful.';
+		try {
+			$result = $layer->describeFeatureType();
+		} 
+		catch(Exception $e) {
+			$result[] = 'An unexpected server error occurred. Please try again.';
+		}
 		
-		$result = $layer->describeFeatureType();
+		if (count($result) == 0) {
+			$result[] = 'No attributes found via WFS interface. Please verify: <br/><ol><li>the parameters are correct and</li><li>this layer is a WFS layer.</li></ol>';
+		}
 		
 		$result = json_encode($result);
 		return $result;
