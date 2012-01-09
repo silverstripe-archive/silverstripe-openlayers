@@ -11,7 +11,7 @@
 				url: url ,
 				success: function( data ){
 					var obj = $("#featureTypeAttributes");
-					obj[0].innerHTML='<strong>Available attributes</strong><br/><ul>';
+					obj[0].innerHTML='<strong>Result:</strong><br/><ul>';
 					
 					var ar = eval(data);
 					$.each(ar, function( index, value) {

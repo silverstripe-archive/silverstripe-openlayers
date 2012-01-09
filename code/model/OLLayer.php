@@ -238,6 +238,7 @@ class OLLayer extends DataObject {
 				new TextField("ClusterAttributes", "Attributes"),
 				new LiteralField("ClusterAttributes_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>"),
 
+				new LiteralField("label03","<h3>Available Attributes</h3>"),
 				new LiteralField('describeFeatureType',"<a href='#' class='describeFeatureType' onclick='return false;'>List available Labels</a>"),
 				new LiteralField('featureTypeAttributes',"<div id='featureTypeAttributes'><ul><li>Not loaded...</li></ul></div>")
 
