@@ -191,6 +191,7 @@ class OLMapPage_Controller extends Page_Controller {
 		Requirements::combine_files('openlayer_mappage.js',array(	
 			"openlayers/javascript/OLMapWrapper.js",
 			"openlayers/javascript/OLMapPage.js",
+			"openlayers/javascript/LayerFactory.js",
 			"openlayers/javascript/jquery.checkbox.js",
 			"openlayers/javascript/SSPopup.js",
 			"openlayers/javascript/SSPanZoomBar.js"

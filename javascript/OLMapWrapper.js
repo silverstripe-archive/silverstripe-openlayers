@@ -15,239 +15,6 @@ if (jQuery.browser.mozilla) {
 }
 
 
-function LayerFactory() {
-}
-
-/**
- * Create an OpenLayer Google Map layer object and returns its instance.
- * This method is called by createGoogleLayer.
- */
-LayerFactory.prototype.createGoogleMapLayerObj = function(type) {
-	var layer = null;
-	
-	if (type == 'Google Satellite' || type == 'Google Hybrid' || type == 'Google Physical') {
-		if(type == 'Google Satellite') {
-			layer = new OpenLayers.Layer.Google("Google Satellite", {type: G_SATELLITE_MAP});
-		}
-	
-		if(type == 'Google Hybrid') {
-			layer = new OpenLayers.Layer.Google("Google Hybrid", {type: G_HYBRID_MAP});
-		}
-	
-		if(type == 'Google Physical') {
-			layer = new OpenLayers.Layer.Google("Google Physical", {type: G_PHYSICAL_MAP});
-		}
-	}
-	return layer;
-}
-
-/**
- * Create a clustered OpenLayer WFS layer object and returns its instance.
- * This method is called by createWFSLayer.
- */
-LayerFactory.prototype.createClusteredWFSLayerObj = function(layerDef, styleMap) {
-	
-	var title      = layerDef.Title;
-	var options    = layerDef.Options;	
-	var baselayer  = layerDef.isBaseLayer;
-	var url_params = '';
-	var wfs_url    = layerDef.Url;
-	var delimiter  = '?';
-	
-	if(typeof options['url_params'] !== 'undefined'){
-		for(key in options['url_params']){
-			if(options['url_params'][key] !== null) {
-				url_params += key + "=" + options['url_params'][key] + "&";
-			}
-		}
-		url_params = url_params.substring(0, url_params.length-1);
-	}
-
-	var featureType = layerDef.ogc_name;
-
-	var p = new OpenLayers.Protocol.WFS({ 
-		url: wfs_url + "?" + url_params,
-		featureType: featureType,
-		featurePrefix: null
-	});			
-	
-	// store the url into a separate parameter to have a backup in case we 
-	// need to change the url (i.e for the species picklist).
-	p.wfs_url = wfs_url + delimiter;
-	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
-	
-	var strategyCluster = new OpenLayers.Strategy.Cluster();
-	strategyCluster.distance = 25;
-
-	strategies =  [
-		new OpenLayers.Strategy.Fixed(),
-		strategyCluster
-	];
-
-	layer = new OpenLayers.Layer.Vector(title, {
-		styleMap: styleMap,
-		isBaseLayer: baselayer,
-		strategies: strategies,
-		protocol: p 
-	});
-	return layer;
-}
-
-/**
- * Create an OpenLayer WFS layer object and returns its instance. 
- * This method is called by createWFSLayer.
- */
-LayerFactory.prototype.createWFSLayerObj = function(layerDef, styleMap) {
-
-	var title   = layerDef.Title;
-	var options = layerDef.Options;	
-	var baselayer = layerDef.isBaseLayer;
-	
-	var wfs_url = layerDef.Url;
-	var delimiter = '?';
-	if (options['map'] != null) {
-		wfs_url = layerDef.Url+delimiter+"map="+options['map'];
-		delimiter = '&';
-	} 
-	var featureType = layerDef.ogc_name;
-
-	var p = new OpenLayers.Protocol.WFS({ 
-		url: wfs_url,
-		featureType: featureType,
-		featurePrefix: null
-	});			
-	
-	// store the url into a separate parameter to have a backup in case we 
-	// need to change the url (i.e for the species picklist).
-	p.wfs_url = wfs_url + delimiter;
-	p.format.setNamespace("feature", "http://mapserver.gis.umn.edu/mapserver");
-
-	strategies =  [
-		new OpenLayers.Strategy.Fixed()
-	];
-
-	layer = new OpenLayers.Layer.Vector(title, {
-		styleMap: styleMap,
-		strategies: strategies,
-		isBaseLayer: baselayer,
-		protocol: p 
-	} );
-	
-	return layer;
-}
-
-/**
- * Factory method to create a WMS OpenLayer object and returns its instance.
- */
-LayerFactory.prototype.getWMSLayer = function( layerDef ) {
-
-	var layer = null;
-	
-	var title     = layerDef.Title;
-	var url       = layerDef.Url;
-	var options   = layerDef.Options;
-	var baselayer = layerDef.isBaseLayer;
-	
-	if(layerDef.Type == 'wmsUntiled'){
-		layer = new OpenLayers.Layer.WMS.Untiled( 
-			title, url, options, 
-			{wrapDateLine: true, isBaseLayer: baselayer } 
-		);
-	} 
-	else{
-		layer = new OpenLayers.Layer.WMS( 
-			title, url, options,
-			{wrapDateLine: true, isBaseLayer: baselayer } 
-		);
-	}
-	layer.wms_url = url;
-	
-	return layer;
-}
-
-LayerFactory.prototype.postGetWFSLayer = function(layer, layerDef, styleMap) {
-	var defaultStyle = null;
-	var mapstylesObj = null;
-
-	if (styleMap.defaultStyle != undefined) {
-		defaultStyle = styleMap.defaultStyle[0];
-
-		// define default style
-		var style = OLStyleFactory.convertCSStoJS(defaultStyle.cssName);
-
-		layer.map_style = style.mapstyle;
-		layer.map_strokecolor = style.strokecolor;
-		layer.map_color = style.fillcolor;
-		layer.map_showLabel = defaultStyle.showLabel;
-		
-		// overwrite style if style has been stored in cookie
-		var mapJSON = $.cookie('mapstyle');
-		
-		if (mapJSON != null) {
-			mapstylesObj = JSON.parse(mapJSON);
-		}		
-
-		if (mapstylesObj == null) {
-			return;
-		}
-		
-		var layerStyle = mapstylesObj[layer.name];
-		
-		if (layerStyle) {
-			var style = OLStyleFactory.convertCSStoJS(layerStyle.classname);
-			
-			if (style) {
-				layer.map_style = style.mapstyle;
-				layer.map_strokecolor = style.strokecolor;
-				layer.map_color = style.fillcolor;
-				layer.map_showLabel = layerStyle.showLabel;
-				
-				var layerImg = $("img[layername='"+layer.name+"']");
-				if (layerImg.length == 1) {
-					setLayerControllerSymbol(layerImg[0], layerStyle.classname)
-				}
-			}
-		}
-	}
-	
-}
-
-/**
- * Factory method to create a WFS OpenLayer object and returns its instance.
- */
-LayerFactory.prototype.getWFSLayer = function( layerDef ) {
-
-	var layer = null;
-	var styleMap = null;
-
-	if (layerDef.StyleMapName != null) {
-		styleMap = OLStyleFactory.getStyle(layerDef.StyleMapName);
-	} else {
-		styleMap = OLStyleFactory.createStyleMap(layerDef.ogc_name);
-	}
-	
-	if (layerDef.Cluster == '1') {
-		layer = this.createClusteredWFSLayerObj(layerDef, styleMap);
-	} else {
-		layer = this.createWFSLayerObj(layerDef, styleMap);
-	}
-	
-	this.postGetWFSLayer(layer, layerDef, styleMap);
-
-	return layer;
-}
-
-/**
- * Factory method to create a GoogleMaps layer object and returns its instance.
- */
-LayerFactory.prototype.getGoogleLayer = function( layerDef ) {
-	var layer = this.createGoogleMapLayerObj(layerDef.Type);	
-	
-	return layer;
-}
-
-
-
 var map = null;		// global map instance
 
 /**
@@ -256,7 +23,11 @@ var map = null;		// global map instance
  *
  * @param string divMap name of the target div object
  **/
-function initMap(divMap, mapConfig) {
+function initMap(divMap, mapConfig, layerFactory) {
+
+	if (layerFactory === undefined) {
+		layerFactory = new LayerFactory();
+	}
 
 	// set default location of the map
 	var map_config = mapConfig['Map'];
@@ -291,7 +62,9 @@ function initMap(divMap, mapConfig) {
 	
 	// initiate all overlay layers
 	var layers = mapConfig['Layers'];
-	jQuery.each( layers , initLayer );
+	jQuery.each( layers , function(index, layer) {
+		initLayer(layer, layerFactory);
+	});
 	
 	// map.events.register("zoomend", map, onFeatureUnselect);
 	
@@ -329,23 +102,25 @@ function initMap(divMap, mapConfig) {
  * Initiate a single layer by its layer-definitiion array. The array
  * is generated via the CMS backend.
  *
- * @param int index Index of layer in the complete layer-array.
  * @param array layerDef layer definition array.
+ * @param LayerFactory factoryclass to generate ol instances.
  */
-function initLayer( index, layerDef ) {	
-
-	var factory = new LayerFactory();
+function initLayer( layerDef, layerFactory) {	
 
 	var layer = null;
 	
+	if (layerFactory === undefined) {
+		layerFactory = new LayerFactory();
+	}
+	
 	if (layerDef.Type == 'wms' || layerDef.Type == 'wmsUntiled') {
-		layer = factory.getWMSLayer(layerDef);
+		layer = layerFactory.getWMSLayer(layerDef);
 	} else 
 	if (layerDef.Type == 'wfs') {
-		layer = factory.getWFSLayer(layerDef);
+		layer = layerFactory.getWFSLayer(layerDef);
 	} else 
 	if (layerDef.Type == 'Google Physical' || layerDef.Type == 'Google Hybrid' || layerDef.Type == 'Google Satellite') {
-		layer = factory.getGoogleLayer(layerDef);
+		layer = layerFactory.getGoogleLayer(layerDef);
 	}  
 	
 	// add new created layer to the map

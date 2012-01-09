@@ -8,7 +8,6 @@ var selectedFeature = null;
 
 // ---------------------------------------------------------------------------
 $(document).ready(function() {
-	
 	// reset the layerlist-form
 	$('#layerlist')[0].reset();	
 	
