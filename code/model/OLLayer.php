@@ -136,6 +136,9 @@ class OLLayer extends DataObject {
 	 * @return fieldset
 	 */ 
 	function getCMSFields() {
+		Requirements::javascript(THIRDPARTY_DIR . '/jquery-livequery/jquery.livequery.js');
+		Requirements::javascript('openlayers/javascript/ollayeradmin.js');	
+		
 		$fields = parent::getCMSFields();
 
 		$fields->removeFieldsFromTab("Root.Main", array(
@@ -233,7 +236,11 @@ class OLLayer extends DataObject {
 				new LiteralField("ClusterPopupHeader_description","<strong>Attributes</strong>: Text line for cluster popup header, i.e., 'There are \$items.TotalItems Sites'></strong>).<br/><br/>"),
 				
 				new TextField("ClusterAttributes", "Attributes"),
-				new LiteralField("ClusterAttributes_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>")	
+				new LiteralField("ClusterAttributes_description","<strong>Attributes</strong>: comma separated list of lables for the attributes (see Attributes).<br/><br/>"),
+
+				new LiteralField('describeFeatureType',"<a href='#' class='describeFeatureType' onclick='return false;'>List available Labels</a>"),
+				new LiteralField('featureTypeAttributes',"<div id='featureTypeAttributes'><ul><li>Not loaded...</li></ul></div>")
+
 			)
 		);
 
@@ -539,6 +546,12 @@ class OLLayer extends DataObject {
 		return $URLRequest;
 	}
 	
+	function getFeatureLabels() {
+		
+		$request = $this->Url + 'request=DescribeFeatureType&service=WFS&version=1.0.0&TYPENAME='+$this->ogc_name;
+		
+	}
+	
 	/**
 	 * Gets the request result, converts it from XML to DOS and returns it.
 	 * gets Whitelist words from the layer and finds tags into the XML file.
@@ -730,6 +743,60 @@ class OLLayer extends DataObject {
 		
 		return $out->renderWith('MapPopup_List');
 	}
+
+	function describeFeatureType() {
+		$requestString = "?request=DescribeFeatureType&service=WFS&version=1.0.0&TYPENAME=%s";
+		$requestString = sprintf($requestString,Convert::raw2xml($this->ogc_name));
+		
+		// 
+		// // send request to OGC web service
+		$request  = new RestfulService($this->Url,0);
+		$response = $request->request($requestString);
+		
+		if ($response->getStatusCode() != 200) {
+			throw new Exception('Remote Server did not respond.');
+		}
+		
+		$xml = $response->getBody();
+		
+		$strMatch = "<?xml version='1.0' encoding=\"ISO-8859-1\" ?>";
+		$pos =  strpos($xml,$strMatch);
+		
+		if ($pos === false) {
+			throw new Exception('Remote Server did not respond.');
+		}
+		
+		$reader = new XMLReader();
+		$reader->XML($xml);
+		
+		$attributes = array();
+		$attributesReached = false;
+		
+		while ($reader->read()) {
+			if($reader->nodeType != XMLReader::END_ELEMENT) {
+				if ($reader->name == 'sequence') {
+					$attributesReached = true;
+				}
+				if ($attributesReached && $reader->name == 'element') {
+					
+	
+					$name = $reader->getAttribute('name');
+					$type = $reader->getAttribute('type');
+
+					if ($type != 'gml:GeometryPropertyType') {
+						$attributes[] = $name;
+					}
+				}
+			}
+		}	
+		$reader->close();
+		
+		unset($request);
+		unset($reader);
+		
+		return $attributes;
+	}
+
 }
 
 /**

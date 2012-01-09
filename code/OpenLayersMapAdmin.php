@@ -20,6 +20,8 @@ class OpenLayersMapAdmin extends ModelAdmin {
 
 	static $collection_controller_class = "OpenLayersMapAdmin_CollectionController";
 	
+	static $record_controller_class = "OpenLayersMapAdmin_RecordController";
+	
 	static $managed_models = array(
 		"OLMapObject",
 		"OLLayer",
@@ -60,8 +62,22 @@ class OpenLayersMapAdmin_CollectionController extends ModelAdmin_CollectionContr
 			));
 				
 		return $tf;
-	}
-	
-	// $style->renderWith('StyleMap');		
+	}	
+}
 
+class OpenLayersMapAdmin_RecordController extends ModelAdmin_RecordController {
+	
+	function describeFeature($request) {
+		
+		$layer = $this->currentRecord;
+		
+		if(!$layer->canCreate(Member::currentUser())) return false;
+
+		$message = 'Import successful.';
+		
+		$result = $layer->describeFeatureType();
+		
+		$result = json_encode($result);
+		return $result;
+	}
 }
