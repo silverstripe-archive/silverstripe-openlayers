@@ -124,6 +124,10 @@ class OLMapPage extends Page {
 		}
 		return $obj;
 	}
+	
+	public function getMapPageTitleWithURL() {
+		return sprintf("%s (%s)",$this->Title , $this->URLSegment);
+	}
 }
 
 /**
