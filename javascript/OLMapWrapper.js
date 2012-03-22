@@ -14,7 +14,6 @@ if (jQuery.browser.mozilla) {
 	}
 }
 
-
 var map = null;		// global map instance
 
 /**
@@ -40,8 +39,15 @@ function initMap(divMap, mapConfig, layerFactory) {
 	var map_projection = map_config['Projection'];
 
 	// map = new OpenLayers.Map(divMap);
-	map = new OpenLayers.Map(divMap, {
-		controls: [],
+	map = new OpenLayers.Map({
+		div: divMap, 
+		controls: [
+			new OpenLayers.Control.Navigation(),
+		    new OpenLayers.Control.SSPanZoomBar(),
+		    new OpenLayers.Control.ScaleLine(),
+		    new OpenLayers.Control.KeyboardDefaults(),
+		    new OpenLayers.Control.MousePosition()
+		],
 		resolutions: map_resolutions,
 		projection: new OpenLayers.Projection(map_projection)
 	});
@@ -88,12 +94,6 @@ function initMap(divMap, mapConfig, layerFactory) {
 		map.zoomTo(zoom);
 	}
 	
-    map.addControl(new OpenLayers.Control.Navigation());
-    map.addControl(new OpenLayers.Control.SSPanZoomBar());
-    map.addControl(new OpenLayers.Control.ScaleLine());
-    map.addControl(new OpenLayers.Control.KeyboardDefaults());
-    map.addControl(new OpenLayers.Control.MousePosition());
-		
 	controls = map.getControlsByClass('OpenLayers.Control.Navigation');
 	controls[0].handlers.wheel.activate();   
 }

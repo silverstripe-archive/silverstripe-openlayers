@@ -141,7 +141,7 @@ LayerFactory.prototype.getWMSLayer = function( layerDef ) {
 	else{
 		layer = new OpenLayers.Layer.WMS( 
 			title, url, options,
-			{wrapDateLine: true, isBaseLayer: baselayer } 
+			{wrapDateLine: true, isBaseLayer: baselayer, 	transitionEffect: 'resize' } 
 		);
 	}
 	layer.wms_url = url;
