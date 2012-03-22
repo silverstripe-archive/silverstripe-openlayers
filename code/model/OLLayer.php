@@ -131,8 +131,6 @@ class OLLayer extends DataObject {
 	 *
 	 * This method creates a customised CMS form for back-end user.
 	 *
-     * @codeCoverageIgnore
-	 *
 	 * @return fieldset
 	 */ 
 	function getCMSFields() {
@@ -164,7 +162,6 @@ class OLLayer extends DataObject {
 
 		$styleMaps = $fields->fieldByName("Root.Main.StyleMapID");
 		$fields->removeFieldFromTab("Root.Main","StyleMapID");
-
 		
 		$fields->removeFieldFromTab("Root.Main","ClusterPopupHeader");
 		$fields->removeFieldFromTab("Root.Main","ClusterAttributes");
@@ -196,7 +193,7 @@ class OLLayer extends DataObject {
 						new FieldGroup(
 							new CheckboxField("Visible","Visible"),
 							new CheckboxField("Queryable", "Queryable"),
-							new CheckboxField("Cluster", "Cluster")						
+							new CheckboxField("Cluster", "Cluster")
 						),
 						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>")
 					),
@@ -241,7 +238,6 @@ class OLLayer extends DataObject {
 				new LiteralField("label03","<h3>Available Attributes (WFS layers only)</h3>"),
 				new LiteralField('describeFeatureType',"<a href='#' class='describeFeatureType' onclick='return false;'>List available Labels</a>"),
 				new LiteralField('featureTypeAttributes',"<div id='featureTypeAttributes'><ul><li>Not loaded...</li></ul></div>")
-
 			)
 		);
 
@@ -255,6 +251,10 @@ class OLLayer extends DataObject {
 	 * to configure OpenLayers on the JavaScript side. This method is called
 	 * by {@link OLMapObject::getConfigurationArray()}.
 	 *
+	 * @see OLMapObject::getConfigurationArray()
+	 *
+	 * @todo use a template to generate the javascript instead of using a array. Already implemented in the OpenSource module.
+	 *
 	 * @return array
 	 */
 	function getConfigurationArray() {
@@ -267,17 +267,15 @@ class OLLayer extends DataObject {
 		$config['Url']         = $this->getField('Url');
 		$config['Visible']     = $this->getField('Visible');
 		$config['ogc_name']    = $this->getField('ogc_name');
-		$config['isBaseLayer']    = $this->getField('Baselayer')?true:false;
-		
+		$config['isBaseLayer'] = $this->getField('Baselayer')?true:false;
 		
 		$config['GeometryType']= $this->getField('GeometryType');
-		$config['Cluster']    = $this->getField('Cluster');
+		$config['Cluster']     = $this->getField('Cluster');
 		
 		$config['StyleMapName'] = '';
 		if ($this->StyleMap()) {
 			$config['StyleMapName']    = $this->StyleMap()->getField('Name');
 		}
-		
 		
 		// create options element
 		$options = array();
@@ -300,7 +298,6 @@ class OLLayer extends DataObject {
 		return $config;
 	}	
 		
-
 	/**
 	 * This method sends OGC get-feature requests for this layer to the OGC webservice.
 	 *
@@ -325,6 +322,7 @@ class OLLayer extends DataObject {
 	 * )
 	 *
 	 * @throws OLLayer_Exception
+	 * @see OLLayer::doSingleStationRequest(), OLLayer::getFeature(), Atlas_Controller::loadStation()
 	 *
 	 * @param array $params array of parameters
 	 *
@@ -609,7 +607,7 @@ class OLLayer extends DataObject {
 	 * @param String $extraParams, extra param for the request (normally coming from JS)
 	 *
 	 * @return DataObjectSet $obj, set of results 
-	**/
+	 **/
 	function getFeature($featureID, $extraParams = ''){
 		$namespace = 'ms';
 

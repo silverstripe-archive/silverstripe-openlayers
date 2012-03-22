@@ -94,6 +94,15 @@ class OLMapPage extends Page {
 		return $result;
 	}
 
+	/** 
+	 * Returns the javascript for the open layers style maps. Uses
+	 * OLStyleMap. This method iterates through all style maps, defined 
+	 * for this map.
+	 *
+	 * @see OLStyleMap
+	 *
+	 * return string
+	 */
 	public function getStyleMap() {
 		$result = null;
 		$mapObject = $this->GetComponent('Map');
@@ -104,7 +113,7 @@ class OLMapPage extends Page {
 	}
 
 	/**
-	 * Returnslayers in a customised viewable data object 
+	 * Returns layers in a customised viewable data object 
 	 * to render the layer control of the default map. 
 	 *
 	 * @return ViewableData
@@ -125,6 +134,12 @@ class OLMapPage extends Page {
 		return $obj;
 	}
 	
+	/**
+	 * Getter method to create a nice, human readable map name, taking 
+	 * the url segment into account.
+	 *
+	 * @return string
+	 */
 	public function getMapPageTitleWithURL() {
 		return sprintf("%s (%s)",$this->Title , $this->URLSegment);
 	}
