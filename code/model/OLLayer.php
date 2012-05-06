@@ -41,6 +41,7 @@ class OLLayer extends DataObject {
 		
 		"GeometryType"		=> "Enum(array('Point','Polygon','Line','Raster'),'Point')",
 		"Cluster"			=> "Boolean",
+		"Opacity"			=> "Float",
 		
 		//
 		"XMLWhitelist"		=> "Varchar(255)",
@@ -94,6 +95,7 @@ class OLLayer extends DataObject {
 
 	static $defaults = array(
 	    'DisplayPriority' => 50,
+	    'Opacity' => 100,
 	    'Enabled' => true,
 	    'Visible' => false,
 	    'Queryable' => true,
@@ -144,8 +146,11 @@ class OLLayer extends DataObject {
 		));
 
 		$geometryType = $fields->fieldByName("Root.Main.GeometryType");
+		$opacity = $fields->fieldByName("Root.Main.Opacity");
+		
 		$LayerCategory = $fields->fieldByName("Root.Main.LayerType");
 		$fields->removeFieldFromTab("Root.Main","GeometryType");
+		$fields->removeFieldFromTab("Root.Main","Opacity");
 		$fields->removeFieldFromTab("Root.Main","LayerType");
 
 		$ogc_format = $fields->fieldByName("Root.Main.ogc_format");
@@ -195,7 +200,9 @@ class OLLayer extends DataObject {
 							new CheckboxField("Queryable", "Queryable"),
 							new CheckboxField("Cluster", "Cluster")
 						),
-						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>")
+						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>"),
+						$opacity,
+						new LiteralField("OpacityLabel","<i>\"Opacity\"</i> use a number between 0 (fully transparent) and 1 (full) to define the opacity of the layer. 50% opacity can be entered as 0.5.<br/><i>\"Opacity\"</i> can be used for <strong>WMS layers</strong> only.")
 					),
 					new CompositeField( 
 						new LiteralField("URLLabel","<h3>OGC Server Settings</h3>"),
@@ -271,6 +278,7 @@ class OLLayer extends DataObject {
 		
 		$config['GeometryType']= $this->getField('GeometryType');
 		$config['Cluster']     = $this->getField('Cluster');
+		$config['opacity']     = $this->getField('Opacity');
 		
 		$config['StyleMapName'] = '';
 		if ($this->StyleMap()) {

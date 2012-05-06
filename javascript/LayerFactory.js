@@ -146,6 +146,7 @@ LayerFactory.prototype.getWMSLayer = function( layerDef ) {
 	}
 	layer.wms_url = url;
 	
+	layer.setOpacity(parseFloat(layerDef.opacity));
 	return layer;
 }
 
