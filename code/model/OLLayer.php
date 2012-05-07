@@ -127,7 +127,6 @@ class OLLayer extends DataObject {
 		return self::$wfs_pagesize = $value;
 	}
 
-
 	/**
 	 * Overwrites SiteTree.getCMSFields.
 	 *
@@ -201,7 +200,9 @@ class OLLayer extends DataObject {
 							new CheckboxField("Cluster", "Cluster")
 						),
 						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>"),
-						$opacity,
+						// $opacity,
+						new OpacityNumericField('Opacity', 'Opacity', $this->Opacity),
+						// $name, $title = null, $value = "", $maxLength = null, $form = null
 						new LiteralField("OpacityLabel","<i>\"Opacity\"</i> use a number between 0 (fully transparent) and 1 (full) to define the opacity of the layer. 50% opacity can be entered as 0.5.<br/><i>\"Opacity\"</i> can be used for <strong>WMS layers</strong> only.")
 					),
 					new CompositeField( 
