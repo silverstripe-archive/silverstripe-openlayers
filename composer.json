@@ -1,0 +1,14 @@
+{
+    "name": "silverstripe/openlayers",
+    "type": "silverstripe-module",
+    "keywords": [ "silverstripe"],
+    "authors": [
+        {
+            "name": "Rainer Spittel",
+            "email": "fb3@gmail.com"
+        }
+    ],
+    "require": {
+        "silverstripe/framework": "3.1.*"
+    }
+}
