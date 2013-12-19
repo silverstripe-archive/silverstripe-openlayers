@@ -1,0 +1,25 @@
+ModelAdminTest_Contact:
+   sam:
+      Name: Rainer
+      Phone: 021 123 456
+   ingo:
+      Name: Test
+      Phone: 04 987 6543
+      
+Member:
+   admin:
+      FirstName: admin
+Group:
+   admin:
+      Title: Admin
+      Members: =>Member.admin
+Permission:
+   admin:
+      Code: ADMIN
+      Group: =>Group.admin
+      
+OLMapObject:
+    map1:
+        Title: Map title
+        Description: Map Description
+              

@@ -1,0 +1,17 @@
+
+OLMapObject:
+    map:
+        ID: 1
+        Title: map title
+        MinScale: 200
+        MaxScale: 400
+        MaxResolution: auto
+        
+OLMapPage:
+    mappage_1:
+       URLSegment: openlayers-map-1
+       Title: OpenLayers Map
+   mappage_2:
+      URLSegment: openlayers-map-2
+      Title: OpenLayers Map
+      MapID: =>OLMapObject.map
