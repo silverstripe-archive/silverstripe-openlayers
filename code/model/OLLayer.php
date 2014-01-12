@@ -279,7 +279,7 @@ class OLLayer extends DataObject {
 		
 		$config['GeometryType']= $this->getField('GeometryType');
 		$config['Cluster']     = $this->getField('Cluster');
-		$config['opacity']     = $this->getField('Opacity');
+		// $config['opacity']     = $this->getField('Opacity');
 		
 		$config['StyleMapName'] = '';
 		if ($this->StyleMap()) {
