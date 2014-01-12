@@ -721,9 +721,9 @@ class OLLayer extends DataObject {
 			$item->classname = "content_".str_replace('.','_',$item->FeatureID);
 		}
 
-		$template = '<% control items %>';
+		$template = '<% loop items %>';
 		$template .= sprintf('<li><a onClick="multipleStationSelect(\'$FeatureID\');return false;">%s</a></li><div class=\'$classname\'></div>',$listItemTemplate);
-		$template .= '<%  end_control %>';
+		$template .= '<%  end_loop %>';
 		
 		$data = new ArrayData(array(
 			"items" => $obj,

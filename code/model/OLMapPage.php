@@ -154,11 +154,11 @@ class OLMapPage extends Page {
  */
 class OLMapPage_Controller extends Page_Controller {
 	
-	static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'dogetfeatureinfo'
 	);
 	
-	public static $url_handlers = array(
+	private static $url_handlers = array(
 		'dogetfeatureinfo/$ID/$OtherID/$ExtraID' => 'dogetfeatureinfo'
 	);
 	
@@ -232,7 +232,7 @@ class OLMapPage_Controller extends Page_Controller {
 		$config = $page->getDefaultMapConfiguration();		
 		
 		// add url segment for this page (required for js ajax calls).
-		$config['PageName'] = $this->getField('URLSegment');
+		$config['PageName'] = $page->AbsoluteLink();
 		
 		// create json string
 		$jsConfig = "var ss_config = ".json_encode($config);
