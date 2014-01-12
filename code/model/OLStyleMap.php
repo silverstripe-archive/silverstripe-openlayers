@@ -14,14 +14,14 @@
  **/
 class OLStyleMap extends DataObject {
 	
-	static $db = array (
+	private static $db = array (
 		'Name' => 'Varchar(50)',
 		'Default' => 'Text',
 		'Select' => 'Text',
 		'Temporary' => 'Text'
 	);
 	
-	static $has_many = array(
+	private static $has_many = array(
 		"Layers" => "OLLayer"
 	);
 	

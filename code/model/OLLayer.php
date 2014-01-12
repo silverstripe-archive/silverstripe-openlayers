@@ -22,13 +22,13 @@ class OLLayer extends DataObject {
 	 * Cluster Attributes:
 	 * - Station $Station ($Cruise) <% if Depth %>: $Depth m depths<% end_if %>
 	 */
-	public static $singular_name = 'Layer';
+	private static $singular_name = 'Layer';
 	
-	public static $plural_name = 'Layers';	
+	private static $plural_name = 'Layers';	
 	
 	public static $wfs_pagesize = 8;
 	
-	static $db = array (
+	private static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
 		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
@@ -60,12 +60,12 @@ class OLLayer extends DataObject {
 		"ogc_transparent"	=> "Boolean"			// transparent overlay layer
 	);
 	
-	static $has_one = array(
+	private static $has_one = array(
 		'Map' => 'OLMapObject',
 		'StyleMap' => 'OLStyleMap'
 	);	
 	
-	static $field_labels = array(
+	private static $field_labels = array(
 		"Type"             => "OGC API",
 		"ogc_name"         => "OGC Layer Name",
 		"ogc_map"          => "Map-filename",
@@ -77,7 +77,7 @@ class OLLayer extends DataObject {
 		"ClusterPopupHeader" => "Features Cluster Popup Header (i.e. 'There are \$items.TotalItems Sites'></strong>)"
 	);	
 	
-	static $summary_fields = array(
+	private static $summary_fields = array(
 		'Title',
 		'ogc_name',
 		'Type',
@@ -91,9 +91,9 @@ class OLLayer extends DataObject {
 		'Map.Title'
 	 );
 
-	static $searchable_fields = array('Title','ogc_name','LayerType','Type','Enabled','Visible','Cluster','Map.Title');
+	private static $searchable_fields = array('Title','ogc_name','LayerType','Type','Enabled','Visible','Cluster','Map.Title');
 
-	static $defaults = array(
+	private static $defaults = array(
 	    'DisplayPriority' => 50,
 	    'Opacity' => 100,
 	    'Enabled' => true,
@@ -105,11 +105,11 @@ class OLLayer extends DataObject {
 		'XMLWhitelist' => 'attribute_1, attribute_2, attribute_3, attribute_4, attribute_5'
 	 );
 
-	static $casting = array(
+	private static $casting = array(
 		'Enabled' => 'Boolean',
 	);
 	
-	static $default_sort = "Title ASC";
+	private static $default_sort = "Title ASC";
 	
 
 	/**
@@ -579,7 +579,7 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		
 		$output = $this->getFeatureInfo($params);
-		$obj = new DataObjectSet();
+		$obj = new ArrayList();
 		
 		$reader = new XMLReader();
 		$reader->XML($output);
@@ -629,7 +629,7 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		$output = $this->getFeatureInfo($params);
 
-		$obj = new DataObjectSet();
+		$obj = new ArrayList();
 
 		$reader = new XMLReader();
 		$reader->XML($output);
@@ -709,7 +709,7 @@ class OLLayer extends DataObject {
 	public function renderClusterInformationBubble( $stationIDList, $extraParam = null, $templateName='') {		
 		
 		// multiple stations, render list
-		$obj = new DataObjectSet();
+		$obj = new ArrayList();
 		
 		$listItemTemplate = 'Station: $FeatureID';
 		if ($this->ClusterAttributes) {

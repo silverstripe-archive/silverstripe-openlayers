@@ -1,0 +1,7 @@
+---
+Name: openlayersroutes
+After: 'rootroutes'
+---
+Director:
+  rules:
+    'Proxy': 'Proxy_Controller'

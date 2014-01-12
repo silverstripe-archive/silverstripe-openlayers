@@ -15,11 +15,11 @@
  */
 class OLMapObject extends DataObject {
 	
-	public static $singular_name = 'Map';
+	private static $singular_name = 'Map';
 	
-	public static $plural_name = 'Maps';	
+	private static $plural_name = 'Maps';	
 
-	static $db = array(
+	private static $db = array(
 		'Title'       => 'Varchar(25)',
 		'Description' => 'Varchar(256)',
 		'Enabled'     => 'Boolean',
@@ -40,25 +40,25 @@ class OLMapObject extends DataObject {
 		'InitZoom'        => 'Int'
 	);	
 	
-	static $has_many = array(
+	private static $has_many = array(
 		'Layers' => 'OLLayer'
 	);
 
-	static $summary_fields = array(
+	private static $summary_fields = array(
 	    'Title',
 		'Description',
 		'Enabled'
 	 );
 
-	static $defaults = array(
+	private static $defaults = array(
 	    'Enabled'       => true,
 	 );
 
-	static $casting = array(
+	private static $casting = array(
 		'Enabled' => 'Boolean',
 	);
 	
-	static $default_sort = "Title ASC";
+	private static $default_sort = "Title ASC";
 	
 	/**
 	 * Overwrites SiteTree.getCMSFields.

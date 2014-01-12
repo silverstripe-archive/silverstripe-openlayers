@@ -12,10 +12,10 @@
  */
 class OLMapPage extends Page {
 	
-	static $db = array(
+	private static $db = array(
 	);	
 	
-	static $has_one = array(
+	private static $has_one = array(
 		'Map' => 'OLMapObject'		// default map shown when the page opens
 	);
 
@@ -39,7 +39,7 @@ class OLMapPage extends Page {
 			$items = $maps->map('ID','Title');
 		}
 
-		$fields->addFieldsToTab("Root.Content.OpenLayers", 
+		$fields->addFieldsToTab("Root.OpenLayers", 
 			array(
 				new LiteralField("MapLabel","<h2>Map Selection</h2>"),
 				// Display parameters
