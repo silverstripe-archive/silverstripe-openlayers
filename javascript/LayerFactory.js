@@ -72,7 +72,8 @@ LayerFactory.prototype.createClusteredWFSLayerObj = function(layerDef, styleMap)
 		styleMap: styleMap,
 		isBaseLayer: baselayer,
 		strategies: strategies,
-		protocol: p 
+		protocol: p,
+		isVector: true
 	});
 	return layer;
 }
@@ -114,7 +115,8 @@ LayerFactory.prototype.createWFSLayerObj = function(layerDef, styleMap) {
 		styleMap: styleMap,
 		strategies: strategies,
 		isBaseLayer: baselayer,
-		protocol: p 
+		protocol: p,
+		isVector: true
 	} );
 	
 	return layer;
