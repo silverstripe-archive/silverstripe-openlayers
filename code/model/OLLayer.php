@@ -275,7 +275,7 @@ class OLLayer extends DataObject {
 		$config['Url']         = $this->getField('Url');
 		$config['Visible']     = $this->getField('Visible');
 		$config['ogc_name']    = $this->getField('ogc_name');
-		$config['isBaseLayer'] = $this->getField('Baselayer')?true:false;
+		// $config['isBaseLayer'] = $this->getField('Baselayer')?true:false;
 		
 		$config['GeometryType']= $this->getField('GeometryType');
 		$config['Cluster']     = $this->getField('Cluster');
