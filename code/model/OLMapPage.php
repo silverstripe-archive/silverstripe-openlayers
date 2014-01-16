@@ -39,6 +39,9 @@ class OLMapPage extends Page {
 			$items = $maps->map('ID','Title');
 		}
 
+		$d = new DropdownField("MapID", "Map", $items, $this->MapID);
+		$d->setEmptyString('- please select -');
+
 		$fields->addFieldsToTab("Root.OpenLayers", 
 			array(
 				new LiteralField("MapLabel","<h2>Map Selection</h2>"),
@@ -46,7 +49,7 @@ class OLMapPage extends Page {
 				new CompositeField( 
 					new CompositeField( 
 						new LiteralField("DefLabel","<h3>Default OpenLayers Map</h3>"),
-						new DropdownField("MapID", "Map", $items, $this->MapID, null, true)
+						$d
 					)
 				)
 			)
