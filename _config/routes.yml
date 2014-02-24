@@ -1,0 +1,8 @@
+---
+Name: openlayers
+After: 'framework/*','cms/*'
+---
+Director:
+  rules:
+    'admin/wfs//$Action/$ID': 'WFS_Controller'
+
