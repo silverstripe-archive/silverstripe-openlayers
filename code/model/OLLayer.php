@@ -43,6 +43,8 @@ class OLLayer extends DataObject {
 		"Cluster"			=> "Boolean",
 		"Opacity"			=> "Float",
 
+        "ReducedLayer" => "Boolean",
+        "full_ogc_name" => "Varchar(100)",
 
         //
         "UseTemplateForPopupWindow" => "Boolean",
@@ -152,9 +154,9 @@ class OLLayer extends DataObject {
 
 		$geometryType = $fields->fieldByName("Root.Main.GeometryType");
 		$opacity = $fields->fieldByName("Root.Main.Opacity");
-
 		$LayerCategory = $fields->fieldByName("Root.Main.LayerType");
-		$fields->removeFieldFromTab("Root.Main","GeometryType");
+
+        $fields->removeFieldFromTab("Root.Main","GeometryType");
 		$fields->removeFieldFromTab("Root.Main","Opacity");
 		$fields->removeFieldFromTab("Root.Main","LayerType");
 
@@ -164,7 +166,13 @@ class OLLayer extends DataObject {
 		$LayerType = $fields->fieldByName("Root.Main.Type");
 		$fields->removeFieldFromTab("Root.Main","Type");
 
-		$clusterPopupHeader = $fields->fieldByName("Root.Main.ClusterPopupHeader");
+        $reducedLayerFieldObject = $fields->fieldByName("Root.Main.ReducedLayer");
+        $fields->removeFieldFromTab("Root.Main","ReducedLayer");
+
+        $fullOGCNameFieldObject = $fields->fieldByName("Root.Main.full_ogc_name");
+        $fields->removeFieldFromTab("Root.Main","full_ogc_name");
+
+        $clusterPopupHeader = $fields->fieldByName("Root.Main.ClusterPopupHeader");
 		$clusterAttributes = $fields->fieldByName("Root.Main.ClusterAttributes");
 
 		$baselayer = $fields->fieldByName("Root.Main.Baselayer");
@@ -216,7 +224,10 @@ class OLLayer extends DataObject {
 						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>"),
 						$LayerType,
 						new TextField("ogc_name", "Layer Name"),
-						new LiteralField("MapLabel","<i>(as defined in GetCapabilities)</i>")
+						new LiteralField("MapLabel1","<i>(as defined in GetCapabilities)</i>"),
+                        $reducedLayerFieldObject,
+                        $fullOGCNameFieldObject,
+						new LiteralField("MapLabel2","<i>Use full-ogc-name if reduced layer is true. This defines the WFS layer is an agregation (i.e. without attributes) and use tihs layer for gettign all attributes.</i>")
 					),
 					new CompositeField(
 						new LiteralField("WMSLabel","<br /><h3>OGC WMS parameters</h3>"),
@@ -465,6 +476,13 @@ class OLLayer extends DataObject {
 
 		$map          = $this->getField('ogc_map');
 		$typename     = $this->getField('ogc_name');
+
+        if ($this->getField('ReducedLayer') == true) {
+            $typename     = $this->getField('full_ogc_name');
+
+            $ogcFeatureId = str_replace($this->getField('ogc_name'),$this->getField('full_ogc_name'),$ogcFeatureId);
+        }
+
 		$extraParams = (isset($param['ExtraParams'])) ? $param['ExtraParams'] : '';
 
 		if ($typename == '') {
@@ -573,7 +591,12 @@ class OLLayer extends DataObject {
 
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 
+
         $responseXML = $this->getFeatureInfo($params);
+
+//        echo"<pre>";
+//        print_r($responseXML);
+//        echo"</pre>";
 
         $doc  = new DOMDocument();
         $doc->loadXML($responseXML);
@@ -586,8 +609,11 @@ class OLLayer extends DataObject {
 
         $featureList = $xpath->query('gml:featureMember');
         foreach($featureList as $featureType) {
-
-            $feature = $xpath->query('ms:'.$this->ogc_name, $featureType);
+            if ($this->ReducedLayer == true) {
+                $feature = $xpath->query('ms:'.$this->full_ogc_name, $featureType);
+            } else {
+                $feature = $xpath->query('ms:'.$this->ogc_name, $featureType);
+            }
             $featureItem = $feature->item(0);
 
             $feautureID = $featureItem->getAttribute('gml:id');
