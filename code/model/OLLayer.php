@@ -192,52 +192,73 @@ class OLLayer extends DataObject {
 		$fields->removeFieldFromTab("Root.Main","Labels");
 		$fields->removeFieldFromTab("Root.Main","SinglePopupHeader");
 
+        $wmsCompositeField = new CustomCompositeField (
+            new LiteralField("WMSLabel","<br /><h3>OGC WMS Configuration</h3>"),
+            $baselayer,
+            $opacityField = new OpacityNumericField('Opacity', 'Opacity', $this->Opacity),
+            $ogc_format,
+            $OGCTransparencyField = new CheckboxField("ogc_transparent", "Transparency")
+        );
+
+        $wmsCompositeField->addClassName('wmscomposite');
+        $wmsCompositeField->addClassName('wmsUntiledcomposite');
+        $wmsCompositeField->addClassName('ogccomposite');
+
+
+        $baselayer->setDescription("Each map must have one base layer.");
+        $opacityField->setDescription("Define layer's opacity, use number between 0.0 (fully transparent) to 1.0 (not transparent).<br>50% opacity can be entered as 0.5.");
+        $ogc_format->setDescription("Defines the MIME/Type for getmap requests.");
+        $OGCTransparencyField->setDescription("Use this flag if the layer shall have alpha channel, if available.");
+
+        $wfsCompositeField = new CustomCompositeField (
+            new LiteralField("WFSLabel","<br /><h3>OGC WFS Configuration</h3>"),
+            $styleMaps,
+            $reducedLayerFieldObject,
+            $FullLayerName = new TextField("full_ogc_name", "Detailed Layer Name"),
+            $ClusterField = new CheckboxField("Cluster", "Cluster")
+        );
+        $wfsCompositeField->addClassName('wfscomposite');
+        $wfsCompositeField->addClassName('ogccomposite');
+
+        $styleMaps->setDescription("Define the render style of the vector layer. Use Style Maps admin to define those styles.<br/>If no style is selected, the layer will be rendered with a default style.");
+        $reducedLayerFieldObject->setDescription("Enable this if the vector layer is very large and the layer rendered is only a subset of the available <br/>attributes. The Detailed Layer Name field defines the OGC WFS layer which will be used to<br/>retrieve all attribute data, i.e. when the user clicks on a feature.");
+        $FullLayerName->setDescription("Define a second WFS layer which will be used to retrieve attribute data from a seelcted feature.");
+        $ClusterField->setDescription("Cluster can be applied ideally for point layers and group large datasets to cluster points.");
+
 		//
 		$fields->addFieldsToTab("Root.Main",
 			array(
-				new LiteralField("DisLabel","<h2>Layer Settings</h2>"),
-				// Display parameters
-				new CompositeField(
-					new CompositeField(
-						new LiteralField("OGCLabel","<h3>Display Settings</h3>"),
-						new CheckboxField("Enabled", "Enabled <i>(To disable this layer from the frontend side, please set the checkbox status.)</i>"),
-						new NumericField("DisplayPriority", "Draw Priority"),
-						new LiteralField("DisplayPriorityDesc", "<strong>DisplayPriority:</strong>Higher numbered layers will be drawn on top or lower numbered layers."),
-						$geometryType,
-						$styleMaps,
-						$LayerCategory,
-						$baselayer,
-						new LiteralField("OGCLabel","<i>Use the layer type field to define the layer behaviour (overlay: selectable, background: static data, contextual: base map).</i>"),
-						new FieldGroup(
-							new CheckboxField("Visible","Visible"),
-							new CheckboxField("Queryable", "Queryable"),
-							new CheckboxField("Cluster", "Cluster")
-						),
-						new LiteralField("MapLabel","<i>\"Cluster\" can be applied to all WFS layers of all geometry types, but will transform non-point layers to points.</i>"),
-						new OpacityNumericField('Opacity', 'Opacity', $this->Opacity),
-                        new LiteralField("OpacityLabel","<i>\"Opacity\"</i> use a number between 0 (fully transparent) and 1 (full) to define the opacity of the layer. 50% opacity can be entered as 0.5.<br/><i>\"Opacity\"</i> can be used for <strong>WMS layers</strong> only.")
-					),
-					new CompositeField(
-						new LiteralField("URLLabel","<h3>OGC Server Settings</h3>"),
-						new TextField("Url", "URL"),
-						new TextField("ogc_map", "Map filename"),
-						new LiteralField("MapLabel","<i>Optional: Path to UMN Mapserver Mapfile</i>"),
-						$LayerType,
-						new TextField("ogc_name", "Layer Name"),
-						new LiteralField("MapLabel1","<i>(as defined in GetCapabilities)</i>"),
-                        $reducedLayerFieldObject,
-                        $fullOGCNameFieldObject,
-						new LiteralField("MapLabel2","<i>Use full-ogc-name if reduced layer is true. This defines the WFS layer is an agregation (i.e. without attributes) and use tihs layer for gettign all attributes.</i>")
-					),
-					new CompositeField(
-						new LiteralField("WMSLabel","<br /><h3>OGC WMS parameters</h3>"),
-						new LiteralField("WMSDescription","The following parameters are required for OGC-WMS layers only."),
-						$ogc_format,
-						new CheckboxField("ogc_transparent", "Transparency")
-					)
-				)
-			)
+                // Display parameters
+                new CompositeField(
+                    new LiteralField("OGCLabel","<h2>Display Settings</h2>"),
+                    $EnabledField = new CheckboxField("Enabled", "Enabled"),
+                    $VisibleField = new CheckboxField("Visible","Visible"),
+                    $geometryType,
+                    $LayerCategory,
+                    $QueryableField = new CheckboxField("Queryable", "Queryable"),
+                    $DisplayPriorityField = new NumericField("DisplayPriority", "Draw Priority")
+                ),
+                new CompositeField(
+                    new LiteralField("OGCSettings","<h2>OGC Server Settings</h2>"),
+                    new TextField("Url", "URL"),
+                    $mapParameterField = new TextField("ogc_map", "Map filename"),
+                    $LayerType,
+                    $LayerNameField = new TextField("ogc_name", "Layer Name")
+                ),
+                $wmsCompositeField,
+                $wfsCompositeField
+            )
 		);
+
+        $mapParameterField->setDescription("Optional: Path to UMN Mapserver mapfile.");
+        $LayerType->setDescription('Define the source of data and its behaviour on the map. The URL will be appended as a <br/>vendor parameter to each OGC request.').
+
+        $EnabledField->setDescription("Flag if the layer is shown and used on the map.");
+        $DisplayPriorityField->setDescription("Higher numbered layers will be drawn on top or lower numbered layers.");
+        $LayerCategory->setDescription("Use layer type to define its behaviour: <br/>Overlay: selectable, background: static data, contextual: base map.");
+        $VisibleField->setDescription("Sets the default state of the map if it is visible or hidden.");
+        $QueryableField->setDescription("Sets the behaviour is the user can query items on the map for this layer.");
+        $LayerNameField->setDescription("Use the OGC layer name as it appears in the GetCapabilities XML document.");
 
 		$fields->addFieldsToTab("Root.MapPopup",
 			array(
@@ -365,7 +386,6 @@ class OLLayer extends DataObject {
 	 * @return string XML response
 	 */
 	function getFeatureInfo($params) {
-
 		$Type = $this->getField('Type');
 		$url  = $this->getField('Url');
 		$response = null;

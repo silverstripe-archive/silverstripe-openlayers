@@ -2,6 +2,51 @@
 
     $.entwine('openlayers', function($) {
 
+        $('#Form_ItemEditForm_LayerType').entwine({
+
+            onmatch: function() {
+                this.updateForm();
+            },
+
+            onchange: function() {
+                this.updateForm();
+            },
+
+            updateForm: function() {
+
+                var selectedValue = $(this)[0].value;
+
+                if (selectedValue == 'overlay') {
+                    $("#Queryable").show();
+                } else {
+                    $("#Queryable").hide();
+                }
+            }
+        }),
+
+        $('#Form_ItemEditForm_Type').entwine({
+
+            onmatch: function() {
+                this.updateForm();
+            },
+
+            onchange: function() {
+                this.updateForm();
+            },
+
+            updateForm: function() {
+
+                var selectedType = $(this)[0].value;
+                var classname = '.'+selectedType+'composite';
+
+                console.log(selectedType);
+                console.log(this);
+
+                $('.ogccomposite').hide()
+                $(classname).show()
+            }
+        }),
+
         $('#Form_ItemEditForm_UseTemplateForPopupWindow').entwine({
 
             onmatch: function() {
