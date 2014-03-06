@@ -12,7 +12,11 @@
  * proxy controller which delegates requests to the provided URL.
  */
 class Proxy_Controller extends Controller {
-	
+
+    private static $allowed_actions = array(
+        'dorequest'
+    );
+
 	protected static $allowed_host = array('localhost');
 
 	/**

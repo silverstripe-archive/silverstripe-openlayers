@@ -579,8 +579,8 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		
 		$output = $this->getFeatureInfo($params);
-		$obj = new DataObjectSet();
-		
+		$obj = new ArrayList();
+
 		$reader = new XMLReader();
 		$reader->XML($output);
 		
@@ -629,7 +629,7 @@ class OLLayer extends DataObject {
 		$params = array('featureID' => $featureID, 'ExtraParams' => $extraParams);
 		$output = $this->getFeatureInfo($params);
 
-		$obj = new DataObjectSet();
+		$obj = new ArrayList();
 
 		$reader = new XMLReader();
 		$reader->XML($output);
@@ -709,8 +709,8 @@ class OLLayer extends DataObject {
 	public function renderClusterInformationBubble( $stationIDList, $extraParam = null, $templateName='') {		
 		
 		// multiple stations, render list
-		$obj = new DataObjectSet();
-		
+		$obj = new ArrayList();
+
 		$listItemTemplate = 'Station: $FeatureID';
 		if ($this->ClusterAttributes) {
 			$listItemTemplate = $this->ClusterAttributes;
@@ -721,10 +721,10 @@ class OLLayer extends DataObject {
 			$item->classname = "content_".str_replace('.','_',$item->FeatureID);
 		}
 
-		$template = '<% control items %>';
+		$template = '<% loop items %>';
 		$template .= sprintf('<li><a onClick="multipleStationSelect(\'$FeatureID\');return false;">%s</a></li><div class=\'$classname\'></div>',$listItemTemplate);
-		$template .= '<%  end_control %>';
-		
+		$template .= '<%  end_loop %>';
+
 		$data = new ArrayData(array(
 			"items" => $obj,
 			"count" => $obj->Count(), 

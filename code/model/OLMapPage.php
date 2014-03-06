@@ -39,14 +39,17 @@ class OLMapPage extends Page {
 			$items = $maps->map('ID','Title');
 		}
 
-		$fields->addFieldsToTab("Root.Content.OpenLayers", 
+        $MapDropdownField = new DropdownField("MapID", "Map", $items, $this->MapID, null);
+        $MapDropdownField->setHasEmptyDefault(true);
+
+        $fields->addFieldsToTab("Root.Main",
 			array(
 				new LiteralField("MapLabel","<h2>Map Selection</h2>"),
 				// Display parameters
 				new CompositeField( 
 					new CompositeField( 
 						new LiteralField("DefLabel","<h3>Default OpenLayers Map</h3>"),
-						new DropdownField("MapID", "Map", $items, $this->MapID, null, true)
+                        $MapDropdownField
 					)
 				)
 			)
@@ -153,15 +156,15 @@ class OLMapPage extends Page {
  * as well as to the available OGC webservices.
  */
 class OLMapPage_Controller extends Page_Controller {
-	
-	static $allowed_actions = array(
+
+	private static $allowed_actions = array(
 		'dogetfeatureinfo'
 	);
-	
-	public static $url_handlers = array(
-		'dogetfeatureinfo/$ID/$OtherID/$ExtraID' => 'dogetfeatureinfo'
-	);
-	
+
+    private static $url_handlers = array(
+        'dogetfeatureinfo//$ID/$OtherID/$ExtraID' => 'dogetfeatureinfo'
+    );
+
 	/**
 	 * varaible to store the open layers instance in the controller class.
 	 * @var OpenLayers openLayers
@@ -232,8 +235,8 @@ class OLMapPage_Controller extends Page_Controller {
 		$config = $page->getDefaultMapConfiguration();		
 		
 		// add url segment for this page (required for js ajax calls).
-		$config['PageName'] = $this->getField('URLSegment');
-		
+		$config['PageName'] = $page->AbsoluteLink(); // $this->getField('URLSegment');
+
 		// create json string
 		$jsConfig = "var ss_config = ".json_encode($config);
 		
@@ -271,26 +274,24 @@ class OLMapPage_Controller extends Page_Controller {
 	 * @return string HTML segment
 	 */
 	public function dogetfeatureinfo( $request ) {
-		
 		$parameters = $request->postVars();
-		
 		$templateName = '';
-		
+
 		if(isset($parameters['template'])){
 			$templateName = $parameters['template'];
 		}
-		
-		// 
+
+		//
 		// CHECK IF PARAMETERS ARE VALID
-		// 
+		//
 		if(!isset($parameters['featureList'])){
 			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
-		
+
 		if($parameters['featureList'] == ""){
 			throw new OLLayer_Exception('Invalid parameter: mandatory parameters are missing.');
 		}
-		
+
 		$extraParam = '';
 		// get the ExtraID (required for species list)
 		if (isset($parameters['specieName'])) {
@@ -301,31 +302,31 @@ class OLMapPage_Controller extends Page_Controller {
 
 		// create standard message.
 		$output = "Sorry we cannot retrieve feature information, please try again.";
-		
+
 		// determin the layer via the provided feature ID
 		$feature = explode(".", $stationID);
-		 
+
 		if(count($feature) <= 1) {
 			throw new OLLayer_Exception('Invalid parameter: FeatureType name not present in current request.');
 		}
-		
+
 		// we need the OLMapObject ID, so we can find layers that belong to this map object
-		$mapid = $this->getComponent('Map')->ID; 
+		$mapid = $this->getComponent('Map')->ID;
 
 		$layerName = Convert::raw2sql($feature[0]);
 		$featureID = Convert::raw2sql($feature[1]);
-		
+
 		$sqlWhere = "ogc_name = '{$layerName}' AND MapID = '{$mapid}' AND Enabled = 1";
 		$layer = DataObject::get_one('OLLayer',$sqlWhere);
 		if(!$layer) {
-			throw new OLLayer_Exception('Invalid parameter: Unknown layer-name.');			
+			throw new OLLayer_Exception('Invalid parameter: Unknown layer-name.');
 		}
 
-		// 
+		//
 		// RETRIEVE DATA FROM WFS SOURCE
-		// 
+		//
 		// condition for single station, create request and render template
-		if (strpos($stationID,",") === FALSE) {		
+		if (strpos($stationID,",") === FALSE) {
 			return $layer->renderBubbleForOneFeature( $featureID, $stationID, $extraParam, $mapid, $templateName);
 		} else{
 			return $layer->renderClusterInformationBubble( $stationID, $extraParam, $templateName);
