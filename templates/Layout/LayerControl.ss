@@ -10,14 +10,14 @@
 			</div>
 			<div id ="innerLayers">
 				<!-- Overlay layers -->
-				<% control overlayLayers %>
+				<% loop overlayLayers %>
 					<div class="panelItem grip">
 						<div class="sortableArea"><img src="openlayers/images/map_grip.png"></div>
 						<input type='checkbox' name='$Title' class='change_visibility over' value='$Title' <% if Visible %>checked='checked'<% end_if %> />
 						<% if GeometryType = Point %><img class="shapeImage" src="openlayers/images/marker.png"><% end_if %><% if GeometryType = Line %> <img class="shapeImage" src="openlayers/images/layer-shape-polyline.png"><% end_if %><% if GeometryType = Polygon %> <img class="shapeImage" src="openlayers/images/layer-shape-polygon.png"><% end_if %>
 						<h5>$Title</h5>
 					</div>
-				<% end_control %>
+				<% end_loop %>
 			</div>
 			
 				<!-- BackgroundLayers layers -->
@@ -28,13 +28,13 @@
 						</h3>
 					</div>
 				<div id ="backgrounds">
-					<% control backgroundLayers %>
+					<% loop backgroundLayers %>
 						<div class="panelItem">
 							<input type='checkbox' name='$Title' class='change_visibility back' value='$Title' <% if Visible %>checked='checked'<% end_if %> />
 							
 							<h5 class="bg">$Title</h5>
 						</div>
-					<% end_control %>
+					<% end_loop %>
 				</div>
 				<% end_if %>
 			

@@ -116,9 +116,10 @@ LayerFactory.prototype.createWFSLayerObj = function(layerDef, styleMap) {
 		strategies: strategies,
 		isBaseLayer: baselayer,
 		protocol: p,
-		isVector: true
-	} );
-	
+		isVector: true,
+        featureType: featureType
+    });
+
 	return layer;
 }
 
