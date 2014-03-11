@@ -28,7 +28,7 @@ class OLLayer extends DataObject {
 
 	public static $wfs_pagesize = 8;
 
-	static $db = array (
+    private static $db = array (
 		"Title"				=> "Varchar(50)",
 		"Url" 				=> "Varchar(1024)",
 		"LayerType"		  	=> "Enum(array('overlay','background','contextual'),'overlay')",
@@ -69,12 +69,12 @@ class OLLayer extends DataObject {
 		"ogc_transparent"	=> "Boolean"			// transparent overlay layer
 	);
 
-	static $has_one = array(
+    private static $has_one = array(
 		'Map' => 'OLMapObject',
 		'StyleMap' => 'OLStyleMap'
 	);
 
-	static $field_labels = array(
+    private static $field_labels = array(
 		"Type"             => "OGC API",
 		"ogc_name"         => "OGC Layer Name",
 		"ogc_map"          => "Map-filename",
