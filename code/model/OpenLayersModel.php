@@ -14,18 +14,17 @@
  * this class.
  */
 class OpenLayersModel {
-	
-	
-	static $openlayers_path = "openlayers/javascript/jsparty/lib/OpenLayers.js";
-	
-	static function set_openlayers_path($value) {
-		self::$openlayers_path = $value;
+
+    static function get_openlayers_path() {
+        Deprecation::notice('3.2', 'Use "OpenLayersModel.jsfilepath" config setting instead');
+        return Config::inst()->get('OpenLayersModel', 'jsfilepath');
+    }
+
+    static function set_openlayers_path($value) {
+        Deprecation::notice('3.2', 'Use "OpenLayersModel.jsfilepath" config setting instead');
+        Config::inst()->update('OpenLayersModel', 'jsfilepath', $value);
 	}
 
-	static function get_openlayers_path() {
-		return self::$openlayers_path;
-	}
-	
 	function __construct() {
 	}
 	
@@ -40,8 +39,6 @@ class OpenLayersModel {
 	 * @return string URL
 	 */
 	function getRequiredJavaScript() {
-		
-		$openlayerJS = self::get_openlayers_path();
-		return $openlayerJS;
+		return Config::inst()->get('OpenLayersModel', 'jsfilepath');
 	}
 }
