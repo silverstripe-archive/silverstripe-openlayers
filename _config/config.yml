@@ -1,0 +1,6 @@
+---
+Name: Openlayers
+After: 'framework/*','cms/*'
+---
+OpenLayersModel:
+  jsfilepath: openlayers/javascript/jsparty/OpenLayers-2.13.1/lib/OpenLayers.js
