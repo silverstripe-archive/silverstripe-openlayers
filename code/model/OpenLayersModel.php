@@ -13,32 +13,37 @@
  * files, but can grow over time. The {@link OLMapPage} stores a reference to 
  * this class.
  */
-class OpenLayersModel {
+class OpenLayersModel
+{
 
-    static function get_openlayers_path() {
+    public static function get_openlayers_path()
+    {
         Deprecation::notice('3.2', 'Use "OpenLayersModel.jsfilepath" config setting instead');
         return Config::inst()->get('OpenLayersModel', 'jsfilepath');
     }
 
-    static function set_openlayers_path($value) {
+    public static function set_openlayers_path($value)
+    {
         Deprecation::notice('3.2', 'Use "OpenLayersModel.jsfilepath" config setting instead');
         Config::inst()->update('OpenLayersModel', 'jsfilepath', $value);
-	}
+    }
 
-	function __construct() {
-	}
-	
-	/**
-	 * Returns JS OpenLayers URL
-	 *
-	 * Depending on the current environment (development, production), this
-	 * method returns the relative URL to the OpenLayers JavaScript library.
-	 * For production/staging environment, the OpenLayer JavaScript library
-	 * is compressed.
-	 *
-	 * @return string URL
-	 */
-	function getRequiredJavaScript() {
-		return Config::inst()->get('OpenLayersModel', 'jsfilepath');
-	}
+    public function __construct()
+    {
+    }
+    
+    /**
+     * Returns JS OpenLayers URL
+     *
+     * Depending on the current environment (development, production), this
+     * method returns the relative URL to the OpenLayers JavaScript library.
+     * For production/staging environment, the OpenLayer JavaScript library
+     * is compressed.
+     *
+     * @return string URL
+     */
+    public function getRequiredJavaScript()
+    {
+        return Config::inst()->get('OpenLayersModel', 'jsfilepath');
+    }
 }
