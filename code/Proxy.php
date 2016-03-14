@@ -8,7 +8,7 @@
 /**
  * Proxy controller delegates HTTP requests to dedicated web servers.
  * To avoid any cross-domain issues within the map application (i.e. requesting
- * XML data from features shown on the map via AJAX calls), we use the 
+ * XML data from features shown on the map via AJAX calls), we use the
  * proxy controller which delegates requests to the provided URL.
  */
 class Proxy_Controller extends Controller
@@ -17,7 +17,7 @@ class Proxy_Controller extends Controller
     private static $allowed_actions = array(
         'dorequest'
     );
-    
+
     protected static $allowed_host = array('localhost');
 
     /**
@@ -43,17 +43,17 @@ class Proxy_Controller extends Controller
     {
         return self::$allowed_host;
     }
-    
+
     /**
-     * This method passes through an HTTP request to another webserver. 
+     * This method passes through an HTTP request to another webserver.
      * This proxy is used to avoid any cross domain issues. The proxy
-     * uses a white-list of domains to minimize security risks. 
+     * uses a white-list of domains to minimize security risks.
      *
      * @param SS_HTTPRequest $data array of parameters
      *
      * $data['u']:         URL (complete request string)
-     * $data['no_header']: set to '1' to avoid sending header information 
-     *                     directly. 
+     * $data['no_header']: set to '1' to avoid sending header information
+     *                     directly.
      * @return the CURL response
      */
     public function dorequest($data)
@@ -61,22 +61,22 @@ class Proxy_Controller extends Controller
         $headers   = array();
         $vars      = $data->requestVars();
         $no_header = false;
-        
+
         if (!isset($vars['u'])) {
             return "Invalid request: unknown proxy destination.";
         }
         $url = $vars['u'];
-        
+
         if (isset($vars['no_header']) && $vars['no_header'] == '1') {
             $no_header = true;
         }
-        
+
         $checkUrl = explode("/", $url);
-        
+
         if (!in_array($checkUrl[2], self::get_allowed_host())) {
             return "Access denied to ($url).";
         }
-        
+
         // Open the Curl session
         $session = curl_init($url);
 
@@ -86,7 +86,7 @@ class Proxy_Controller extends Controller
             $postvars = '';
             $vars = $data->getBody();
             if ($vars) {
-                $postvars = "body=".$vars;
+                $postvars = $vars;
             } else {
                 $vars = $data->postVars();
                 if ($vars) {
@@ -95,10 +95,10 @@ class Proxy_Controller extends Controller
                     }
                 }
             }
-            
+
             $headers[] = 'Content-type: text/xml';
             curl_setopt($session, CURLOPT_HTTPHEADER, $headers);
-            
+
             curl_setopt($session, CURLOPT_POST, true);
             curl_setopt($session, CURLOPT_POSTFIELDS, $postvars);
         }
